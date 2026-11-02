@@ -5,29 +5,38 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237A1F2E'/%3E%3Cpath d='M32 10c4 8 4 14 0 20-4-6-4-12 0-20zM14 28c8 0 14 3 18 9-8 0-14-3-18-9zM50 28c-8 0-14 3-18 9 8 0 14-3 18-9zM32 54c-5-5-5-10 0-16 5 6 5 11 0 16z' fill='%23B8902A'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap">
 <style>
-:root{--wine:#7A1F2E;--wine2:#5B1523;--gold:#B8902A;--bg:#FBF8F5;--card:#fff;--fg:#2A1B1E;--mute:#7B6A6D;--line:#E6DADC;--ok:#2F7D4F;--bad:#B3261E;--soft:#F3E4E7;--gsoft:#F6EDD3}
+:root{--wine:#7A1F2E;--wine2:#5B1523;--gold:#B8902A;--bg:#FBF7F2;--card:#fff;--fg:#2A1B1E;--mute:#7B6A6D;--line:#E6DADC;--ok:#2F7D4F;--bad:#B3261E;--soft:#F3E4E7;--gsoft:#F6EDD3}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.8 "Noto Naskh Arabic","Segoe UI",Tahoma,sans-serif;-webkit-tap-highlight-color:transparent}
-.top{background:linear-gradient(135deg,var(--wine),var(--wine2));color:#fff;padding:18px 16px 22px;border-bottom:4px solid var(--gold)}
+.top{background:#5A1422;color:#fff;padding:22px 16px 58px;border-bottom:4px solid var(--gold)}
 .top .in,.main{max-width:760px;margin:0 auto}
 .brand{display:flex;align-items:center;gap:12px}
-.brand svg{width:46px;height:46px;flex:none}
+.brand svg{width:48px;height:48px;flex:none}
 h1,h2,h3{font-family:"El Messiri","Noto Naskh Arabic",serif;margin:0;line-height:1.35}
-h1{font-size:1.7rem}.sub{margin:2px 0 0;opacity:.9;font-size:.95rem}
+h1{font-size:1.9rem}.sub{margin:2px 0 0;opacity:.9;font-size:.95rem}
 .school{margin-top:8px;font-size:.9rem;background:rgba(255,255,255,.14);display:inline-block;padding:0 12px;border-radius:20px}
-.main{padding:18px 16px 60px;display:flex;flex-direction:column;gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.main{padding:0 16px 96px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.hero{margin-top:-38px;display:flex;align-items:center;gap:14px;box-shadow:0 6px 18px rgba(90,20,34,.10);position:relative}
+.ring{position:relative;width:64px;height:64px;flex:none}.ring svg{width:64px;height:64px}.ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 .95rem "El Messiri";color:var(--wine)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}.chips span{font-size:.82rem;border:1px solid var(--line);border-radius:20px;padding:0 12px}
+.cnt{font-size:.78rem;background:var(--soft);color:var(--wine);border-radius:8px;padding:0 10px}
+.split{display:flex;justify-content:space-between;align-items:center}
+.l{display:inline-flex;width:30px;height:30px;border-radius:50%;background:var(--soft);color:var(--wine);align-items:center;justify-content:center;font:700 .95rem "El Messiri";margin-left:12px;vertical-align:middle}
+.opt.right .l{background:var(--ok);color:#fff}.opt.wrong .l{background:var(--bad);color:#fff}
+.tabs{position:fixed;inset:auto 0 0 0;display:flex;justify-content:space-around;background:#fff;border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78rem;color:var(--mute);min-width:90px;cursor:pointer}.tabs a.on{color:var(--wine);font-weight:600}.tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 button,.btn{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:11px 16px;background:var(--wine);color:#fff;text-align:center;text-decoration:none;display:inline-block}
 button.alt{background:var(--soft);color:var(--wine)}button.gold{background:var(--gold)}.card>button.gold{margin-top:12px}
 button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .tag{font-size:.78rem;background:var(--soft);color:var(--wine);border-radius:6px;padding:0 8px}
-.opt{display:block;width:100%;text-align:right;background:#fff;color:var(--fg);border:2px solid var(--line);margin:8px 0}
+.opt{display:block;width:100%;text-align:right;background:#fff;color:var(--fg);border:2px solid var(--line);margin:8px 0;border-radius:14px}
 .opt.sel{border-color:var(--wine);background:var(--soft)}
 .opt.right{border-color:var(--ok);background:#E7F4EC}.opt.wrong{border-color:var(--bad);background:#FBE9E7}
-.exp{background:var(--gsoft);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:.95rem}
-.bar{height:12px;background:var(--soft);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--wine)}
+.exp{background:#FFF8E6;border:1px solid #E8D49A;border-right:4px solid var(--gold);border-radius:12px;padding:10px 14px;margin-top:10px;font-size:.95rem}
+.bar{height:10px;background:var(--soft);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--wine)}
 .dom{display:grid;grid-template-columns:120px 1fr 52px;gap:10px;align-items:center;margin:6px 0}
 .timer{font-family:"El Messiri";font-size:1.2rem;color:var(--wine);font-variant-numeric:tabular-nums}
 .muted{color:var(--mute);font-size:.9rem}
@@ -35,11 +44,12 @@ footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 26px}
 nav.crumb{font-size:.9rem}nav.crumb a{color:var(--wine);cursor:pointer}
 </style></head><body>
 <header class="top"><div class="in"><div class="brand">
-<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#fff" opacity=".12"/><path d="M32 8c5 9 5 16 0 23-5-7-5-14 0-23zM12 27c9 0 16 4 20 11-9 0-16-4-20-11zM52 27c-9 0-16 4-20 11 9 0 16-4 20-11zM32 57c-6-5-6-11 0-18 6 7 6 13 0 18z" fill="#B8902A"/></svg>
+<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="#7A1F2E"/><path d="M32 9c5 9 5 16 0 23-5-7-5-14 0-23z" fill="#B8902A"/><path d="M11 27c9 0 16 4 20 11-9 0-16-4-20-11z" fill="#D9B24E"/><path d="M53 27c-9 0-16 4-20 11 9 0 16-4 20-11z" fill="#D9B24E"/><path d="M32 57c-6-5-6-11 0-18 6 7 6 13 0 18z" fill="#B8902A"/></svg>
 <div><h1>سوسنة</h1><p class="sub">تدريب يُزهر · تيمس للصف الثامن</p></div></div>
 <div class="school" id="school" hidden></div></div></header>
 <main class="main" id="app"></main>
-<footer>تدريب مجاني. نتائجك محفوظة على جهازك فقط. أسئلة التدريب أصلية وليست من الاختبار الرسمي.<br>تصميمُ المنصّة وتنفيذُها: نوال بني عطية</footer>
+<nav class="tabs"><a data-t="h" class="on" onclick="home()"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10H3z"/></svg>الرئيسية</a><a data-t="r" onclick="report()"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>تقريري</a></nav>
+<footer style="padding-bottom:84px">تدريب مجاني. نتائجك محفوظة على جهازك فقط. أسئلة التدريب أصلية وليست من الاختبار الرسمي.<br>تصميمُ المنصّة وتنفيذُها: نوال بني عطية</footer>
 <script src="data.js"></script>
 <script>
 const $=id=>document.getElementById(id), app=$("app");
@@ -54,16 +64,19 @@ const el=(t,a={},...k)=>{const e=document.createElement(t);for(const x in a){if(
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const Q=window.SW_Q.map((q,i)=>({...q,i}));
 let timer=null;
-function clear(){if(timer){clearInterval(timer);timer=null}app.replaceChildren()}
+function clear(){document.querySelector(".top").style.paddingBottom="22px";if(timer){clearInterval(timer);timer=null}app.replaceChildren()}
 /* ---------- الرئيسية ---------- */
-function home(){clear();
- const done=Object.keys(db.h).length,ok=Object.values(db.h).filter(x=>x.ok).length;
- app.append(el("div",{class:"card"},el("h2",{},"أهلًا بكِ"),el("p",{class:"muted"},"اختاري المبحث وابدئي بالاختبار التشخيصي ليظهر لك أين تحتاجين تدريبًا أكثر."),
-  el("div",{class:"row"},el("span",{class:"tag"},"أجبتِ "+done+" سؤالًا"),el("span",{class:"tag"},"صحيح "+ok))));
- const g=el("div",{class:"grid"});
- Object.keys(SUB).forEach(s=>g.append(el("div",{class:"card"},el("h3",{},SUB[s]),el("p",{class:"muted"},window.SW_DOMAINS[s].join(" · ")),
-   el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"تدريب حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت")))));
- app.append(g,el("div",{class:"card"},el("h3",{},"تقريري"),el("p",{class:"muted"},"نتائجك حسب المجال والمستوى."),el("div",{class:"row"},el("button",{class:"gold",onclick:report},"عرض التقرير"),el("button",{class:"alt",onclick:()=>{if(confirm("مسح كل نتائجك من هذا الجهاز؟")){db.h={};save();home()}}},"مسح نتائجي"))))}
+function home(){clear();setTab("h");document.querySelector(".top").style.paddingBottom="58px";
+ const done=Object.keys(db.h).length,ok=Object.values(db.h).filter(x=>x.ok).length,tot=Q.length;
+ const C=2*Math.PI*27,off=C*(1-Math.min(done/tot,1));
+ const ring=el("div",{class:"ring"});ring.innerHTML='<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" fill="none" stroke="#F3E4E7" stroke-width="8"/><circle cx="32" cy="32" r="27" fill="none" stroke="#7A1F2E" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+off+'" transform="rotate(-90 32 32)"/></svg><b>'+done+'/'+tot+'</b>';
+ app.append(el("div",{class:"card hero"},ring,el("div",{},el("h2",{style:"font-size:1.15rem"},"أهلًا بكِ"),el("p",{class:"muted",style:"margin:0;line-height:1.6"},done?("أجبتِ "+done+" سؤالًا، الصحيح منها "+ok+"."):"ابدئي بالاختبار التشخيصي لنعرف أين تحتاجين تدريبًا أكثر."))));
+ Object.keys(SUB).forEach(s=>{const n=Q.filter(q=>q.s===s).length;
+  app.append(el("div",{class:"card"},el("div",{class:"split"},el("h3",{style:"color:var(--wine);font-size:1.3rem"},SUB[s]),el("span",{class:"cnt"},n+" سؤالًا")),
+   el("div",{class:"chips"},window.SW_DOMAINS[s].map(d=>el("span",{},d))),
+   el("div",{class:"row"},el("button",{style:"flex:1",onclick:()=>diag(s)},"تشخيصي"),el("button",{class:"alt",style:"flex:1",onclick:()=>topics(s)},"تدريب"),el("button",{class:"alt",style:"flex:1",onclick:()=>mock(s)},"بوقت"))))});
+ app.append(el("button",{class:"alt",onclick:()=>{if(confirm("مسح كل نتائجك من هذا الجهاز؟")){db.h={};save();home()}}},"مسح نتائجي"))}
+function setTab(t){document.querySelectorAll(".tabs a").forEach(a=>a.classList.toggle("on",a.dataset.t===t))}
 const crumb=(...p)=>el("nav",{class:"crumb"},el("a",{onclick:home},"الرئيسية"),...p.map(x=>[" › ",x]));
 /* ---------- تدريب حسب الموضوع ---------- */
 function topics(s){clear();app.append(crumb(SUB[s]));
@@ -82,7 +95,7 @@ function run(list,title,o){clear();let n=0;const ans=[];
  function show(){box.replaceChildren();$("pb").style.width=(n/list.length*100)+"%";
   const q=list[n];const order=shuffle([0,1,2,3]);let chosen=null;
   const c=el("div",{class:"card"},el("div",{class:"row"},el("span",{class:"tag"},q.d),el("span",{class:"tag"},q.c),el("span",{class:"muted"},(n+1)+" / "+list.length)),el("p",{},q.q));
-  const btns=order.map(k=>{const b=el("button",{class:"opt",onclick:()=>pick(k)},q.o[k]);b._k=k;return b});c.append(...btns);
+  const LT=["أ","ب","ج","د"];const btns=order.map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>pick(k)},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});c.append(...btns);
   const next=el("button",{class:"gold",hidden:true,onclick:()=>{n++;n<list.length?show():finish()}},n+1<list.length?"التالي":"إنهاء");
   const fb=el("div");c.append(fb,next);box.append(c);
   function pick(k){if(chosen!==null&&o.feedback)return;chosen=k;ans[n]={q,k};
@@ -99,7 +112,7 @@ function run(list,title,o){clear();let n=0;const ans=[];
   app.append(rev,el("div",{class:"row"},el("button",{class:"gold",onclick:report},"تقريري"),el("button",{class:"alt",onclick:home},"الرئيسية")))}
  show()}
 /* ---------- التقرير ---------- */
-function report(){clear();app.append(crumb("تقريري"));
+function report(){clear();setTab("r");app.append(crumb("تقريري"));
  const any=Object.keys(db.h).length;if(!any){app.append(el("div",{class:"card"},"لم تجرّبي أسئلة بعد. ابدئي باختبار تشخيصي."));return}
  const weak=[];
  Object.keys(SUB).forEach(s=>{const c=el("div",{class:"card"},el("h3",{},SUB[s]));
