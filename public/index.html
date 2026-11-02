@@ -51,6 +51,7 @@ nav.crumb{font-size:.9rem}nav.crumb a{color:var(--wine);cursor:pointer}
 <nav class="tabs"><a data-t="h" class="on" onclick="home()"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10H3z"/></svg>الرئيسية</a><a data-t="r" onclick="report()"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>تقريري</a></nav>
 <footer style="padding-bottom:84px">تدريب مجاني. نتائجك محفوظة على جهازك فقط. أسئلة التدريب أصلية وليست من الاختبار الرسمي.<br>تصميمُ المنصّة وتنفيذُها: نوال بني عطية</footer>
 <script src="data.js"></script>
+<script src="data-sci.js"></script>
 <script>
 const $=id=>document.getElementById(id), app=$("app");
 const SUB={math:"الرياضيات",sci:"العلوم"};
@@ -71,6 +72,8 @@ function home(){clear();setTab("h");document.querySelector(".top").style.padding
  const C=2*Math.PI*27,off=C*(1-Math.min(done/tot,1));
  const ring=el("div",{class:"ring"});ring.innerHTML='<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" fill="none" stroke="#F3E4E7" stroke-width="8"/><circle cx="32" cy="32" r="27" fill="none" stroke="#7A1F2E" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+off+'" transform="rotate(-90 32 32)"/></svg><b>'+done+'/'+tot+'</b>';
  app.append(el("div",{class:"card hero"},ring,el("div",{},el("h2",{style:"font-size:1.15rem"},"أهلًا بكِ"),el("p",{class:"muted",style:"margin:0;line-height:1.6"},done?("أجبتِ "+done+" سؤالًا، الصحيح منها "+ok+"."):"ابدئي بالاختبار التشخيصي لنعرف أين تحتاجين تدريبًا أكثر."))));
+ const wrong=Q.filter(q=>db.h[q.i]&&!db.h[q.i].ok);
+ if(wrong.length)app.append(el("div",{class:"card",style:"border-right:4px solid var(--gold)"},el("div",{class:"split"},el("h3",{style:"color:var(--wine);font-size:1.15rem"},"راجعي أخطاءك"),el("span",{class:"cnt"},wrong.length+" سؤالًا")),el("p",{class:"muted",style:"margin:4px 0 10px"},"أسئلة أخطأتِ فيها. تدرّبي عليها مع الشرح حتى تُصحّحيها."),el("button",{onclick:()=>run(shuffle(wrong),"مراجعة الأخطاء",{feedback:true})},"ابدئي المراجعة")));
  Object.keys(SUB).forEach(s=>{const n=Q.filter(q=>q.s===s).length;
   app.append(el("div",{class:"card"},el("div",{class:"split"},el("h3",{style:"color:var(--wine);font-size:1.3rem"},SUB[s]),el("span",{class:"cnt"},n+" سؤالًا")),
    el("div",{class:"chips"},window.SW_DOMAINS[s].map(d=>el("span",{},d))),
@@ -98,7 +101,7 @@ function run(list,title,o){clear();let n=0;const ans=[];
   const LT=["أ","ب","ج","د"];const btns=order.map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>pick(k)},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});c.append(...btns);
   const next=el("button",{class:"gold",hidden:true,onclick:()=>{n++;n<list.length?show():finish()}},n+1<list.length?"التالي":"إنهاء");
   const fb=el("div");c.append(fb,next);box.append(c);
-  function pick(k){if(chosen!==null&&o.feedback)return;chosen=k;ans[n]={q,k};
+  function pick(k){if(chosen!==null&&o.feedback)return;chosen=k;ans[n]={q,k};if(o.feedback){db.h[q.i]={ok:k===q.a};save()}
    btns.forEach(b=>{b.classList.toggle("sel",b._k===k)});
    if(o.feedback){btns.forEach(b=>{if(b._k===q.a)b.classList.add("right");else if(b._k===k)b.classList.add("wrong")});
     fb.replaceChildren(el("div",{class:"exp"},(k===q.a?"✔ إجابة صحيحة. ":"✘ الإجابة الصحيحة: "+q.o[q.a]+". "),q.why,el("br"),el("span",{class:"muted"},"خطأ شائع: "+q.mk)));}
