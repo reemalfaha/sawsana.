@@ -24,6 +24,8 @@ h1{font-size:1.9rem}.sub{margin:2px 0 0;opacity:.9;font-size:.95rem}
 .split{display:flex;justify-content:space-between;align-items:center}
 .l{display:inline-flex;width:30px;height:30px;border-radius:50%;background:var(--soft);color:var(--wine);align-items:center;justify-content:center;font:700 .95rem "El Messiri";margin-left:12px;vertical-align:middle}
 .opt.right .l{background:var(--ok);color:#fff}.opt.wrong .l{background:var(--bad);color:#fff}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.bdg{font-size:.82rem;border-radius:20px;padding:0 12px;border:1px solid var(--line);color:var(--mute)}.bdg.on{background:#FFF8E6;border-color:#E8D49A;color:#7A5A00;font-weight:600}
+textarea.code{width:100%;min-height:64px;font:13px/1.5 monospace;direction:ltr;border:1px solid var(--line);border-radius:10px;padding:8px}
 .tabs{position:fixed;inset:auto 0 0 0;display:flex;justify-content:space-around;background:#fff;border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
 .tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78rem;color:var(--mute);min-width:90px;cursor:pointer}.tabs a.on{color:var(--wine);font-weight:600}.tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
@@ -49,7 +51,7 @@ nav.crumb{font-size:.9rem}nav.crumb a{color:var(--wine);cursor:pointer}
 <div class="school" id="school" hidden></div></div></header>
 <main class="main" id="app"></main>
 <nav class="tabs"><a data-t="h" class="on" onclick="home()"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10H3z"/></svg>الرئيسية</a><a data-t="r" onclick="report()"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>تقريري</a></nav>
-<footer style="padding-bottom:84px">تدريب مجاني. نتائجك محفوظة على جهازك فقط. أسئلة التدريب أصلية وليست من الاختبار الرسمي.<br>تصميمُ المنصّة وتنفيذُها: نوال بني عطية</footer>
+<footer style="padding-bottom:84px">تدريب مجاني. نتائجك محفوظة على جهازك فقط. أسئلة التدريب أصلية وليست من الاختبار الرسمي.<br>تصميمُ المنصّة وتنفيذُها: نوال بني عطية<br><a href="teacher.html" style="color:inherit">للمعلمات: تقرير الصف</a></footer>
 <script src="data.js"></script>
 <script src="data-sci.js"></script>
 <script>
@@ -57,8 +59,9 @@ const $=id=>document.getElementById(id), app=$("app");
 const SUB={math:"الرياضيات",sci:"العلوم"};
 const KEY="sawsana.v1";
 let db={};try{db=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+const today=()=>new Date().toISOString().slice(0,10);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}};
-db.h=db.h||{};          /* h[idx] = {ok:true/false} */
+db.h=db.h||{};db.days=db.days||[];          /* h[idx] = {ok:true/false} */
 const sch=new URLSearchParams(location.search).get("school");
 if(sch){const s=$("school");s.textContent=sch;s.hidden=false}
 const el=(t,a={},...k)=>{const e=document.createElement(t);for(const x in a){if(x==="class")e.className=a[x];else if(x.startsWith("on"))e.addEventListener(x.slice(2),a[x]);else e.setAttribute(x,a[x])}k.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?"":c)));return e};
@@ -72,6 +75,9 @@ function home(){clear();setTab("h");document.querySelector(".top").style.padding
  const C=2*Math.PI*27,off=C*(1-Math.min(done/tot,1));
  const ring=el("div",{class:"ring"});ring.innerHTML='<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" fill="none" stroke="#F3E4E7" stroke-width="8"/><circle cx="32" cy="32" r="27" fill="none" stroke="#7A1F2E" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+off+'" transform="rotate(-90 32 32)"/></svg><b>'+done+'/'+tot+'</b>';
  app.append(el("div",{class:"card hero"},ring,el("div",{},el("h2",{style:"font-size:1.15rem"},"أهلًا بكِ"),el("p",{class:"muted",style:"margin:0;line-height:1.6"},done?("أجبتِ "+done+" سؤالًا، الصحيح منها "+ok+"."):"ابدئي بالاختبار التشخيصي لنعرف أين تحتاجين تدريبًا أكثر."))));
+ const st=streak(),bd=badges();
+ app.append(el("div",{class:"card"},el("div",{class:"split"},el("h3",{style:"color:var(--wine);font-size:1.15rem"},"إنجازاتك"),el("span",{class:"cnt"},st?("تدرّبتِ "+st+(st>2?" أيام متتالية":" يوم متتالي")):"ابدئي سلسلة اليوم")),
+  el("div",{class:"badges"},bd.map(b=>el("span",{class:"bdg"+(b[1]?" on":"")},(b[1]?"★ ":"")+b[0])))));
  const wrong=Q.filter(q=>db.h[q.i]&&!db.h[q.i].ok);
  if(wrong.length)app.append(el("div",{class:"card",style:"border-right:4px solid var(--gold)"},el("div",{class:"split"},el("h3",{style:"color:var(--wine);font-size:1.15rem"},"راجعي أخطاءك"),el("span",{class:"cnt"},wrong.length+" سؤالًا")),el("p",{class:"muted",style:"margin:4px 0 10px"},"أسئلة أخطأتِ فيها. تدرّبي عليها مع الشرح حتى تُصحّحيها."),el("button",{onclick:()=>run(shuffle(wrong),"مراجعة الأخطاء",{feedback:true})},"ابدئي المراجعة")));
  Object.keys(SUB).forEach(s=>{const n=Q.filter(q=>q.s===s).length;
@@ -79,6 +85,10 @@ function home(){clear();setTab("h");document.querySelector(".top").style.padding
    el("div",{class:"chips"},window.SW_DOMAINS[s].map(d=>el("span",{},d))),
    el("div",{class:"row"},el("button",{style:"flex:1",onclick:()=>diag(s)},"تشخيصي"),el("button",{class:"alt",style:"flex:1",onclick:()=>topics(s)},"تدريب"),el("button",{class:"alt",style:"flex:1",onclick:()=>mock(s)},"بوقت"))))});
  app.append(el("button",{class:"alt",onclick:()=>{if(confirm("مسح كل نتائجك من هذا الجهاز؟")){db.h={};save();home()}}},"مسح نتائجي"))}
+function streak(){const set=new Set(db.days);let n=0;const d=new Date();if(!set.has(d.toISOString().slice(0,10)))d.setDate(d.getDate()-1);while(set.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}return n}
+function domStats(){const out=[];Object.keys(SUB).forEach(s=>window.SW_DOMAINS[s].forEach((d,i)=>{const qs=Q.filter(q=>q.s===s&&q.d===d&&db.h[q.i]);out.push({s,d,i,tot:qs.length,ok:qs.filter(q=>db.h[q.i].ok).length})}));return out}
+function badges(){const done=Object.keys(db.h).length,st=streak(),ds=domStats();
+ return [["أول 10 أسئلة",done>=10],["50 سؤالًا",done>=50],["3 أيام متتالية",st>=3],["7 أيام متتالية",st>=7],["إتقان مجال (80% فأكثر)",ds.some(x=>x.tot>=8&&x.ok/x.tot>=.8)]]}
 function setTab(t){document.querySelectorAll(".tabs a").forEach(a=>a.classList.toggle("on",a.dataset.t===t))}
 const crumb=(...p)=>el("nav",{class:"crumb"},el("a",{onclick:home},"الرئيسية"),...p.map(x=>[" › ",x]));
 /* ---------- تدريب حسب الموضوع ---------- */
@@ -101,13 +111,13 @@ function run(list,title,o){clear();let n=0;const ans=[];
   const LT=["أ","ب","ج","د"];const btns=order.map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>pick(k)},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});c.append(...btns);
   const next=el("button",{class:"gold",hidden:true,onclick:()=>{n++;n<list.length?show():finish()}},n+1<list.length?"التالي":"إنهاء");
   const fb=el("div");c.append(fb,next);box.append(c);
-  function pick(k){if(chosen!==null&&o.feedback)return;chosen=k;ans[n]={q,k};if(o.feedback){db.h[q.i]={ok:k===q.a};save()}
+  function pick(k){if(chosen!==null&&o.feedback)return;chosen=k;ans[n]={q,k};if(!db.days.includes(today())){db.days.push(today());save()}if(o.feedback){db.h[q.i]={ok:k===q.a};save()}
    btns.forEach(b=>{b.classList.toggle("sel",b._k===k)});
    if(o.feedback){btns.forEach(b=>{if(b._k===q.a)b.classList.add("right");else if(b._k===k)b.classList.add("wrong")});
     fb.replaceChildren(el("div",{class:"exp"},(k===q.a?"✔ إجابة صحيحة. ":"✘ الإجابة الصحيحة: "+q.o[q.a]+". "),q.why,el("br"),el("span",{class:"muted"},"خطأ شائع: "+q.mk)));}
    next.hidden=false}}
  function finish(){if(timer){clearInterval(timer);timer=null}
-  ans.forEach(x=>{if(x)db.h[x.q.i]={ok:x.k===x.q.a}});save();
+  ans.forEach(x=>{if(x)db.h[x.q.i]={ok:x.k===x.q.a}});if(!db.days.includes(today()))db.days.push(today());save();
   const right=ans.filter(x=>x&&x.k===x.q.a).length;
   clear();app.append(crumb(title),el("div",{class:"card"},el("h2",{},"النتيجة: "+right+" من "+list.length),el("div",{class:"bar"},el("i",{style:"width:"+(right/list.length*100)+"%"}))));
   const rev=el("div",{class:"card"},el("h3",{},"مراجعة الأسئلة"));
@@ -128,6 +138,12 @@ function report(){clear();setTab("r");app.append(crumb("تقريري"));
  const w=weak.filter(x=>x.p<70).slice(0,2);
  app.append(el("div",{class:"card"},el("h3",{},"خطة الدراسة"),w.length?w.map(x=>el("p",{},"ركّزي على «"+x.d+"» ("+SUB[x.s]+"): ابدئي بالتدريب حسب الموضوع، وراجعي الأخطاء الشائعة بعد كل سؤال، ثم أعيدي الاختبار بعد أسبوع."))
   :el("p",{},"أداؤك جيد في المجالات التي جرّبتِها. جرّبي الاختبار بوقت للتأكد.")),
-  el("button",{class:"alt",onclick:home},"الرئيسية"))}
+  el("div",{class:"card"},el("h3",{},"شاركي تقريرك مع معلمتك"),el("p",{class:"muted"},"الرمز يحتوي نسب مجالاتك فقط، ولا يحتوي اسمك. انسخيه وأرسليه لمعلمتك."),
+  el("button",{onclick:shareCode},"نسخ رمز تقريري")),el("button",{class:"alt",onclick:home},"الرئيسية"))}
+function shareCode(){const d=domStats().filter(x=>x.tot).map(x=>[x.s==="math"?0:1,x.i,x.ok,x.tot]);
+ const code="SW1."+btoa(unescape(encodeURIComponent(JSON.stringify({s:sch||"",d}))));
+ const box=el("textarea",{class:"code",readonly:"readonly"});box.value=code;app.append(box);box.select();
+ try{navigator.clipboard.writeText(code).then(()=>box.insertAdjacentText("beforebegin","")).catch(()=>{})}catch(e){}
+ box.scrollIntoView({block:"center"});box.insertAdjacentElement("afterend",el("p",{class:"muted"},"تم تجهيز الرمز. إن لم يُنسخ تلقائيًا فاضغطي على المربع وانسخيه."))}
 home();
 </script></body></html>

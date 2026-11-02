@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>سوسنة: تقرير الصف</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap">
+<style>
+:root{--wine:#7A1F2E;--gold:#B8902A;--bg:#FBF7F2;--fg:#2A1B1E;--mute:#7B6A6D;--line:#E6DADC;--soft:#F3E4E7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.8 "Noto Naskh Arabic","Segoe UI",Tahoma,sans-serif}
+.top{background:#5A1422;color:#fff;padding:20px 16px;border-bottom:4px solid var(--gold)}.in,.main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:"El Messiri","Noto Naskh Arabic",serif;margin:0}h1{font-size:1.6rem}
+.main{padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
+textarea{width:100%;min-height:140px;font:13px/1.5 monospace;direction:ltr;border:1px solid var(--line);border-radius:10px;padding:8px}
+button{font:inherit;border:0;border-radius:10px;padding:10px 18px;background:var(--wine);color:#fff;cursor:pointer;margin-top:10px}
+.dom{display:grid;grid-template-columns:130px 1fr 96px;gap:10px;align-items:center;margin:8px 0}
+.bar{height:10px;background:var(--soft);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%}
+.muted{color:var(--mute);font-size:.9rem}.tag{background:var(--soft);color:var(--wine);border-radius:8px;padding:0 10px;font-size:.85rem}
+footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 24px}
+</style></head><body>
+<header class="top"><div class="in"><h1>سوسنة · تقرير الصف</h1><div style="opacity:.9;font-size:.95rem">ألصقي رموز تقارير الطالبات (رمز في كل سطر) لترَي أداء الصف حسب المجال. لا تُرسَل أي بيانات لأي خادم.</div></div></header>
+<main class="main">
+<div class="card"><textarea id="in" placeholder="SW1.xxxxxxxx&#10;SW1.yyyyyyyy"></textarea><button id="go">حلّلي</button></div>
+<div id="out"></div>
+</main>
+<footer>تصميمُ المنصّة وتنفيذُها: نوال بني عطية</footer>
+<script src="data.js"></script>
+<script>
+const SUB=["math","sci"],NAME={math:"الرياضيات",sci:"العلوم"};
+const col=p=>p>=75?"#2F7D4F":p>=50?"#B8902A":"#7A1F2E";
+document.getElementById("go").onclick=()=>{
+ const lines=document.getElementById("in").value.split(/\s+/).filter(x=>x.startsWith("SW1."));
+ const agg={};let n=0,bad=0;
+ lines.forEach(l=>{try{const o=JSON.parse(decodeURIComponent(escape(atob(l.slice(4)))));n++;
+  o.d.forEach(([s,i,ok,t])=>{const k=SUB[s]+"|"+i;(agg[k]=agg[k]||{ok:0,t:0,n:0});agg[k].ok+=ok;agg[k].t+=t;agg[k].n++})}catch(e){bad++}});
+ const out=document.getElementById("out");out.replaceChildren();
+ if(!n){out.innerHTML='<div class="card">لم أجد رموزًا صالحة.</div>';return}
+ const rows=[];
+ SUB.forEach(s=>{const c=document.createElement("div");c.className="card";c.innerHTML="<h3>"+NAME[s]+"</h3>";
+  window.SW_DOMAINS[s].forEach((d,i)=>{const a=agg[s+"|"+i];const p=a?Math.round(a.ok/a.t*100):null;
+   if(a)rows.push({s,d,p,n:a.n});
+   const r=document.createElement("div");r.className="dom";
+   r.innerHTML="<span></span><div class='bar'><i style='width:"+(p||0)+"%;background:"+(p==null?"#ccc":col(p))+"'></i></div><span class='muted'></span>";
+   r.children[0].textContent=d;r.children[2].textContent=p==null?"لا بيانات":p+"% · "+a.n+" طالبة";c.append(r)});out.append(c)});
+ rows.sort((a,b)=>a.p-b.p);const w=rows.slice(0,3).filter(x=>x.p<75);
+ const f=document.createElement("div");f.className="card";
+ f.innerHTML="<h3>أولويات التدخّل العلاجي</h3>"+(w.length?"":"<p>أداء الصف جيد في المجالات المُجرَّبة.</p>");
+ w.forEach(x=>{const p=document.createElement("p");p.textContent="«"+x.d+"» ("+NAME[x.s]+"): "+x.p+"% — يُقترح درس علاجي قصير وتدريب موجَّه.";f.append(p)});
+ const m=document.createElement("p");m.className="muted";m.textContent="عدد التقارير الصالحة: "+n+(bad?("، وغير الصالحة: "+bad):"");f.append(m);out.append(f)};
+</script></body></html>
