@@ -4,9 +4,9 @@
 <title>سوسنة: تقرير الصف</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
-:root{--wine:#1F4F45;--gold:#B96A48;--bg:#FAF8F3;--fg:#1A2B3C;--mute:#6C7580;--line:#E5DFD2;--soft:#E9E0CE}
+:root{--wine:#3E1B47;--gold:#5E7B2F;--bg:#FAF7F8;--fg:#21152A;--mute:#6F6577;--line:#E6DEE6;--soft:#EADFEE}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.8 "IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
-.top{background:#173B34;color:#fff;padding:20px 16px;border-bottom:4px solid var(--gold)}.in,.main{max-width:760px;margin:0 auto}
+.top{background:#2A1031;color:#fff;padding:20px 16px;border-bottom:4px solid var(--gold)}.in,.main{max-width:760px;margin:0 auto}
 h1,h2,h3{font-family:"IBM Plex Sans Arabic",sans-serif;margin:0}h1{font-size:1.6rem}
 .main{padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
@@ -26,7 +26,7 @@ footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 24px}
 <script src="data.js"></script>
 <script>
 const SUB=["math","sci"],NAME={math:"الرياضيات",sci:"العلوم"};
-const col=p=>p>=75?"#2F7D4F":p>=50?"#B96A48":"#1F4F45";
+const col=p=>p>=75?"#2F7D4F":p>=50?"#5E7B2F":"#3E1B47";
 document.getElementById("go").onclick=()=>{
  const lines=document.getElementById("in").value.split(/\s+/).filter(x=>x.startsWith("SW1."));
  const agg={};let n=0,bad=0;

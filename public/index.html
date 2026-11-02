@@ -2,14 +2,14 @@
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>سوسنة: تدريب تيمس للصف الثامن</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231F4F45'/%3E%3Cpath d='M32 10c4 8 4 14 0 20-4-6-4-12 0-20zM14 28c8 0 14 3 18 9-8 0-14-3-18-9zM50 28c-8 0-14 3-18 9 8 0 14-3 18-9zM32 54c-5-5-5-10 0-16 5 6 5 11 0 16z' fill='%23E3B58F'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%233E1B47'/%3E%3Cpath d='M32 10c4 8 4 14 0 20-4-6-4-12 0-20zM14 28c8 0 14 3 18 9-8 0-14-3-18-9zM50 28c-8 0-14 3-18 9 8 0 14-3 18-9zM32 54c-5-5-5-10 0-16 5 6 5 11 0 16z' fill='%23D9B8E6'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
-:root{--g:#1F4F45;--g2:#173B34;--t:#B96A48;--sand:#E9E0CE;--sand2:#F2EDE1;--mint:#DCE8E0;--bg:#FAF8F3;--ink:#1A2B3C;--mute:#6C7580;--line:#E5DFD2;--ok:#2F7D4F;--bad:#B3261E;--card:#fff}
+:root{--g:#3E1B47;--g2:#2A1031;--t:#5E7B2F;--sand:#EADFEE;--sand2:#F4EFF5;--mint:#E7DDEB;--bg:#FAF7F8;--ink:#21152A;--mute:#6F6577;--line:#E6DEE6;--ok:#2F7D4F;--bad:#B3261E;--card:#fff}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.8 "IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;-webkit-tap-highlight-color:transparent}
 .wrap{max-width:980px;margin:0 auto;padding:0 16px}
-header.nav{position:sticky;top:0;z-index:10;background:rgba(250,248,243,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.nav{position:sticky;top:0;z-index:10;background:rgba(250,247,248,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 header.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:10px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.25rem;color:var(--ink);cursor:pointer}
 .logo{width:38px;height:38px;border-radius:11px;background:var(--g);box-shadow:3px 3px 0 var(--sand);display:flex;align-items:center;justify-content:center}.logo svg{width:24px;height:24px}
@@ -22,11 +22,11 @@ h1,h2,h3{margin:0;line-height:1.35;font-weight:700}
 .hero h1{font-size:clamp(2rem,6.5vw,3.2rem);line-height:1.25;margin:8px 0}.hero h1 em{color:var(--t);font-style:normal;display:block}
 .hero p{color:var(--mute);margin:0 0 16px;max-width:46ch}
 .arch{position:relative;border-radius:200px 200px 20px 20px;background:var(--g);overflow:hidden;box-shadow:10px 10px 0 var(--sand);aspect-ratio:1/1.02;max-width:360px;width:100%;justify-self:center}
-.arch svg{position:absolute;inset:0;width:100%;height:100%}
-.arch .cap{position:absolute;inset:auto 0 0 0;padding:14px 18px;background:rgba(23,59,52,.55);color:#fff}.arch .cap b{display:block;font-size:1.05rem}.arch .cap span{font-size:.82rem;opacity:.8}
+.arch img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:30% 40%}
+.arch .cap{position:absolute;inset:auto 0 0 0;padding:36px 18px 14px;background:linear-gradient(transparent,rgba(30,10,36,.85));color:#fff}.arch .cap b{display:block;font-size:1.05rem}.arch .cap span{font-size:.82rem;opacity:.8}
 button,.btn{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:10px 20px;background:var(--g);color:#fff;font-weight:600;box-shadow:0 3px 0 var(--g2);text-align:center;text-decoration:none;display:inline-block}
 button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--g2)}
-button.alt{background:var(--sand);color:var(--g);box-shadow:none}button.terra{background:var(--t);box-shadow:0 3px 0 #8F4E33}
+button.alt{background:var(--sand);color:var(--g);box-shadow:none}button.terra{background:var(--t);box-shadow:0 3px 0 #3F5A1E}
 button:focus-visible,a:focus-visible{outline:3px solid var(--t);outline-offset:2px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .sec h2{font-size:1.6rem;margin:6px 0 4px}.sec>p{margin:0 0 14px;color:var(--mute)}
@@ -48,20 +48,20 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--t);outline-offset:2
 .opt.right{border-color:var(--ok);background:#E3F2E9}.opt.wrong{border-color:var(--bad);background:#FBE9E7}
 .l{display:inline-flex;width:30px;height:30px;border-radius:50%;background:var(--sand);color:var(--g);align-items:center;justify-content:center;font-weight:700;margin-left:12px;vertical-align:middle}
 .opt.right .l{background:var(--ok);color:#fff}.opt.wrong .l{background:var(--bad);color:#fff}
-.exp{background:#FFF6EA;border:1px solid #EBCFA8;border-right:4px solid var(--t);border-radius:12px;padding:10px 14px;margin-top:10px;font-size:.95rem}
+.exp{background:#F6F0F8;border:1px solid #D9C6DF;border-right:4px solid var(--t);border-radius:12px;padding:10px 14px;margin-top:10px;font-size:.95rem}
 .bar{height:10px;background:var(--sand);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--g);border-radius:8px}
 .dom{display:grid;grid-template-columns:120px 1fr 52px;gap:10px;align-items:center;margin:8px 0}
 .timer{font-weight:700;color:var(--t);font-variant-numeric:tabular-nums}
 .muted{color:var(--mute);font-size:.9rem}
 .ring{position:relative;width:76px;height:76px;flex:none}.ring svg{width:76px;height:76px}.ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--g)}
-.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.bdg{font-size:.82rem;border-radius:20px;padding:0 12px;border:1px solid var(--line);color:var(--mute)}.bdg.on{background:#FFF6EA;border-color:#EBCFA8;color:#8F4E33;font-weight:600}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.bdg{font-size:.82rem;border-radius:20px;padding:0 12px;border:1px solid var(--line);color:var(--mute)}.bdg.on{background:#F3EAF6;border-color:#D9C6DF;color:#5B2A63;font-weight:600}
 textarea.code{width:100%;min-height:64px;font:13px/1.5 monospace;direction:ltr;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:10px}
 nav.crumb{font-size:.9rem;color:var(--mute)}nav.crumb a{color:var(--g);cursor:pointer;font-weight:600}
 footer{border-top:1px solid var(--line);margin-top:10px}footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;padding-block:14px;color:var(--mute);font-size:.82rem}footer b{color:var(--g)}footer a{color:inherit}
 @media(max-width:720px){.hero{grid-template-columns:1fr}.hero .arch{order:-1;max-width:300px}.two{grid-template-columns:1fr}.dom{grid-template-columns:96px 1fr 46px}}
 </style></head><body>
 <header class="nav"><div class="wrap">
-<div class="brand" onclick="home()"><span class="logo"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6c5 9 5 17 0 25-5-8-5-16 0-25zM8 26c10 0 17 4 22 12-10 0-17-4-22-12zM56 26c-10 0-17 4-22 12 10 0 17-4 22-12zM32 58c-6-5-6-12 0-20 6 8 6 15 0 20z" fill="#E3B58F"/></svg></span>سوسنة</div>
+<div class="brand" onclick="home()"><span class="logo"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6c5 9 5 17 0 25-5-8-5-16 0-25zM8 26c10 0 17 4 22 12-10 0-17-4-22-12zM56 26c-10 0-17 4-22 12 10 0 17-4 22-12zM32 58c-6-5-6-12 0-20 6 8 6 15 0 20z" fill="#D9B8E6"/></svg></span>سوسنة</div>
 <nav class="pills"><a data-t="h" class="on" onclick="home()">الرئيسية</a><a data-t="t" onclick="train()">التدريب</a><a data-t="r" onclick="report()">إنجازي</a></nav>
 <span class="school" id="school" hidden></span></div></header>
 <main id="app"></main>
@@ -92,7 +92,7 @@ function badges(){const done=Object.keys(db.h).length,st=streak(),ds=domStats();
 const crumb=(...p)=>el("nav",{class:"crumb"},el("a",{onclick:train},"التدريب"),...p.map(x=>[" › ",x]));
 /* ---------- الرئيسية ---------- */
 function home(){clear();setTab("h");
- const arch=el("div",{class:"arch"});arch.innerHTML='<svg viewBox="0 0 360 368" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><circle cx="180" cy="150" r="104" fill="#fff" opacity=".05"/><circle cx="180" cy="150" r="82" fill="#fff" opacity=".07"/><circle cx="180" cy="150" r="52" fill="#E3A872"/><path d="M0 300 L90 220 L150 270 L230 190 L360 290 V368 H0Z" fill="#B96A48"/><path d="M0 330 L110 262 L190 316 L270 250 L360 322 V368 H0Z" fill="#9C5A3E" opacity=".85"/><rect y="318" width="360" height="50" fill="#8A6A52" opacity=".55"/></svg><div class="cap"><b>مساحة هادئة للتركيز</b><span>تعلّمي على إيقاعك، وتقدّمي كل يوم</span></div>';
+ const arch=el("div",{class:"arch"});arch.innerHTML='<img src="iris.jpg" alt="زهرة السوسن الأسود"><div class="cap"><b>السوسن الأسود</b><span>زهرة الأردن الوطنية، تُزهر في هدوء وتنمو بالتدريب</span></div>';
  const hero=el("section",{class:"hero"},el("div",{},el("div",{class:"eyebrow"},"مساحة تدريب لطالبات الأردن"),el("h1",{},"كل سؤال جديد،",el("em",{},"خطوة أقرب.")),
   el("p",{},"تمارين قصيرة تساعدك على الاستعداد لاختبار تيمس للصف الثامن، أينما كنتِ. ابدئي بتشخيص سريع ليظهر لك أين تحتاجين تدريبًا أكثر."),
   el("div",{class:"row"},el("button",{onclick:train},"ابدئي تدريبًا قصيرًا  ←"),el("button",{class:"alt",onclick:report},"شاهدي إنجازك"))),arch);
@@ -148,7 +148,7 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
 function report(){clear();setTab("r");
  const done=Object.keys(db.h).length,ok=Object.values(db.h).filter(x=>x.ok).length,tot=Q.length,st=streak();
  const C=2*Math.PI*30,off=C*(1-Math.min(done/tot,1));const ring=el("div",{class:"ring"});
- ring.innerHTML='<svg viewBox="0 0 76 76" aria-hidden="true"><circle cx="38" cy="38" r="30" fill="none" stroke="#E9E0CE" stroke-width="9"/><circle cx="38" cy="38" r="30" fill="none" stroke="#1F4F45" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+off+'" transform="rotate(-90 38 38)"/></svg><b>'+done+'/'+tot+'</b>';
+ ring.innerHTML='<svg viewBox="0 0 76 76" aria-hidden="true"><circle cx="38" cy="38" r="30" fill="none" stroke="#EADFEE" stroke-width="9"/><circle cx="38" cy="38" r="30" fill="none" stroke="#3E1B47" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+off+'" transform="rotate(-90 38 38)"/></svg><b>'+done+'/'+tot+'</b>';
  app.append(el("section",{class:"sec"},el("div",{class:"eyebrow"},"إنجازي"),el("h2",{},"رحلتك في التدريب")),
   el("div",{class:"card",style:"display:flex;gap:16px;align-items:center"},ring,el("div",{},el("h3",{},"أجبتِ "+done+" سؤالًا"),el("p",{class:"muted",style:"margin:0"},"الصحيح منها "+ok+(st?(" · سلسلة "+st+(st>2?" أيام متتالية":" يوم")):"")))),
   el("div",{class:"card"},el("h3",{},"شاراتك"),el("div",{class:"badges"},badges().map(b=>el("span",{class:"bdg"+(b[1]?" on":"")},(b[1]?"★ ":"")+b[0])))));
@@ -156,12 +156,12 @@ function report(){clear();setTab("r");
  const weak=[];
  Object.keys(SUB).forEach(s=>{const c=el("div",{class:"card"},el("h3",{},SUB[s]));
   window.SW_DOMAINS[s].forEach(d=>{const qs=Q.filter(q=>q.s===s&&q.d===d&&db.h[q.i]);const p=qs.length?Math.round(qs.filter(q=>db.h[q.i].ok).length/qs.length*100):null;
-   c.append(el("div",{class:"dom"},el("span",{},d),el("div",{class:"bar"},el("i",{style:"width:"+(p||0)+"%;background:"+(p==null?"#ccc":p>=75?"#2F7D4F":p>=50?"#B96A48":"#B3261E")})),el("span",{class:"muted"},p==null?"—":p+"%")));
+   c.append(el("div",{class:"dom"},el("span",{},d),el("div",{class:"bar"},el("i",{style:"width:"+(p||0)+"%;background:"+(p==null?"#ccc":p>=75?"#2F7D4F":p>=50?"#C08A2B":"#B3261E")})),el("span",{class:"muted"},p==null?"—":p+"%")));
    if(p!=null&&qs.length>=2)weak.push({s,d,p})});
   const lv=["معرفة","تطبيق","استدلال"].map(l=>{const qs=Q.filter(q=>q.s===s&&q.c===l&&db.h[q.i]);return qs.length?l+" "+Math.round(qs.filter(q=>db.h[q.i].ok).length/qs.length*100)+"%":null}).filter(Boolean);
   if(lv.length)c.append(el("p",{class:"muted"},"المستوى المعرفي: "+lv.join(" · ")));app.append(c)});
  weak.sort((a,b)=>a.p-b.p);const w=weak.filter(x=>x.p<70).slice(0,2);
- app.append(el("div",{class:"card",style:"background:#FFF6EA;border-color:#EBCFA8"},el("h3",{},"خطة الدراسة"),w.length?w.map(x=>el("p",{},"ركّزي على «"+x.d+"» ("+SUB[x.s]+"): ابدئي بالتدريب حسب الموضوع، وراجعي الأخطاء الشائعة بعد كل سؤال، ثم أعيدي الاختبار بعد أسبوع."))
+ app.append(el("div",{class:"card",style:"background:#F6F0F8;border-color:#D9C6DF"},el("h3",{},"خطة الدراسة"),w.length?w.map(x=>el("p",{},"ركّزي على «"+x.d+"» ("+SUB[x.s]+"): ابدئي بالتدريب حسب الموضوع، وراجعي الأخطاء الشائعة بعد كل سؤال، ثم أعيدي الاختبار بعد أسبوع."))
   :el("p",{},"أداؤك جيد في المجالات التي جرّبتِها. جرّبي الاختبار بوقت للتأكد.")),
   el("div",{class:"card"},el("h3",{},"شاركي تقريرك مع معلمتك"),el("p",{class:"muted"},"الرمز يحتوي نسب مجالاتك فقط، ولا يحتوي اسمك. انسخيه وأرسليه لمعلمتك."),el("button",{onclick:shareCode},"نسخ رمز تقريري")),
   el("div",{class:"row"},el("button",{onclick:train},"تدريب على الأضعف  ←"),el("button",{class:"alt",onclick:()=>{if(confirm("مسح كل نتائجك من هذا الجهاز؟")){db.h={};db.days=[];save();report()}}},"مسح نتائجي")))}
