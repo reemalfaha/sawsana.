@@ -3,5 +3,8 @@
   "main": "src/worker.js",
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
-  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": ["/api/*"] }
+  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "sawsana", "database_id": "ba213545-bb5a-4b0e-a70a-029f7bcc5d4a" }
+  ]
 }
