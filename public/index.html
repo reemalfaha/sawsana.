@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>السوسنة: تدريب تيمس للصف الثامن</title>
+<title>السوسنة: التدريب على الامتحانات العالمية والوطنية</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%233E1B47'/%3E%3Cpath d='M32 10c4 8 4 14 0 20-4-6-4-12 0-20zM14 28c8 0 14 3 18 9-8 0-14-3-18-9zM50 28c-8 0-14 3-18 9 8 0 14-3 18-9zM32 54c-5-5-5-10 0-16 5 6 5 11 0 16z' fill='%23D9B8E6'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
@@ -70,7 +70,7 @@ footer{border-top:1px solid var(--line);margin-top:10px}footer .wrap{display:fle
 <script src="data-sci.js"></script>
 <script>
 const $=id=>document.getElementById(id), app=$("app");
-const SUB={math:"الرياضيات",sci:"العلوم"};
+const SUB={math:"الرياضيات",sci:"العلوم",ar:"اللغة العربية",en:"اللغة الإنجليزية"};
 const KEY="sawsana.v1";
 let db={};try{db=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
 const today=()=>new Date().toISOString().slice(0,10);
@@ -80,13 +80,17 @@ const sch=new URLSearchParams(location.search).get("school");
 if(sch){const s=$("school");s.textContent=sch;s.hidden=false}
 const el=(t,a={},...k)=>{const e=document.createElement(t);for(const x in a){if(x==="class")e.className=a[x];else if(x.startsWith("on"))e.addEventListener(x.slice(2),a[x]);else e.setAttribute(x,a[x])}k.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?"":c)));return e};
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-const Q=window.SW_Q.map((q,i)=>({...q,i}));
+const Q=window.SW_Q.map((q,i)=>({t:"timss",g:8,...q,i}));
+const TRACKS={national:"الامتحان الوطني",pisa:"بيزا",timss:"تيمس"};
+const ALLSUB={math:"الرياضيات",sci:"العلوم",ar:"اللغة العربية",en:"اللغة الإنجليزية"};
+db.sel=db.sel||{t:"timss",g:8};
+const cnt=(t,g,s)=>Q.filter(q=>q.t===t&&q.g===g&&q.s===s).length;
 const AR=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 let timer=null;
 function clear(){if(timer){clearInterval(timer);timer=null}app.replaceChildren();window.scrollTo(0,0)}
 function setTab(t){document.querySelectorAll(".pills a").forEach(a=>a.classList.toggle("on",a.dataset.t===t))}
 function streak(){const set=new Set(db.days);let n=0;const d=new Date();if(!set.has(d.toISOString().slice(0,10)))d.setDate(d.getDate()-1);while(set.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}return n}
-function domStats(){const out=[];Object.keys(SUB).forEach(s=>window.SW_DOMAINS[s].forEach((d,i)=>{const qs=Q.filter(q=>q.s===s&&q.d===d&&db.h[q.i]);out.push({s,d,i,tot:qs.length,ok:qs.filter(q=>db.h[q.i].ok).length})}));return out}
+function domStats(){const out=[];Object.keys(SUB).forEach(s=>(window.SW_DOMAINS[s]||[]).forEach((d,i)=>{const qs=Q.filter(q=>q.s===s&&q.d===d&&db.h[q.i]);out.push({s,d,i,tot:qs.length,ok:qs.filter(q=>db.h[q.i].ok).length})}));return out}
 function badges(){const done=Object.keys(db.h).length,st=streak(),ds=domStats();
  return [["أول 10 أسئلة",done>=10],["50 سؤالًا",done>=50],["3 أيام متتالية",st>=3],["7 أيام متتالية",st>=7],["إتقان مجال (80% فأكثر)",ds.some(x=>x.tot>=8&&x.ok/x.tot>=.8)]]}
 const crumb=(...p)=>el("nav",{class:"crumb"},el("a",{onclick:train},"التدريب"),...p.map(x=>[" › ",x]));
@@ -94,32 +98,36 @@ const crumb=(...p)=>el("nav",{class:"crumb"},el("a",{onclick:train},"التدر�
 function home(){clear();setTab("h");
  const arch=el("div",{class:"arch"});arch.innerHTML='<img src="iris.jpg" alt="زهرة السوسن الأسود"><div class="cap"><b>السوسن الأسود</b><span>زهرة الأردن الوطنية، تُزهر في هدوء وتنمو بالتدريب</span></div>';
  const hero=el("section",{class:"hero"},el("div",{},el("div",{class:"eyebrow"},"مساحة تدريب لطالبات الأردن"),el("h1",{},"كل سؤال جديد،",el("em",{},"خطوة أقرب.")),
-  el("p",{},"تمارين قصيرة تساعدك على الاستعداد لاختبار تيمس للصف الثامن، أينما كنتِ. ابدئي بتشخيص سريع ليظهر لك أين تحتاجين تدريبًا أكثر."),
+  el("p",{},"تمارين قصيرة تساعدك على الاستعداد للامتحانات الوطنية والعالمية، من الصف الأول حتى الثاني عشر، أينما كنتِ. ابدئي بتشخيص سريع ليظهر لك أين تحتاجين تدريبًا أكثر."),
   el("div",{class:"row"},el("button",{onclick:train},"ابدئي تدريبًا قصيرًا  ←"),el("button",{class:"alt",onclick:report},"شاهدي إنجازك"))),arch);
- const tr=(n,t,d,on,fn)=>el("div",{class:"track"+(on?"":" off"),onclick:on?fn:null},el("span",{class:"badge"+(on?" on":"")},on?"متاح":"قريبًا"),el("small",{},"مسار / "+AR("٠"+n)),el("h3",{},t),el("p",{},d));
- const tracks=el("section",{class:"sec"},el("div",{class:"eyebrow"},"اختاري مسارك"),el("h2",{},"ثلاثة مسارات، وهدف واحد"),el("p",{},"تعرّفي على المسارات، ثم اختاري المادة التي تريدين التدريب عليها."),
-  el("div",{class:"tracks"},tr(1,"الامتحان الوطني","تدريب على مهارات المواد الأساسية بأسئلة قصيرة.",false),tr(2,"بيزا","فهم المقروء وتطبيق المعرفة في مواقف من الحياة.",false),tr(3,"تيمس","أسئلة في الرياضيات والعلوم تنمّي التفكير والتحليل.",true,train)));
+ const tr=(n,k,d)=>{const has=Q.some(q=>q.t===k);return el("div",{class:"track",onclick:()=>{db.sel.t=k;if(!has)db.sel.g=db.sel.g;save();train()}},el("span",{class:"badge"+(has?" on":"")},has?"متاح":"قيد الإعداد"),el("small",{},"مسار / "+AR("٠"+n)),el("h3",{},TRACKS[k]),el("p",{},d))};
+ const tracks=el("section",{class:"sec"},el("div",{class:"eyebrow"},"اختاري مسارك"),el("h2",{},"ثلاثة مسارات، وهدف واحد"),el("p",{},"اختاري المسار والصف، ثم المادة التي تريدين التدريب عليها."),
+  el("div",{class:"tracks"},tr(1,"national","تدريب على مهارات المواد الأساسية بأسئلة تحاكي الامتحانات الوطنية."),tr(2,"pisa","فهم المقروء وتطبيق المعرفة في مواقف من الحياة."),tr(3,"timss","أسئلة في الرياضيات والعلوم تنمّي التفكير والتحليل.")));
  const f1=el("div",{class:"feat",style:"background:var(--mint)"},el("div",{class:"eyebrow"},"على جهازك فقط"),el("h3",{},"إنجازك يبقى معك"),el("p",{},"يحفظ هذا الجهاز تدريباتك تلقائيًا، من دون حساب أو تسجيل دخول."),el("button",{class:"alt",style:"background:#fff",onclick:report},"إلى صفحة إنجازي  ←"));
  const f2=el("div",{class:"feat",style:"background:var(--sand)"},el("div",{class:"eyebrow"},"تعلّمي بفهم"),el("h3",{},"الإجابة بداية الفهم"),el("p",{},"بعد كل إجابة ستظهر لك نتيجة فورية وشرح موجز وخطأ شائع، فالتدرّب هنا للتعلّم وليس للسرعة."));
  app.append(hero,tracks,el("div",{class:"two"},f1,f2))}
 /* ---------- التدريب ---------- */
 function train(){clear();setTab("t");
- app.append(el("section",{class:"sec"},el("div",{class:"eyebrow"},"التدريب"),el("h2",{},"اختاري المادة"),el("p",{},"ابدئي بالاختبار التشخيصي، ثم تدرّبي على المجال الأضعف.")));
+ const sel=db.sel;
+ const pills=el("div",{class:"row"},Object.keys(TRACKS).map(k=>el("button",{class:sel.t===k?"":"alt",onclick:()=>{sel.t=k;save();train()}},TRACKS[k])));
+ const gr=el("div",{class:"row"},[1,2,3,4,5,6,7,8,9,10,11,12].map(g=>el("button",{class:sel.g===g?"":"alt",style:"padding:4px 14px",onclick:()=>{sel.g=g;save();train()}},"الصف "+g)));
+ app.append(el("section",{class:"sec"},el("div",{class:"eyebrow"},"التدريب"),el("h2",{},"اختاري المسار والصف"),pills,el("p",{}),gr));
  const wrong=Q.filter(q=>db.h[q.i]&&!db.h[q.i].ok);
  if(wrong.length)app.append(el("div",{class:"card",style:"border-right:4px solid var(--t)"},el("div",{class:"split"},el("h3",{},"راجعي أخطاءك"),el("span",{class:"cnt"},wrong.length+" سؤالًا")),el("p",{class:"muted",style:"margin:4px 0 10px"},"أسئلة أخطأتِ فيها. تدرّبي عليها مع الشرح حتى تُصحّحيها."),el("button",{class:"terra",onclick:()=>run(shuffle(wrong),"مراجعة الأخطاء",{feedback:true})},"ابدئي المراجعة")));
  const g=el("div",{class:"grid"});
- Object.keys(SUB).forEach(s=>{const n=Q.filter(q=>q.s===s).length;
-  g.append(el("div",{class:"card"},el("div",{class:"split"},el("h3",{style:"color:var(--g);font-size:1.35rem"},SUB[s]),el("span",{class:"cnt"},n+" سؤالًا")),
-   el("div",{class:"chips"},window.SW_DOMAINS[s].map(d=>el("span",{},d))),
+ Object.keys(ALLSUB).forEach(s=>{const n=cnt(sel.t,sel.g,s);
+  if(!n){g.append(el("div",{class:"card",style:"background:var(--sand2)"},el("div",{class:"split"},el("h3",{style:"color:var(--mute);font-size:1.2rem"},ALLSUB[s]),el("span",{class:"cnt"},"قيد الإعداد")),el("p",{class:"muted",style:"margin:6px 0 0"},"أسئلة "+TRACKS[sel.t]+" للصف "+sel.g+" ستُضاف قريبًا.")));return}
+  g.append(el("div",{class:"card"},el("div",{class:"split"},el("h3",{style:"color:var(--g);font-size:1.35rem"},ALLSUB[s]),el("span",{class:"cnt"},n+" سؤالًا")),
+   el("div",{class:"chips"},(window.SW_DOMAINS[s]||[]).map(d=>el("span",{},d))),
    el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت"))))});
  app.append(g)}
 function topics(s){clear();setTab("t");app.append(crumb(SUB[s]));
  const g=el("div",{class:"grid"});
- window.SW_DOMAINS[s].forEach(d=>{const qs=Q.filter(q=>q.s===s&&q.d===d);const got=qs.filter(q=>db.h[q.i]).length;
+ (window.SW_DOMAINS[s]||[]).forEach(d=>{const qs=Q.filter(q=>q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d);const got=qs.filter(q=>db.h[q.i]).length;
   g.append(el("div",{class:"card"},el("h3",{},d),el("p",{class:"muted"},got+" من "+qs.length+" أسئلة جرّبتِها"),el("div",{class:"bar"},el("i",{style:"width:"+(got/qs.length*100)+"%"})),el("p",{}),el("button",{onclick:()=>run(shuffle(qs),SUB[s]+" · "+d,{feedback:true})},"ابدئي التدريب")))});app.append(g)}
-function diag(s){const ds=window.SW_DOMAINS[s];let pick=[];ds.forEach(d=>pick.push(...shuffle(Q.filter(q=>q.s===s&&q.d===d)).slice(0,2)));
+function diag(s){const ds=window.SW_DOMAINS[s];let pick=[];ds.forEach(d=>pick.push(...shuffle(Q.filter(q=>q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d)).slice(0,2)));
  run(shuffle(pick),"تشخيصي · "+SUB[s],{feedback:false,diag:true})}
-function mock(s){const pick=shuffle(Q.filter(q=>q.s===s)).slice(0,12);run(pick,"اختبار بوقت · "+SUB[s],{feedback:false,minutes:18})}
+function mock(s){const pick=shuffle(Q.filter(q=>q.t===db.sel.t&&q.g===db.sel.g&&q.s===s)).slice(0,12);run(pick,"اختبار بوقت · "+SUB[s],{feedback:false,minutes:18})}
 /* ---------- تشغيل مجموعة أسئلة ---------- */
 function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
  const head=el("div",{class:"card"},el("div",{class:"split"},el("h3",{},title),o.minutes?el("span",{class:"timer",id:"tm"}):""),el("p",{style:"margin:6px 0"}),el("div",{class:"bar"},el("i",{id:"pb",style:"width:0"})));
@@ -154,8 +162,8 @@ function report(){clear();setTab("r");
   el("div",{class:"card"},el("h3",{},"شاراتك"),el("div",{class:"badges"},badges().map(b=>el("span",{class:"bdg"+(b[1]?" on":"")},(b[1]?"★ ":"")+b[0])))));
  if(!done){app.append(el("div",{class:"card"},"لم تجرّبي أسئلة بعد. ابدئي باختبار تشخيصي."),el("div",{class:"row"},el("button",{onclick:train},"ابدئي الآن  ←")));return}
  const weak=[];
- Object.keys(SUB).forEach(s=>{const c=el("div",{class:"card"},el("h3",{},SUB[s]));
-  window.SW_DOMAINS[s].forEach(d=>{const qs=Q.filter(q=>q.s===s&&q.d===d&&db.h[q.i]);const p=qs.length?Math.round(qs.filter(q=>db.h[q.i].ok).length/qs.length*100):null;
+ Object.keys(SUB).forEach(s=>{if(!(window.SW_DOMAINS[s]||[]).length)return;const c=el("div",{class:"card"},el("h3",{},SUB[s]));
+  (window.SW_DOMAINS[s]||[]).forEach(d=>{const qs=Q.filter(q=>q.s===s&&q.d===d&&db.h[q.i]);const p=qs.length?Math.round(qs.filter(q=>db.h[q.i].ok).length/qs.length*100):null;
    c.append(el("div",{class:"dom"},el("span",{},d),el("div",{class:"bar"},el("i",{style:"width:"+(p||0)+"%;background:"+(p==null?"#ccc":p>=75?"#2F7D4F":p>=50?"#C08A2B":"#B3261E")})),el("span",{class:"muted"},p==null?"—":p+"%")));
    if(p!=null&&qs.length>=2)weak.push({s,d,p})});
   const lv=["معرفة","تطبيق","استدلال"].map(l=>{const qs=Q.filter(q=>q.s===s&&q.c===l&&db.h[q.i]);return qs.length?l+" "+Math.round(qs.filter(q=>db.h[q.i].ok).length/qs.length*100)+"%":null}).filter(Boolean);
