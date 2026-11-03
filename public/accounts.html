@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>السوسنة: حسابات الطالبات</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+:root{--wine:#3E1B47;--bg:#FAF7F8;--fg:#21152A;--mute:#6F6577;--line:#E6DEE6;--soft:#EADFEE;--ok:#2F7D4F;--no:#B3261E;--mid:#C08A2B}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.8 "IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
+.top{background:#2A1031;color:#fff;padding:20px 16px;border-bottom:4px solid #5E7B2F}.in,.main{max-width:820px;margin:0 auto}
+h1,h2,h3{margin:0}h1{font-size:1.5rem}.main{padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
+input,select,textarea{font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;margin:4px 4px 4px 0;max-width:100%}
+textarea{width:100%;min-height:120px}button{font:inherit;border:0;border-radius:10px;padding:10px 18px;background:var(--wine);color:#fff;cursor:pointer;margin:4px 0}
+button.alt{background:var(--soft);color:var(--wine)}button.del{background:#fff;color:var(--no);border:1px solid var(--no);padding:4px 10px;font-size:.85rem}
+.muted{color:var(--mute);font-size:.9rem}.err{color:var(--no)}.tag{display:inline-block;border-radius:8px;padding:0 10px;font-size:.85rem;margin:2px 2px 2px 0}
+.s{background:#EAF4EC;color:var(--ok)}.w{background:#FBE9E7;color:var(--no)}.code{font:600 .95rem monospace;direction:ltr;background:var(--soft);border-radius:6px;padding:0 8px}
+.st{border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 24px}a{color:var(--wine)}
+</style></head><body>
+<script src="config.js"></script><script src="gate.js"></script>
+<header class="top"><div class="in"><h1>السوسنة · حسابات الطالبات</h1><div style="margin-top:4px"><a href="teacher.html" style="color:#EADFEE">← تقرير الصف</a> · <a href="index.html" style="color:#EADFEE">للطالبات</a></div></div></header>
+<main class="main" id="app"></main>
+<footer>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي</footer>
+<script src="data.js"></script>
+<script>
+const $=document.getElementById.bind(document),app=$("app"),SUBN=["math","sci"],NAME={math:"الرياضيات",sci:"العلوم"};
+const E=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const btn=(t,f,c)=>{const b=E("button",c||"",t);b.onclick=f;return b};
+let TOK=null,USER="",NK=null;try{TOK=sessionStorage.getItem("sw.api");USER=sessionStorage.getItem("sw.user")||""}catch(e){}
+async function api(path,body,method){const r=await fetch(path,{method:method||(body?"POST":"GET"),headers:{"content-type":"application/json",...(TOK?{authorization:"Bearer "+TOK}:{})},body:body?JSON.stringify(body):undefined});let j={};try{j=await r.json()}catch(e){}
+ if(!r.ok){const er=new Error(j.error||"خطأ");er.status=r.status;throw er}return j}
+/* تشفير الأسماء في متصفح المعلمة */
+const b64=u=>btoa(String.fromCharCode(...u)),unb=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function nkey(pass){const salt=new TextEncoder().encode("sawsana-names|"+USER);const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:150000,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+async function encName(n){const iv=crypto.getRandomValues(new Uint8Array(12));const c=await crypto.subtle.encrypt({name:"AES-GCM",iv},NK,new TextEncoder().encode(n));return b64(iv)+"."+b64(new Uint8Array(c))}
+async function decName(s){try{const [i,c]=s.split(".");return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb(i)},NK,unb(c)))}catch(e){return null}}
+const fmt=ts=>new Date(ts).toLocaleDateString("ar",{year:"numeric",month:"short",day:"numeric"});
+const col=p=>p>=75?"var(--ok)":p>=50?"var(--mid)":"var(--no)";
+function loginView(){app.replaceChildren();const c=E("div","card");c.append(E("h2","","دخول المعلمة"));
+ const u=E("input");u.placeholder="اسم المستخدم";const p=E("input");p.type="password";p.placeholder="كلمة السر";const inv=E("input");inv.placeholder="رمز الدعوة (للتسجيل أول مرة)";const sc=E("input");sc.placeholder="اسم المدرسة (للتسجيل)";const msg=E("p","err","");
+ const go=async reg=>{msg.textContent="";try{const j=await api(reg?"/api/teacher/register":"/api/teacher/login",{username:u.value,password:p.value,invite:inv.value,school:sc.value});TOK=j.token;USER=u.value.trim().toLowerCase();try{sessionStorage.setItem("sw.api",TOK);sessionStorage.setItem("sw.user",USER)}catch(e){}main()}catch(e){msg.textContent=e.status===503?"الحسابات غير مفعّلة بعد على الخادم. يلزم إعداد قاعدة البيانات أولًا.":e.message}};
+ c.append(u,p,E("br"),btn("دخول",()=>go(false)),E("hr"),E("p","muted","أول مرة؟ أنشئي حسابًا برمز الدعوة الذي حصلتِ عليه من المشرفة:"),inv,sc,E("br"),btn("إنشاء حساب",()=>go(true),"alt"),msg);app.append(c)}
+let DATA={students:[],attempts:[]},SEC="";
+async function main(){app.replaceChildren();
+ const k=E("div","card");k.append(E("h3","","1) مفتاح الأسماء"),E("p","muted","أسماء الطالبات تُشفَّر في متصفحك قبل الحفظ، ولا يرى الخادم إلا نصًا مشفّرًا. اختاري كلمة سر للأسماء (غير كلمة دخولك) وأدخليها في كل زيارة. إن نسيتِها لا تُسترجع الأسماء."));
+ const pk=E("input");pk.type="password";pk.placeholder="كلمة سر الأسماء";const km=E("span","muted","");
+ k.append(pk,btn("فتح",async()=>{if(pk.value.length<4){km.textContent="قصيرة";return}NK=await nkey(pk.value);km.textContent="تم ✔";await load()}),km);app.append(k);
+ const a=E("div","card");a.append(E("h3","","2) إضافة طالبات"),E("p","muted","اكتبي اسم طالبة في كل سطر. يُنشأ لكل طالبة رمز دخول تعطينه لها لتربط حسابها في صفحة «إنجازي»."));
+ const sec=E("input");sec.placeholder="الشعبة (مثل 8أ)";sec.style.width="140px";const st=E("input");st.type="number";st.placeholder="يبدأ الترقيم من";st.value="1";st.style.width="130px";const ta=E("textarea");ta.placeholder="اسم الطالبة الأولى\nاسم الطالبة الثانية";const am=E("p","muted","");
+ a.append(sec,st,ta,btn("إنشاء الحسابات",async()=>{if(!NK){am.textContent="افتحي مفتاح الأسماء أولًا.";return}const names=ta.value.split("\n").map(x=>x.trim()).filter(Boolean);if(!names.length||!sec.value.trim()){am.textContent="اكتبي الشعبة والأسماء.";return}
+  try{const arr=[];let n=parseInt(st.value)||1;for(const nm of names)arr.push({encName:await encName(nm),sec:sec.value.trim(),no:n++});
+   const j=await api("/api/students",{students:arr});const lines=j.created.map((x,i)=>x.sec+"-"+x.no+" "+names[i]+"  ←  "+x.code);
+   const o=E("textarea");o.readOnly=true;o.value=lines.join("\n");o.style.direction="rtl";am.textContent="تم إنشاء "+j.created.length+" حسابًا. انسخي القائمة واحفظيها (لن تظهر الأسماء مع الرموز مرة أخرى إلا هنا):";am.after(o);ta.value="";await load()}catch(e){am.textContent=e.message}}),am);app.append(a);
+ const d=E("div","card");d.id="dash";app.append(d);await load()}
+async function load(){let j;try{j=await api("/api/students")}catch(e){if(e.status===401){loginView();return}$("dash").textContent=e.message;return}
+ DATA=j;draw()}
+async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","3) متابعة الطالبات"));
+ const secs=[...new Set(DATA.students.map(s=>s.sec))];const sel=E("select");sel.append(new Option("كل الشعب",""));secs.forEach(x=>sel.append(new Option("الشعبة "+x,x)));sel.value=SEC;sel.onchange=()=>{SEC=sel.value;draw()};d.append(sel,btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt"));
+ if(!DATA.students.length){d.append(E("p","muted","لا توجد طالبات بعد."));return}
+ const by={};DATA.attempts.forEach(a=>(by[a.student_id]=by[a.student_id]||[]).push(a));
+ for(const s of DATA.students.filter(x=>!SEC||x.sec===SEC)){const at=(by[s.id]||[]).sort((x,y)=>x.ts-y.ts);const nm=NK?await decName(s.enc_name):null;
+  const c=E("div","st"),h=E("div","row");h.append(E("b","",(nm||"طالبة")+" ("+s.sec+"-"+s.no+")"),E("span","code",s.code));c.append(h);
+  const pc=a=>a.total?Math.round(a.right/a.total*100):0;
+  const ex=at.filter(a=>a.mode==="mock"||a.mode==="diag"||a.mode==="test");
+  if(!at.length)c.append(E("p","muted","لم تبدأ التدريب بعد."));
+  else{const l=ex[ex.length-1];c.append(E("p","",l?("آخر اختبار: "+fmt(l.ts)+" — "+l.title+" — العلامة "+l.right+"/"+l.total+" ("+pc(l)+"%)"):"لم تجرِ اختبارًا بعد (تدريبات فقط)."));
+   if(ex.length>1){const m=ex.slice(-5).map(pc);const df=m[m.length-1]-m[m.length-2];c.append(E("p","","التطور: "+m.join("% ← ")+"%  "+(df>0?"▲ +"+df:df<0?"▼ "+df:"= 0")))}
+   const g={};at.forEach(a=>{let d=[];try{d=JSON.parse(a.d)}catch(e){}d.forEach(([si,di,ok,t])=>{const k=si+"_"+di;(g[k]=g[k]||{si,di,ok:0,t:0});g[k].ok+=ok;g[k].t+=t})});
+   const row=E("div");Object.values(g).filter(x=>x.t>=3).forEach(x=>{const p=Math.round(x.ok/x.t*100);const dn=(window.SW_DOMAINS[SUBN[x.si]]||[])[x.di];if(!dn)return;if(p>=75)row.append(E("span","tag s","قوة: "+dn+" "+p+"%"));else if(p<60)row.append(E("span","tag w","ضعف: "+dn+" "+p+"%"))});
+   if(row.children.length)c.append(row);else c.append(E("p","muted","نقاط القوة والضعف تظهر بعد 3 أسئلة على الأقل في المجال."));
+   const rec=E("details");rec.append(E("summary","muted","آخر المحاولات ("+at.length+")"));at.slice(-6).reverse().forEach(a=>rec.append(E("div","muted",fmt(a.ts)+" · "+a.title+" · "+a.right+"/"+a.total)));c.append(rec)}
+  c.append(btn("حذف الحساب",async()=>{if(c.dataset.s){await api("/api/students/"+s.id,null,"DELETE");await load()}else{c.dataset.s=1;c.lastChild.textContent="اضغطي مرة أخرى للتأكيد"}},"del"));d.append(c)}}
+TOK?main().catch(()=>loginView()):loginView();
+</script></body></html>

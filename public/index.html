@@ -164,7 +164,7 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
    next.hidden=false}}
  function finish(){if(timer){clearInterval(timer);timer=null}
   ans.forEach(x=>{if(x){db.h[x.q.i]={ok:x.k===x.q.a};if(!o.feedback)logA(x.k===x.q.a)}});if(!db.days.includes(today()))db.days.push(today());save();
-  const right=ans.filter(x=>x&&x.k===x.q.a).length;
+  const right=ans.filter(x=>x&&x.k===x.q.a).length;pushAttempt(title,list,ans,o,right);
   clear();app.append(crumb(title),el("div",{class:"card"},el("div",{class:"eyebrow"},"النتيجة"),el("h2",{},right+" من "+list.length),el("p",{}),el("div",{class:"bar"},el("i",{style:"width:"+(right/list.length*100)+"%"}))));
   const rev=el("div",{class:"card"},el("h3",{},"مراجعة الأسئلة"));
   list.forEach((q,i)=>{const a=ans[i];const ok=a&&a.k===q.a;rev.append(el("div",{class:"exp",style:"margin:8px 0"},el("b",{},(ok?"✔ ":"✘ ")+q.q),el("br"),"الصحيح: "+(q.open?q.model:q.o[q.a]+". "+q.why)+" "))});
@@ -178,7 +178,7 @@ function report(){clear();setTab("r");
  app.append(el("section",{class:"sec"},el("div",{class:"eyebrow"},"إنجازي"),el("h2",{},"رحلتك في التدريب")),
   el("div",{class:"card",style:"display:flex;gap:16px;align-items:center"},ring,el("div",{},el("h3",{},"أجبتِ "+done+" سؤالًا"),el("p",{class:"muted",style:"margin:0"},"الصحيح منها "+ok+(st?(" · سلسلة "+st+(st>2?" أيام متتالية":" يوم")):"")))),
   el("div",{class:"card"},el("h3",{},"شاراتك"),el("div",{class:"badges"},badges().map(b=>el("span",{class:"bdg"+(b[1]?" on":"")},(b[1]?"★ ":"")+b[0])))));
- if(!done){app.append(el("div",{class:"card"},"لم تجرّبي أسئلة بعد. ابدئي باختبار تشخيصي."),el("div",{class:"row"},el("button",{onclick:train},"ابدئي الآن  ←")));return}
+ if(!done){app.append(el("div",{class:"card"},"لم تجرّبي أسئلة بعد. ابدئي باختبار تشخيصي."),accountCard(),el("div",{class:"row"},el("button",{onclick:train},"ابدئي الآن  ←")));return}
  const weak=[];
  Object.keys(SUB).forEach(s=>{if(!(window.SW_DOMAINS[s]||[]).length)return;const c=el("div",{class:"card"},el("h3",{},SUB[s]));
   (window.SW_DOMAINS[s]||[]).forEach(d=>{const qs=Q.filter(q=>q.s===s&&q.d===d&&db.h[q.i]);const p=qs.length?Math.round(qs.filter(q=>db.h[q.i].ok).length/qs.length*100):null;
@@ -189,10 +189,17 @@ function report(){clear();setTab("r");
  weak.sort((a,b)=>a.p-b.p);const w=weak.filter(x=>x.p<70).slice(0,2);
  app.append(el("div",{class:"card",style:"background:#F6F0F8;border-color:#D9C6DF"},el("h3",{},"خطة الدراسة"),w.length?w.map(x=>el("p",{},"ركّزي على «"+x.d+"» ("+SUB[x.s]+"): ابدئي بالتدريب حسب الموضوع، وراجعي الأخطاء الشائعة بعد كل سؤال، ثم أعيدي الاختبار بعد أسبوع."))
   :el("p",{},"أداؤك جيد في المجالات التي جرّبتِها. جرّبي الاختبار بوقت للتأكد.")),
-  progressCard(),remedyCard(w),
+  progressCard(),remedyCard(w),accountCard(),
   el("div",{class:"card"},el("h3",{},"شاركي تقريرك مع معلمتك"),el("p",{class:"muted"},"الرمز يحتوي رقمك في كشف الصف ونسب مجالاتك فقط، ولا يحتوي اسمك. أرسليه لمعلمتك كل أسبوع لتتابع تطورك."),
    el("div",{class:"row"},el("input",{type:"text",maxlength:"8",placeholder:"شعبتك (مثل 8أ)",value:db.sec||"",style:"width:130px;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit",onchange:e=>{db.sec=e.target.value.trim();save()}}),el("input",{type:"number",min:"1",max:"60",placeholder:"رقمك في كشف الصف",value:db.me||"",style:"width:170px;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit",onchange:e=>{db.me=e.target.value;save()}}),el("button",{onclick:shareCode},"نسخ رمز تقريري"))),
   el("div",{class:"row"},el("button",{onclick:train},"تدريب على الأضعف  ←"),el("button",{class:"alt",onclick:()=>{if(confirm("مسح كل نتائجك من هذا الجهاز؟")){db.h={};db.days=[];save();report()}}},"مسح نتائجي")))}
+function pushAttempt(title,list,ans,o,right){if(!db.acct||!db.acct.token)return;const dm={};
+ list.forEach((q,i)=>{const a=ans[i];if(!a)return;const si=q.s==="math"?0:1,di=(window.SW_DOMAINS[q.s]||[]).indexOf(q.d),k=si+"_"+di;const x=dm[k]=dm[k]||[si,di,0,0];x[3]++;if(a.k===q.a)x[2]++});
+ try{fetch("/api/attempt",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+db.acct.token},body:JSON.stringify({title,mode:o.diag?"diag":o.minutes?"mock":o.feedback?"practice":"test",subject:list[0]?list[0].s:"",right,total:list.length,d:Object.values(dm)})}).catch(()=>{})}catch(e){}}
+function accountCard(){const c=el("div",{class:"card"},el("h3",{},"ربط حسابي بمعلمتي"));
+ if(db.acct&&db.acct.token){c.append(el("p",{class:"muted"},"حسابك مرتبط ✔ وتصل نتائجك لمعلمتك تلقائيًا عند إنهاء كل تدريب."),el("button",{class:"alt",onclick:()=>{delete db.acct;save();report()}},"إلغاء الربط"));return c}
+ const i=el("input",{placeholder:"رمز الدخول (8 أحرف)",maxlength:"12",style:"padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;width:190px;text-transform:uppercase;direction:ltr"}),msg=el("p",{class:"muted"},"");
+ c.append(el("p",{class:"muted"},"إذا أعطتك معلمتك رمز دخول أدخليه هنا لتصل نتائجك إليها تلقائيًا. (اختياري)"),el("div",{class:"row"},i,el("button",{onclick:async()=>{msg.textContent="جارٍ الربط...";try{const r=await fetch("/api/student/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code:i.value})});const j=await r.json();if(!r.ok){msg.textContent=j.error||"تعذّر الربط";return}db.acct={token:j.token};if(j.sec)db.sec=j.sec;if(j.no)db.me=String(j.no);save();report()}catch(e){msg.textContent="تعذّر الاتصال بالخادم."}}},"ربط")),msg);return c}
 function progressCard(){const days=[];const d=new Date();for(let i=6;i>=0;i--){const x=new Date(d);x.setDate(d.getDate()-i);const k=x.toISOString().slice(0,10);const v=(db.dl||{})[k];days.push({k,v})}
  const mx=Math.max(1,...days.map(x=>x.v?x.v.t:0));
  const c=el("div",{class:"card"},el("h3",{},"تطوّرك آخر 7 أيام"),el("p",{class:"muted"},"ارتفاع العمود = عدد الأسئلة، ولونه = نسبة الصحيح."));
