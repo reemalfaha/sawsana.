@@ -27,6 +27,7 @@ img.qimg{max-width:100%;max-height:46vh;display:block;margin:10px auto;backgroun
 <header><h1>السوسنة · وضع السبورة</h1><a href="index.html">← للمنصة</a></header>
 <div id="app"></div></div><div class="flash" id="fl"></div>
 <script src="data.js"></script><script src="data-sci.js"></script><script src="data-timss8.js"></script><script src="data-math.js"></script>
+<script src="data-math-parts.js"></script>
 <script>
 const $=id=>document.getElementById(id),app=$("app");
 const SUB={math:"الرياضيات",sci:"العلوم"};
@@ -51,13 +52,20 @@ function show(){app.replaceChildren();
  const pbtn=el("button",{class:"alt",onclick:()=>{const free=[];for(let k=1;k<=S.n;k++)if(!S.used.includes(k))free.push(k);if(!free.length){S.used=[];return pbtn.click()}
    let t=0;const iv=setInterval(()=>{pick.textContent="؟ "+(1+Math.random()*S.n|0);if(++t>14){clearInterval(iv);const r=free[Math.random()*free.length|0];S.used.push(r);pick.textContent="مَن تجيب؟ الطالبة رقم "+r}},80)}},"🎡 مَن تجيب؟");
  const head=el("div",{class:"row",style:"justify-content:space-between"},el("div",{class:"tally"},el("span",{},"✔ ",el("b",{},S.ok)),el("span",{},"✘ ",el("b",{},S.no))),el("span",{class:"muted"},"سؤال "+(S.i+1)+" من "+S.list.length),pbtn);
- const card=el("div",{class:"card"},el("div",{class:"row"},el("span",{class:"tag"},q.d),el("span",{class:"tag"},q.c)),el("p",{class:"q"},q.q));
+ const card=el("div",{class:"card"},el("div",{class:"row"},el("span",{class:"tag"},q.d),el("span",{class:"tag"},q.c)),el("p",{class:"q"},q.parts?q.stem:q.q));
  if(q.img)card.append(el("img",{class:"qimg",src:q.img,alt:"شكل السؤال"}));
  const sol=el("div");
  const next=el("button",{hidden:"",onclick:()=>{S.i++;show()}},"السؤال التالي  ←");
  const mark=ok=>{if(answered)return;answered=true;if(ok)S.ok++;else S.no++;flash(ok);setTimeout(()=>{head.querySelector(".tally").replaceChildren(el("span",{},"✔ ",el("b",{},S.ok)),el("span",{},"✘ ",el("b",{},S.no)))},0);next.hidden=false};
  const reveal=(chosen)=>{const ans=q.open?q.model:q.o[q.a];sol.replaceChildren(el("div",{class:"sol"},el("b",{},"الإجابة: "),ans,q.why?el("div",{},q.why):""));};
- if(q.open){const rv=el("button",{onclick:()=>{reveal();rv.hidden=true;sol.append(el("div",{class:"row",style:"margin-top:10px"},el("button",{class:"ok",onclick:()=>mark(true)},"✔ حلّها صحيح"),el("button",{class:"no",onclick:()=>mark(false)},"✘ حلّها خطأ")))}},"اعرضي الحل");card.append(rv)}
+ if(q.parts){let left=q.parts.length;const upd=()=>head.querySelector(".tally").replaceChildren(el("span",{},"✔ ",el("b",{},S.ok)),el("span",{},"✘ ",el("b",{},S.no)));
+  q.parts.forEach(([pq,pa])=>{const ps=el("div"),pp=el("div",{class:"pick",style:"font-size:1.6rem;min-height:0"});let done=false;
+   const pk=el("button",{class:"alt",onclick:()=>pbtn.click()},"🎡 مَن تجيب؟");
+   const rv=el("button",{onclick:()=>{rv.hidden=true;ps.append(el("div",{class:"sol"},el("b",{},"الحل: "),pa),el("div",{class:"row",style:"margin-top:8px"},el("button",{class:"ok",onclick:()=>m(true)},"✔ حلّها صحيح"),el("button",{class:"no",onclick:()=>m(false)},"✘ حلّها خطأ")))}},"اعرضي الحل");
+   const m=ok=>{if(done)return;done=true;ok?S.ok++:S.no++;flash(ok);upd();ps.querySelectorAll(".row button").forEach(b=>b.disabled=true);if(--left===0)next.hidden=false};
+   card.append(el("div",{style:"border-top:1px solid var(--line);margin-top:12px;padding-top:10px"},el("p",{class:"q",style:"font-size:clamp(1.2rem,2.6vw,1.9rem)"},pq),rv,ps))});
+  card.append(el("p",{class:"muted"},"اختاري طالبة (🎡 أعلاه) لكل فرع، ثم اعرضي حله واحكمي عليه."))}
+ else if(q.open){const rv=el("button",{onclick:()=>{reveal();rv.hidden=true;sol.append(el("div",{class:"row",style:"margin-top:10px"},el("button",{class:"ok",onclick:()=>mark(true)},"✔ حلّها صحيح"),el("button",{class:"no",onclick:()=>mark(false)},"✘ حلّها خطأ")))}},"اعرضي الحل");card.append(rv)}
  else{const order=shuffle([0,1,2,3]),LT=["أ","ب","ج","د"];const bs=order.map((k,j)=>el("button",{class:"opt",onclick:()=>{if(answered)return;bs.forEach(b=>{if(b._k===q.a)b.classList.add("right");else if(b===me)b.classList.add("wrong")});mark(k===q.a);reveal()}},el("span",{class:"l"},LT[j]),q.o[k]));
   let me=null;bs.forEach((b,j)=>{b._k=order[j];b.addEventListener("click",()=>{me=b})});
   const rv=el("button",{class:"alt",onclick:()=>{bs.forEach(b=>{if(b._k===q.a)b.classList.add("right")});reveal();rv.hidden=true;sol.append(el("div",{class:"row",style:"margin-top:10px"},el("button",{class:"ok",onclick:()=>mark(true)},"✔ حلّها صحيح"),el("button",{class:"no",onclick:()=>mark(false)},"✘ حلّها خطأ")))}},"اعرضي الحل (الطالبة حلّت على السبورة)");
