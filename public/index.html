@@ -58,7 +58,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--t);outline-offset:2
 .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.bdg{font-size:.82rem;border-radius:20px;padding:0 12px;border:1px solid var(--line);color:var(--mute)}.bdg.on{background:#F3EAF6;border-color:#D9C6DF;color:#5B2A63;font-weight:600}
 textarea.code{width:100%;min-height:64px;font:13px/1.5 monospace;direction:ltr;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:10px}
 nav.crumb{font-size:.9rem;color:var(--mute)}nav.crumb a{color:var(--g);cursor:pointer;font-weight:600}
-footer{border-top:1px solid var(--line);margin-top:10px}footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;padding-block:14px;color:var(--mute);font-size:.82rem}footer b{color:var(--g)}footer a{color:inherit}
+.qimg{display:block;max-width:100%;margin:8px auto;border:1px solid var(--line);border-radius:10px;background:#fff}textarea.ans{width:100%;box-sizing:border-box;min-height:84px;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:inherit}.src{font-size:.78rem;color:var(--mute);margin:6px 0 0}.model{background:#F2F8F3;border:1px solid #BFD9C6;border-radius:10px;padding:10px 12px;margin:8px 0;line-height:1.8}footer{border-top:1px solid var(--line);margin-top:10px}footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;padding-block:14px;color:var(--mute);font-size:.82rem}footer b{color:var(--g)}footer a{color:inherit}
 @media(max-width:720px){.hero{grid-template-columns:1fr}.hero .arch{order:-1;max-width:300px}.two{grid-template-columns:1fr}.dom{grid-template-columns:96px 1fr 46px}}
 </style></head><body>
 <header class="nav"><div class="wrap">
@@ -66,9 +66,10 @@ footer{border-top:1px solid var(--line);margin-top:10px}footer .wrap{display:fle
 <nav class="pills"><a data-t="h" class="on" onclick="home()">الرئيسية</a><a data-t="t" onclick="train()">التدريب</a><a data-t="r" onclick="report()">إنجازي</a></nav>
 <span class="school" id="school" hidden></span></div></header>
 <main id="app"></main>
-<footer><div class="wrap"><span><b>السوسنة</b> · مساحة للتعلّم. تدريب مجاني، ونتائجك محفوظة على جهازك فقط. الأسئلة أصلية وليست من الاختبار الرسمي.</span><span>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي · <a href="teacher.html">للمعلمات: تقرير الصف</a></span></div></footer>
+<footer><div class="wrap"><span><b>السوسنة</b> · مساحة للتعلّم. تدريب مجاني، ونتائجك محفوظة على جهازك فقط. الأسئلة أصلية، عدا ما كُتب مصدره تحت السؤال.</span><span>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي · <a href="teacher.html">للمعلمات: تقرير الصف</a></span></div></footer>
 <script src="data.js"></script>
 <script src="data-sci.js"></script>
+<script src="data-timss8.js"></script>
 <script>
 const $=id=>document.getElementById(id), app=$("app");
 const SUB={math:"الرياضيات",sci:"العلوم",ar:"اللغة العربية",en:"اللغة الإنجليزية"};
@@ -133,9 +134,9 @@ function topics(s){clear();setTab("t");app.append(crumb(SUB[s]));
  const g=el("div",{class:"grid"});
  (window.SW_DOMAINS[s]||[]).forEach(d=>{const qs=Q.filter(q=>q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d);const got=qs.filter(q=>db.h[q.i]).length;
   g.append(el("div",{class:"card"},el("h3",{},d),el("p",{class:"muted"},got+" من "+qs.length+" أسئلة جرّبتِها"),el("div",{class:"bar"},el("i",{style:"width:"+(got/qs.length*100)+"%"})),el("p",{}),el("button",{onclick:()=>run(shuffle(qs),SUB[s]+" · "+d,{feedback:true})},"ابدئي التدريب")))});app.append(g)}
-function diag(s){const ds=window.SW_DOMAINS[s];let pick=[];ds.forEach(d=>pick.push(...shuffle(Q.filter(q=>q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d)).slice(0,2)));
+function diag(s){const ds=window.SW_DOMAINS[s];let pick=[];ds.forEach(d=>pick.push(...shuffle(Q.filter(q=>!q.open&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d)).slice(0,2)));
  run(shuffle(pick),"تشخيصي · "+SUB[s],{feedback:false,diag:true})}
-function mock(s){const pick=shuffle(Q.filter(q=>q.t===db.sel.t&&q.g===db.sel.g&&q.s===s)).slice(0,12);run(pick,"اختبار بوقت · "+SUB[s],{feedback:false,minutes:18})}
+function mock(s){const pick=shuffle(Q.filter(q=>!q.open&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s)).slice(0,12);run(pick,"اختبار بوقت · "+SUB[s],{feedback:false,minutes:18})}
 /* ---------- تشغيل مجموعة أسئلة ---------- */
 function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
  const head=el("div",{class:"card"},el("div",{class:"split"},el("h3",{},title),o.minutes?el("span",{class:"timer",id:"tm"}):""),el("p",{style:"margin:6px 0"}),el("div",{class:"bar"},el("i",{id:"pb",style:"width:0"})));
@@ -144,7 +145,13 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
  function show(){box.replaceChildren();$("pb").style.width=(n/list.length*100)+"%";
   const q=list[n];const order=shuffle([0,1,2,3]);let chosen=null;
   const c=el("div",{class:"card"},el("div",{class:"row"},el("span",{class:"tag"},q.d),el("span",{class:"tag"},q.c),el("span",{class:"muted"},(n+1)+" / "+list.length)),el("p",{style:"font-size:1.1rem;font-weight:500"},q.q));
-  const LT=["أ","ب","ج","د"];const btns=order.map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>pick(k)},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});c.append(...btns);
+  const img=q.img?el("img",{class:"qimg",src:q.img,alt:"شكل السؤال"}):null;if(img)c.append(img);
+  const srcl=q.src?el("p",{class:"src"},"المصدر: "+q.src):null;
+  if(q.open){const ta=el("textarea",{class:"ans",placeholder:"اكتبي إجابتك هنا أو فكّري بها (اختياري)"});const area=el("div");
+   const rate=ok=>{ans[n]={q,k:ok?0:-1};db.h[q.i]={ok};if(!db.days.includes(today()))db.days.push(today());save();n++;n<list.length?show():finish()};
+   const reveal=el("button",{onclick:()=>{reveal.hidden=true;ta.readOnly=true;area.replaceChildren(el("div",{class:"model"},el("b",{},"نموذج الإجابة: "),q.model),el("p",{class:"muted"},"قارني إجابتك بالنموذج:"),el("div",{class:"row"},el("button",{onclick:()=>rate(true)},"✔ إجابتي صحيحة"),el("button",{class:"alt",onclick:()=>rate(false)},"✘ أحتاج مراجعة")))}},"اعرضي نموذج الإجابة");
+   c.append(ta,reveal,area);if(srcl)c.append(srcl);box.append(c);return}
+  const LT=["أ","ب","ج","د"];const btns=order.map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>pick(k)},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});c.append(...btns);if(srcl)c.append(srcl);
   const next=el("button",{hidden:true,onclick:()=>{n++;n<list.length?show():finish()}},n+1<list.length?"التالي  ←":"إنهاء");
   const fb=el("div");c.append(fb,el("p",{style:"margin:6px 0"}),next);box.append(c);
   function pick(k){if(chosen!==null&&o.feedback)return;chosen=k;ans[n]={q,k};if(!db.days.includes(today())){db.days.push(today());save()}if(o.feedback){db.h[q.i]={ok:k===q.a};save()}
@@ -157,7 +164,7 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
   const right=ans.filter(x=>x&&x.k===x.q.a).length;
   clear();app.append(crumb(title),el("div",{class:"card"},el("div",{class:"eyebrow"},"النتيجة"),el("h2",{},right+" من "+list.length),el("p",{}),el("div",{class:"bar"},el("i",{style:"width:"+(right/list.length*100)+"%"}))));
   const rev=el("div",{class:"card"},el("h3",{},"مراجعة الأسئلة"));
-  list.forEach((q,i)=>{const a=ans[i];const ok=a&&a.k===q.a;rev.append(el("div",{class:"exp",style:"margin:8px 0"},el("b",{},(ok?"✔ ":"✘ ")+q.q),el("br"),"الصحيح: "+q.o[q.a]+". ",q.why))});
+  list.forEach((q,i)=>{const a=ans[i];const ok=a&&a.k===q.a;rev.append(el("div",{class:"exp",style:"margin:8px 0"},el("b",{},(ok?"✔ ":"✘ ")+q.q),el("br"),"الصحيح: "+(q.open?q.model:q.o[q.a]+". "+q.why)+" "))});
   app.append(rev,el("div",{class:"row"},el("button",{onclick:report},"إنجازي"),el("button",{class:"alt",onclick:()=>gradeView(db.sel.g)},"تدريب آخر")))}
  show()}
 /* ---------- إنجازي ---------- */
