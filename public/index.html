@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>السوسنة: التدريب على الامتحانات العالمية والوطنية</title>
+<title>السوسنة: التدريب على الامتحانات الدولية</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%233E1B47'/%3E%3Cpath d='M32 10c4 8 4 14 0 20-4-6-4-12 0-20zM14 28c8 0 14 3 18 9-8 0-14-3-18-9zM50 28c-8 0-14 3-18 9 8 0 14-3 18-9zM32 54c-5-5-5-10 0-16 5 6 5 11 0 16z' fill='%23D9B8E6'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
@@ -85,9 +85,9 @@ if(sch){const s=$("school");s.textContent=sch;s.hidden=false}
 const el=(t,a={},...k)=>{const e=document.createElement(t);for(const x in a){if(x==="class")e.className=a[x];else if(x.startsWith("on"))e.addEventListener(x.slice(2),a[x]);else e.setAttribute(x,a[x])}k.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?"":c)));return e};
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const Q=window.SW_Q.map((q,i)=>({t:"timss",g:8,...q,i}));
-const TRACKS={national:"الامتحان الوطني",pisa:"بيزا",timss:"تيمس"};
+const TRACKS={pisa:"بيزا",timss:"تيمس"};
 const ALLSUB={math:"الرياضيات",sci:"العلوم",ar:"اللغة العربية",en:"اللغة الإنجليزية"};
-db.sel=db.sel||{t:"timss",g:8};
+db.sel=db.sel||{t:"timss",g:8};if(!TRACKS[db.sel.t])db.sel.t="timss";
 const cnt=(t,g,s)=>Q.filter(q=>q.t===t&&q.g===g&&q.s===s).length;
 const logA=ok=>{const t=today();db.dl=db.dl||{};const x=db.dl[t]=db.dl[t]||{ok:0,t:0};x.t++;if(ok)x.ok++;save()};
 const AR=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
@@ -103,11 +103,11 @@ const crumb=(...p)=>el("nav",{class:"crumb"},el("a",{onclick:train},"التدر�
 function home(){clear();setTab("h");
  const arch=el("div",{class:"arch"});arch.innerHTML='<img src="iris.jpg" alt="زهرة السوسن الأسود"><div class="cap"><b>السوسن الأسود</b><span>زهرة الأردن الوطنية، تُزهر في هدوء وتنمو بالتدريب</span></div>';
  const hero=el("section",{class:"hero"},el("div",{},el("div",{class:"eyebrow"},"مساحة تدريب لطالبات الأردن"),el("h1",{},"كل سؤال جديد،",el("em",{},"خطوة أقرب.")),
-  el("p",{},"تمارين قصيرة تساعدك على الاستعداد للامتحانات الوطنية والعالمية، من الصف الأول حتى الثاني عشر، أينما كنتِ. ابدئي بتشخيص سريع ليظهر لك أين تحتاجين تدريبًا أكثر."),
+  el("p",{},"تمارين قصيرة تساعدك على الاستعداد للامتحانات الدولية (تيمس وبيزا)، من الصف الأول حتى الثاني عشر، أينما كنتِ. ابدئي بتشخيص سريع ليظهر لك أين تحتاجين تدريبًا أكثر."),
   el("div",{class:"row"},el("button",{onclick:train},"ابدئي تدريبًا قصيرًا  ←"),el("button",{class:"alt",onclick:report},"شاهدي إنجازك"))),arch);
  const tr=(n,k,d)=>{const has=Q.some(q=>q.t===k);return el("div",{class:"track",onclick:()=>{db.sel.t=k;if(!has)db.sel.g=db.sel.g;save();train()}},el("span",{class:"badge"+(has?" on":"")},has?"متاح":"قيد الإعداد"),el("small",{},"مسار / "+AR("٠"+n)),el("h3",{},TRACKS[k]),el("p",{},d))};
- const tracks=el("section",{class:"sec"},el("div",{class:"eyebrow"},"اختاري مسارك"),el("h2",{},"ثلاثة مسارات، وهدف واحد"),el("p",{},"اختاري المسار والصف، ثم المادة التي تريدين التدريب عليها."),
-  el("div",{class:"tracks"},tr(1,"national","تدريب على مهارات المواد الأساسية بأسئلة تحاكي الامتحانات الوطنية."),tr(2,"pisa","فهم المقروء وتطبيق المعرفة في مواقف من الحياة."),tr(3,"timss","أسئلة في الرياضيات والعلوم تنمّي التفكير والتحليل.")));
+ const tracks=el("section",{class:"sec"},el("div",{class:"eyebrow"},"اختاري مسارك"),el("h2",{},"مساران، وهدف واحد"),el("p",{},"اختاري المسار والصف، ثم المادة التي تريدين التدريب عليها."),
+  el("div",{class:"tracks"},tr(1,"pisa","فهم المقروء وتطبيق المعرفة في مواقف من الحياة."),tr(2,"timss","أسئلة في الرياضيات والعلوم تنمّي التفكير والتحليل.")));
  const f1=el("div",{class:"feat",style:"background:var(--mint)"},el("div",{class:"eyebrow"},"على جهازك فقط"),el("h3",{},"إنجازك يبقى معك"),el("p",{},"يحفظ هذا الجهاز تدريباتك تلقائيًا، من دون حساب أو تسجيل دخول."),el("button",{class:"alt",style:"background:#fff",onclick:report},"إلى صفحة إنجازي  ←"));
  const f2=el("div",{class:"feat",style:"background:var(--sand)"},el("div",{class:"eyebrow"},"تعلّمي بفهم"),el("h3",{},"الإجابة بداية الفهم"),el("p",{},"بعد كل إجابة ستظهر لك نتيجة فورية وشرح موجز وخطأ شائع، فالتدرّب هنا للتعلّم وليس للسرعة."));
  app.append(hero,tracks,el("div",{class:"two"},f1,f2))}
