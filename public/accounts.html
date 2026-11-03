@@ -15,11 +15,18 @@ button.alt{background:var(--soft);color:var(--wine)}button.del{background:#fff;c
 .muted{color:var(--mute);font-size:.9rem}.err{color:var(--no)}.tag{display:inline-block;border-radius:8px;padding:0 10px;font-size:.85rem;margin:2px 2px 2px 0}
 .s{background:#EAF4EC;color:var(--ok)}.w{background:#FBE9E7;color:var(--no)}.code{font:600 .95rem monospace;direction:ltr;background:var(--soft);border-radius:6px;padding:0 8px}
 .st{border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+#prt{display:none}
+@media print{body>*:not(#prt){display:none!important}#prt{display:block!important}body{background:#fff}
+ @page{size:A4;margin:14mm}.rp{page-break-after:always;font-family:'Sakkal Majalla','Noto Naskh Arabic','IBM Plex Sans Arabic',serif;font-size:15pt;color:#222;line-height:1.7}.rp:last-child{page-break-after:auto}
+ .rp h1{color:#7A1F2E;font-size:22pt;border-bottom:3px solid #B8902A;padding-bottom:6px;margin:0 0 8px;text-align:center}.rp h2{color:#7A1F2E;font-size:16pt;margin:14px 0 4px}
+ .rp table{width:100%;border-collapse:collapse;font-size:13pt}.rp th{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#7A1F2E;color:#fff;padding:4px 8px}.rp td{border:1px solid #bbb;padding:3px 8px;text-align:center}
+ .rp .meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}.rp .sig{display:flex;justify-content:space-around;margin-top:40px}.rp .sig div{border-top:1px solid #444;padding-top:4px;min-width:150px;text-align:center}
+ .rp .foot{margin-top:24px;text-align:center;font-size:11pt;color:#7A1F2E;border-top:2px solid #B8902A;padding-top:6px}}
 footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 24px}a{color:var(--wine)}
 </style></head><body>
 <script src="config.js"></script><script src="gate.js"></script>
 <header class="top"><div class="in"><h1>السوسنة · حسابات الطالبات</h1><div style="margin-top:4px"><a href="teacher.html" style="color:#EADFEE">← تقرير الصف</a> · <a href="index.html" style="color:#EADFEE">للطالبات</a></div></div></header>
-<main class="main" id="app"></main>
+<main class="main" id="app"></main><div id="prt"></div>
 <footer>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي</footer>
 <script src="data.js"></script>
 <script>
@@ -36,6 +43,26 @@ async function encName(n){const iv=crypto.getRandomValues(new Uint8Array(12));co
 async function decName(s){try{const [i,c]=s.split(".");return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb(i)},NK,unb(c)))}catch(e){return null}}
 const fmt=ts=>new Date(ts).toLocaleDateString("ar",{year:"numeric",month:"short",day:"numeric"});
 const col=p=>p>=75?"var(--ok)":p>=50?"var(--mid)":"var(--no)";
+const SCH=()=>{try{return JSON.parse(localStorage.getItem("sw.sch")||"{}")}catch(e){return{}}};
+function stats(at){const pc=a=>a.total?Math.round(a.right/a.total*100):0;const g={};at.forEach(a=>{let d=[];try{d=JSON.parse(a.d)}catch(e){}d.forEach(([si,di,ok,t])=>{const k=si+"_"+di;(g[k]=g[k]||{si,di,ok:0,t:0});g[k].ok+=ok;g[k].t+=t})});
+ const dom=Object.values(g).map(x=>({n:NAME[SUBN[x.si]]+" — "+((window.SW_DOMAINS[SUBN[x.si]]||[])[x.di]||""),ok:x.ok,t:x.t,p:Math.round(x.ok/x.t*100)})).filter(x=>x.t>0);
+ const tot=at.reduce((a,b)=>a+b.total,0),rt=at.reduce((a,b)=>a+b.right,0);return{pc,dom,avg:tot?Math.round(rt/tot*100):0,tot,rt}}
+function report(r){const d=document.createElement("div");d.className="rp";const sc=SCH(),st=stats(r.at),pc=st.pc;
+ const T=(h,rows)=>{const t=E("table");const tr=E("tr");h.forEach(x=>tr.append(E("th","",x)));t.append(tr);rows.forEach(rw=>{const q=E("tr");rw.forEach(x=>q.append(E("td","",x)));t.append(q)});return t};
+ d.append(E("h1","","تقرير إنجاز الطالبة"));const m=E("div","meta");m.append(E("div","","المدرسة: "+(sc.school||"................")),E("div","","المعلمة: "+(sc.teacher||"................")),E("div","","التاريخ: "+fmt(Date.now())));d.append(m);
+ const m2=E("div","meta");m2.append(E("div","","اسم الطالبة: "+(r.nm||"................")),E("div","","الشعبة: "+r.s.sec),E("div","","الرقم: "+r.s.no));d.append(m2);
+ d.append(E("h2","","ملخص الأداء"));
+ if(!r.at.length){d.append(E("p","","لم تسجّل الطالبة أي محاولة بعد."))}else{
+  const ex=r.at.filter(a=>a.mode==="mock"||a.mode==="diag"||a.mode==="test"),l=ex[ex.length-1];
+  d.append(E("p","","عدد المحاولات: "+r.at.length+" — مجموع الأسئلة: "+st.tot+" — المعدل العام: "+st.avg+"%"+(l?" — آخر اختبار: "+fmt(l.ts)+" ("+pc(l)+"%)":"")));
+  if(ex.length>1)d.append(E("p","","تطور علامات الاختبارات: "+ex.slice(-6).map(pc).join("% ← ")+"%"));
+  d.append(E("h2","","أداء الطالبة حسب المجال"));
+  d.append(T(["المجال","الصحيح / الكلي","النسبة","التقدير"],st.dom.map(x=>[x.n,x.ok+" / "+x.t,x.p+"%",x.t<3?"بيانات قليلة":x.p>=75?"قوة":x.p<60?"يحتاج علاجًا":"متوسط"])));
+  d.append(E("h2","","سجل المحاولات"));
+  d.append(T(["التاريخ","النشاط","العلامة","النسبة"],r.at.slice().reverse().slice(0,25).map(a=>[fmt(a.ts),a.title,a.right+" / "+a.total,pc(a)+"%"])))}
+ const sg=E("div","sig");sg.append(E("div","","المعلمة"),E("div","","مديرة المدرسة"));d.append(sg);
+ d.append(E("div","foot","تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"));return d}
+function printRep(list){const p=$("prt");p.replaceChildren(...list.map(report));setTimeout(()=>window.print(),150)}
 function loginView(){app.replaceChildren();const c=E("div","card");c.append(E("h2","","دخول المعلمة"));
  const u=E("input");u.placeholder="اسم المستخدم";const p=E("input");p.type="password";p.placeholder="كلمة السر";const inv=E("input");inv.placeholder="رمز الدعوة (للتسجيل أول مرة)";const sc=E("input");sc.placeholder="اسم المدرسة (للتسجيل)";const msg=E("p","err","");
  const go=async reg=>{msg.textContent="";try{const j=await api(reg?"/api/teacher/register":"/api/teacher/login",{username:u.value,password:p.value,invite:inv.value,school:sc.value});TOK=j.token;USER=u.value.trim().toLowerCase();try{sessionStorage.setItem("sw.api",TOK);sessionStorage.setItem("sw.user",USER)}catch(e){}main()}catch(e){msg.textContent=e.status===503?"الحسابات غير مفعّلة بعد على الخادم. يلزم إعداد قاعدة البيانات أولًا.":e.message}};
@@ -55,11 +82,15 @@ async function main(){app.replaceChildren();
 async function load(){let j;try{j=await api("/api/students")}catch(e){if(e.status===401){loginView();return}$("dash").textContent=e.message;return}
  DATA=j;draw()}
 async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","3) متابعة الطالبات"));
- const secs=[...new Set(DATA.students.map(s=>s.sec))];const sel=E("select");sel.append(new Option("كل الشعب",""));secs.forEach(x=>sel.append(new Option("الشعبة "+x,x)));sel.value=SEC;sel.onchange=()=>{SEC=sel.value;draw()};d.append(sel,btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt"));
+ const secs=[...new Set(DATA.students.map(s=>s.sec))];const sel=E("select");sel.append(new Option("كل الشعب",""));secs.forEach(x=>sel.append(new Option("الشعبة "+x,x)));sel.value=SEC;sel.onchange=()=>{SEC=sel.value;draw()};
+ const sc=SCH(),si=E("input");si.placeholder="اسم المدرسة (للطباعة)";si.value=sc.school||"";const ti=E("input");ti.placeholder="اسم المعلمة (للطباعة)";ti.value=sc.teacher||"";
+ const sv=()=>{try{localStorage.setItem("sw.sch",JSON.stringify({school:si.value,teacher:ti.value}))}catch(e){}};si.oninput=ti.oninput=sv;
+ const rows=[];
+ d.append(si,ti,E("br"),sel,btn("🖨 طباعة تقارير الشعبة",()=>printRep(rows)),btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt"));
  if(!DATA.students.length){d.append(E("p","muted","لا توجد طالبات بعد."));return}
  const by={};DATA.attempts.forEach(a=>(by[a.student_id]=by[a.student_id]||[]).push(a));
  for(const s of DATA.students.filter(x=>!SEC||x.sec===SEC)){const at=(by[s.id]||[]).sort((x,y)=>x.ts-y.ts);const nm=NK?await decName(s.enc_name):null;
-  const c=E("div","st"),h=E("div","row");h.append(E("b","",(nm||"طالبة")+" ("+s.sec+"-"+s.no+")"),E("span","code",s.code));c.append(h);
+  const c=E("div","st"),h=E("div","row");const rr={s,nm,at};rows.push(rr);h.append(E("b","",(nm||"طالبة")+" ("+s.sec+"-"+s.no+")"),E("span","code",s.code));c.append(h);
   const pc=a=>a.total?Math.round(a.right/a.total*100):0;
   const ex=at.filter(a=>a.mode==="mock"||a.mode==="diag"||a.mode==="test");
   if(!at.length)c.append(E("p","muted","لم تبدأ التدريب بعد."));
@@ -69,6 +100,6 @@ async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","
    const row=E("div");Object.values(g).filter(x=>x.t>=3).forEach(x=>{const p=Math.round(x.ok/x.t*100);const dn=(window.SW_DOMAINS[SUBN[x.si]]||[])[x.di];if(!dn)return;if(p>=75)row.append(E("span","tag s","قوة: "+dn+" "+p+"%"));else if(p<60)row.append(E("span","tag w","ضعف: "+dn+" "+p+"%"))});
    if(row.children.length)c.append(row);else c.append(E("p","muted","نقاط القوة والضعف تظهر بعد 3 أسئلة على الأقل في المجال."));
    const rec=E("details");rec.append(E("summary","muted","آخر المحاولات ("+at.length+")"));at.slice(-6).reverse().forEach(a=>rec.append(E("div","muted",fmt(a.ts)+" · "+a.title+" · "+a.right+"/"+a.total)));c.append(rec)}
-  c.append(btn("حذف الحساب",async()=>{if(c.dataset.s){await api("/api/students/"+s.id,null,"DELETE");await load()}else{c.dataset.s=1;c.lastChild.textContent="اضغطي مرة أخرى للتأكيد"}},"del"));d.append(c)}}
+  c.append(btn("🖨 طباعة تقرير الطالبة",()=>printRep([rr]),"alt"),btn("حذف الحساب",async()=>{if(c.dataset.s){await api("/api/students/"+s.id,null,"DELETE");await load()}else{c.dataset.s=1;c.lastChild.textContent="اضغطي مرة أخرى للتأكيد"}},"del"));d.append(c)}}
 TOK?main().catch(()=>loginView()):loginView();
 </script></body></html>
