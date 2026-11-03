@@ -1,0 +1,67 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>السوسنة · وضع السبورة</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap">
+<style>
+:root{--g:#3E1B47;--bg:#FBF8FC;--card:#fff;--line:#E2D6E8;--mute:#6F5C78;--ok:#2F7D4F;--no:#B3261E;--sand:#F3EAF6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#241528;font-family:'Noto Naskh Arabic','Segoe UI',sans-serif;line-height:1.8}
+h1,h2,h3,.big{font-family:'El Messiri','Noto Naskh Arabic',serif;margin:0}
+.wrap{max-width:1100px;margin:auto;padding:14px 16px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+header a{color:var(--g);font-weight:600}
+button{font:inherit;font-weight:600;border:0;border-radius:14px;padding:12px 22px;background:var(--g);color:#fff;cursor:pointer}
+button.alt{background:var(--sand);color:var(--g)}button.ok{background:var(--ok)}button.no{background:var(--no)}
+select,input{font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin:10px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.q{font-size:clamp(1.4rem,3.2vw,2.3rem);font-weight:600;line-height:1.9}
+.opt{display:flex;gap:14px;align-items:center;width:100%;text-align:right;background:#fff;color:#241528;border:2px solid var(--line);font-size:clamp(1.2rem,2.6vw,1.9rem);margin:8px 0}
+.opt .l{background:var(--sand);color:var(--g);border-radius:50%;width:2.2em;height:2.2em;display:flex;align-items:center;justify-content:center;flex:none}
+.opt.right{border-color:var(--ok);background:#EAF4EC}.opt.wrong{border-color:var(--no);background:#FBE9E7}
+.pick{font-size:clamp(2rem,6vw,4rem);color:var(--g);text-align:center;min-height:1.4em}
+.sol{background:#F2F8F3;border:1px solid #BFD9C6;border-radius:14px;padding:12px 16px;font-size:clamp(1.1rem,2.2vw,1.5rem)}
+.tally{display:flex;gap:18px;font-size:1.3rem}.tally b{font-size:1.8rem}
+.flash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(4rem,16vw,10rem);color:#fff;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9}
+.flash.on{opacity:.92}.muted{color:var(--mute);font-size:.9rem}.tag{background:var(--sand);color:var(--g);border-radius:8px;padding:0 10px;font-size:.85rem}
+img.qimg{max-width:100%;max-height:46vh;display:block;margin:10px auto;background:#fff;border:1px solid var(--line);border-radius:10px}
+</style></head><body><div class="wrap">
+<header><h1>السوسنة · وضع السبورة</h1><a href="index.html">← للمنصة</a></header>
+<div id="app"></div></div><div class="flash" id="fl"></div>
+<script src="data.js"></script><script src="data-sci.js"></script><script src="data-timss8.js"></script><script src="data-math.js"></script>
+<script>
+const $=id=>document.getElementById(id),app=$("app");
+const SUB={math:"الرياضيات",sci:"العلوم"};
+const el=(t,a={},...k)=>{const e=document.createElement(t);for(const x in a){if(x==="class")e.className=a[x];else if(x.startsWith("on"))e.addEventListener(x.slice(2),a[x]);else e.setAttribute(x,a[x])}k.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?"":c)));return e};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const Q=window.SW_Q.map(q=>({t:"timss",g:8,...q}));
+let S={s:"math",d:"",n:30,list:[],i:0,ok:0,no:0,used:[],done:false};
+function flash(ok){const f=$("fl");f.style.background=ok?"var(--ok)":"var(--no)";f.textContent=ok?"✔ صحيح":"✘ خطأ";f.classList.add("on");setTimeout(()=>f.classList.remove("on"),900)}
+function setup(){app.replaceChildren();
+ const sub=el("select",{onchange:e=>{S.s=e.target.value;setup()}},Object.keys(SUB).map(k=>el("option",{value:k,...(k===S.s?{selected:""}:{})},SUB[k])));
+ const doms=(window.SW_DOMAINS[S.s]||[]);
+ const dom=el("select",{onchange:e=>S.d=e.target.value},el("option",{value:""},"كل المجالات"),doms.map(d=>el("option",{value:d,...(d===S.d?{selected:""}:{})},d)));
+ const n=el("input",{type:"number",min:"1",max:"60",value:S.n,style:"width:90px",onchange:e=>S.n=Math.max(1,+e.target.value||30)});
+ app.append(el("div",{class:"card"},el("h2",{},"جهّزي الحصة"),el("p",{class:"muted"},"للصف الثامن. تُعرض الأسئلة بخط كبير على السبورة التفاعلية، وتُختار الطالبة بالرقم (لا تُحفظ أي أسماء)."),
+  el("div",{class:"row"},el("label",{},"المادة: "),sub,el("label",{},"المجال: "),dom,el("label",{},"عدد الطالبات في الشعبة: "),n),
+  el("p",{}),el("button",{onclick:start},"ابدئي الحصة  ←")))}
+function start(){S.list=shuffle(Q.filter(q=>q.s===S.s&&(!S.d||q.d===S.d)));S.i=0;S.ok=0;S.no=0;S.used=[];S.done=false;show()}
+function show(){app.replaceChildren();
+ if(S.i>=S.list.length){app.append(el("div",{class:"card"},el("h2",{},"انتهت الأسئلة"),el("p",{class:"big",style:"font-size:2rem"},"صحيحة: "+S.ok+" · تحتاج مراجعة: "+S.no),el("button",{onclick:setup},"حصة جديدة")));return}
+ const q=S.list[S.i];let answered=false;
+ const pick=el("div",{class:"pick",id:"pk"},"");
+ const pbtn=el("button",{class:"alt",onclick:()=>{const free=[];for(let k=1;k<=S.n;k++)if(!S.used.includes(k))free.push(k);if(!free.length){S.used=[];return pbtn.click()}
+   let t=0;const iv=setInterval(()=>{pick.textContent="؟ "+(1+Math.random()*S.n|0);if(++t>14){clearInterval(iv);const r=free[Math.random()*free.length|0];S.used.push(r);pick.textContent="مَن تجيب؟ الطالبة رقم "+r}},80)}},"🎡 مَن تجيب؟");
+ const head=el("div",{class:"row",style:"justify-content:space-between"},el("div",{class:"tally"},el("span",{},"✔ ",el("b",{},S.ok)),el("span",{},"✘ ",el("b",{},S.no))),el("span",{class:"muted"},"سؤال "+(S.i+1)+" من "+S.list.length),pbtn);
+ const card=el("div",{class:"card"},el("div",{class:"row"},el("span",{class:"tag"},q.d),el("span",{class:"tag"},q.c)),el("p",{class:"q"},q.q));
+ if(q.img)card.append(el("img",{class:"qimg",src:q.img,alt:"شكل السؤال"}));
+ const sol=el("div");
+ const next=el("button",{hidden:"",onclick:()=>{S.i++;show()}},"السؤال التالي  ←");
+ const mark=ok=>{if(answered)return;answered=true;if(ok)S.ok++;else S.no++;flash(ok);setTimeout(()=>{head.querySelector(".tally").replaceChildren(el("span",{},"✔ ",el("b",{},S.ok)),el("span",{},"✘ ",el("b",{},S.no)))},0);next.hidden=false};
+ const reveal=(chosen)=>{const ans=q.open?q.model:q.o[q.a];sol.replaceChildren(el("div",{class:"sol"},el("b",{},"الإجابة: "),ans,q.why?el("div",{},q.why):""));};
+ if(q.open){const rv=el("button",{onclick:()=>{reveal();rv.hidden=true;sol.append(el("div",{class:"row",style:"margin-top:10px"},el("button",{class:"ok",onclick:()=>mark(true)},"✔ حلّها صحيح"),el("button",{class:"no",onclick:()=>mark(false)},"✘ حلّها خطأ")))}},"اعرضي الحل");card.append(rv)}
+ else{const order=shuffle([0,1,2,3]),LT=["أ","ب","ج","د"];const bs=order.map((k,j)=>el("button",{class:"opt",onclick:()=>{if(answered)return;bs.forEach(b=>{if(b._k===q.a)b.classList.add("right");else if(b===me)b.classList.add("wrong")});mark(k===q.a);reveal()}},el("span",{class:"l"},LT[j]),q.o[k]));
+  let me=null;bs.forEach((b,j)=>{b._k=order[j];b.addEventListener("click",()=>{me=b})});
+  const rv=el("button",{class:"alt",onclick:()=>{bs.forEach(b=>{if(b._k===q.a)b.classList.add("right")});reveal();rv.hidden=true;sol.append(el("div",{class:"row",style:"margin-top:10px"},el("button",{class:"ok",onclick:()=>mark(true)},"✔ حلّها صحيح"),el("button",{class:"no",onclick:()=>mark(false)},"✘ حلّها خطأ")))}},"اعرضي الحل (الطالبة حلّت على السبورة)");
+  card.append(...bs,el("p",{class:"muted"},"إما أن تضغط الطالبة على الخيار مباشرة، أو تحلّ على السبورة ثم تعرضين الحل وتحكمين عليه."),rv)}
+ app.append(head,pick,card,sol,next)}
+setup();
+</script></body></html>
