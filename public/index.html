@@ -89,6 +89,7 @@ const TRACKS={national:"الامتحان الوطني",pisa:"بيزا",timss:"ت
 const ALLSUB={math:"الرياضيات",sci:"العلوم",ar:"اللغة العربية",en:"اللغة الإنجليزية"};
 db.sel=db.sel||{t:"timss",g:8};
 const cnt=(t,g,s)=>Q.filter(q=>q.t===t&&q.g===g&&q.s===s).length;
+const logA=ok=>{const t=today();db.dl=db.dl||{};const x=db.dl[t]=db.dl[t]||{ok:0,t:0};x.t++;if(ok)x.ok++;save()};
 const AR=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 let timer=null;
 function clear(){if(timer){clearInterval(timer);timer=null}app.replaceChildren();window.scrollTo(0,0)}
@@ -150,19 +151,19 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
   const img=q.img?el("img",{class:"qimg",src:q.img,alt:"شكل السؤال"}):null;if(img)c.append(img);
   const srcl=q.src?el("p",{class:"src"},"المصدر: "+q.src):null;
   if(q.open){const ta=el("textarea",{class:"ans",placeholder:"اكتبي إجابتك هنا أو فكّري بها (اختياري)"});const area=el("div");
-   const rate=ok=>{ans[n]={q,k:ok?0:-1};db.h[q.i]={ok};if(!db.days.includes(today()))db.days.push(today());save();n++;n<list.length?show():finish()};
+   const rate=ok=>{ans[n]={q,k:ok?0:-1};db.h[q.i]={ok};logA(ok);if(!db.days.includes(today()))db.days.push(today());save();n++;n<list.length?show():finish()};
    const reveal=el("button",{onclick:()=>{reveal.hidden=true;ta.readOnly=true;area.replaceChildren(el("div",{class:"model"},el("b",{},"نموذج الإجابة: "),q.model),el("p",{class:"muted"},"قارني إجابتك بالنموذج:"),el("div",{class:"row"},el("button",{onclick:()=>rate(true)},"✔ إجابتي صحيحة"),el("button",{class:"alt",onclick:()=>rate(false)},"✘ أحتاج مراجعة")))}},"اعرضي نموذج الإجابة");
    c.append(ta,reveal,area);if(srcl)c.append(srcl);box.append(c);return}
   const LT=["أ","ب","ج","د"];const btns=order.map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>pick(k)},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});c.append(...btns);if(srcl)c.append(srcl);
   const next=el("button",{hidden:true,onclick:()=>{n++;n<list.length?show():finish()}},n+1<list.length?"التالي  ←":"إنهاء");
   const fb=el("div");c.append(fb,el("p",{style:"margin:6px 0"}),next);box.append(c);
-  function pick(k){if(chosen!==null&&o.feedback)return;chosen=k;ans[n]={q,k};if(!db.days.includes(today())){db.days.push(today());save()}if(o.feedback){db.h[q.i]={ok:k===q.a};save()}
+  function pick(k){if(chosen!==null&&o.feedback)return;chosen=k;ans[n]={q,k};if(!db.days.includes(today())){db.days.push(today());save()}if(o.feedback){db.h[q.i]={ok:k===q.a};logA(k===q.a);save()}
    btns.forEach(b=>{b.classList.toggle("sel",b._k===k)});
    if(o.feedback){btns.forEach(b=>{if(b._k===q.a)b.classList.add("right");else if(b._k===k)b.classList.add("wrong")});
     fb.replaceChildren(el("div",{class:"exp"},(k===q.a?"✔ إجابة صحيحة. ":"✘ الإجابة الصحيحة: "+q.o[q.a]+". "),q.why,el("br"),el("span",{class:"muted"},"خطأ شائع: "+q.mk)));}
    next.hidden=false}}
  function finish(){if(timer){clearInterval(timer);timer=null}
-  ans.forEach(x=>{if(x)db.h[x.q.i]={ok:x.k===x.q.a}});if(!db.days.includes(today()))db.days.push(today());save();
+  ans.forEach(x=>{if(x){db.h[x.q.i]={ok:x.k===x.q.a};if(!o.feedback)logA(x.k===x.q.a)}});if(!db.days.includes(today()))db.days.push(today());save();
   const right=ans.filter(x=>x&&x.k===x.q.a).length;
   clear();app.append(crumb(title),el("div",{class:"card"},el("div",{class:"eyebrow"},"النتيجة"),el("h2",{},right+" من "+list.length),el("p",{}),el("div",{class:"bar"},el("i",{style:"width:"+(right/list.length*100)+"%"}))));
   const rev=el("div",{class:"card"},el("h3",{},"مراجعة الأسئلة"));
@@ -188,10 +189,29 @@ function report(){clear();setTab("r");
  weak.sort((a,b)=>a.p-b.p);const w=weak.filter(x=>x.p<70).slice(0,2);
  app.append(el("div",{class:"card",style:"background:#F6F0F8;border-color:#D9C6DF"},el("h3",{},"خطة الدراسة"),w.length?w.map(x=>el("p",{},"ركّزي على «"+x.d+"» ("+SUB[x.s]+"): ابدئي بالتدريب حسب الموضوع، وراجعي الأخطاء الشائعة بعد كل سؤال، ثم أعيدي الاختبار بعد أسبوع."))
   :el("p",{},"أداؤك جيد في المجالات التي جرّبتِها. جرّبي الاختبار بوقت للتأكد.")),
-  el("div",{class:"card"},el("h3",{},"شاركي تقريرك مع معلمتك"),el("p",{class:"muted"},"الرمز يحتوي نسب مجالاتك فقط، ولا يحتوي اسمك. انسخيه وأرسليه لمعلمتك."),el("button",{onclick:shareCode},"نسخ رمز تقريري")),
+  progressCard(),remedyCard(w),
+  el("div",{class:"card"},el("h3",{},"شاركي تقريرك مع معلمتك"),el("p",{class:"muted"},"الرمز يحتوي رقمك في كشف الصف ونسب مجالاتك فقط، ولا يحتوي اسمك. أرسليه لمعلمتك كل أسبوع لتتابع تطورك."),
+   el("div",{class:"row"},el("input",{type:"text",maxlength:"8",placeholder:"شعبتك (مثل 8أ)",value:db.sec||"",style:"width:130px;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit",onchange:e=>{db.sec=e.target.value.trim();save()}}),el("input",{type:"number",min:"1",max:"60",placeholder:"رقمك في كشف الصف",value:db.me||"",style:"width:170px;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit",onchange:e=>{db.me=e.target.value;save()}}),el("button",{onclick:shareCode},"نسخ رمز تقريري"))),
   el("div",{class:"row"},el("button",{onclick:train},"تدريب على الأضعف  ←"),el("button",{class:"alt",onclick:()=>{if(confirm("مسح كل نتائجك من هذا الجهاز؟")){db.h={};db.days=[];save();report()}}},"مسح نتائجي")))}
+function progressCard(){const days=[];const d=new Date();for(let i=6;i>=0;i--){const x=new Date(d);x.setDate(d.getDate()-i);const k=x.toISOString().slice(0,10);const v=(db.dl||{})[k];days.push({k,v})}
+ const mx=Math.max(1,...days.map(x=>x.v?x.v.t:0));
+ const c=el("div",{class:"card"},el("h3",{},"تطوّرك آخر 7 أيام"),el("p",{class:"muted"},"ارتفاع العمود = عدد الأسئلة، ولونه = نسبة الصحيح."));
+ const row=el("div",{style:"display:flex;gap:8px;align-items:flex-end;height:110px"});
+ days.forEach(x=>{const t=x.v?x.v.t:0,p=t?x.v.ok/t:0;row.append(el("div",{style:"flex:1;text-align:center;font-size:.75rem"},el("div",{style:"height:"+Math.round(t/mx*80)+"px;min-height:"+(t?4:0)+"px;background:"+(p>=.75?"#2F7D4F":p>=.5?"#C08A2B":"#B3261E")+";border-radius:6px 6px 0 0"}),t?Math.round(p*100)+"%":"—"))});
+ c.append(row);return c}
+function remedyCard(w){const c=el("div",{class:"card",style:"border-right:4px solid var(--t)"},el("h3",{},"خطتك العلاجية"));
+ if(!w.length){c.append(el("p",{},"لا توجد مجالات ضعيفة حاليًا. استمري بتدريب 10 دقائق يوميًا، وجرّبي الاختبار بوقت."));return c}
+ c.append(el("p",{class:"muted"},"ثلاث خطوات لكل مجال ضعيف خلال أسبوع: (1) صحّحي أخطاءك مع الشرح، (2) تدرّبي على أسئلة جديدة، (3) اختبار بعدي قصير لتري تقدمك."));
+ w.forEach(x=>{const inD=q=>q.s===x.s&&q.d===x.d,wrong=Q.filter(q=>inD(q)&&db.h[q.i]&&!db.h[q.i].ok),fresh=Q.filter(q=>inD(q)&&!db.h[q.i]);
+  const post=shuffle(Q.filter(q=>inD(q)&&!q.open&&!(db.h[q.i]&&db.h[q.i].ok))).slice(0,5);
+  const b=[];
+  if(wrong.length)b.push(el("button",{onclick:()=>run(shuffle(wrong),"علاج · "+x.d,{feedback:true})},"1) صحّحي أخطاءك ("+wrong.length+")"));
+  if(fresh.length)b.push(el("button",{class:"alt",onclick:()=>run(shuffle(fresh).slice(0,8),"تدريب · "+x.d,{feedback:true})},"2) أسئلة جديدة"));
+  if(post.length>=3)b.push(el("button",{class:"alt",onclick:()=>run(post,"اختبار بعدي · "+x.d,{feedback:false})},"3) اختبار بعدي"));
+  c.append(el("div",{style:"border-top:1px solid var(--line);padding-top:10px;margin-top:10px"},el("b",{},"«"+x.d+"» ("+SUB[x.s]+") — "+x.p+"%"),el("div",{class:"row",style:"margin-top:8px"},b)))});
+ return c}
 function shareCode(){const d=domStats().filter(x=>x.tot).map(x=>[x.s==="math"?0:1,x.i,x.ok,x.tot]);
- const code="SW1."+btoa(unescape(encodeURIComponent(JSON.stringify({s:sch||"",d}))));
+ const code="SW2."+btoa(unescape(encodeURIComponent(JSON.stringify({s:sch||"",c:db.sec||"",n:db.me||"",w:today(),d}))));
  const box=el("textarea",{class:"code",readonly:"readonly"});box.value=code;app.append(box);box.select();
  try{navigator.clipboard.writeText(code).catch(()=>{})}catch(e){}
  box.scrollIntoView({block:"center"});box.insertAdjacentElement("afterend",el("p",{class:"muted"},"تم تجهيز الرمز. إن لم يُنسخ تلقائيًا فاضغطي على المربع وانسخيه."))}
