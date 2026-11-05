@@ -60,6 +60,10 @@ textarea.code{width:100%;min-height:64px;font:13px/1.5 monospace;direction:ltr;b
 nav.crumb{font-size:.9rem;color:var(--mute)}nav.crumb a{color:var(--g);cursor:pointer;font-weight:600}
 .qimg{display:block;max-width:100%;margin:8px auto;border:1px solid var(--line);border-radius:10px;background:#fff}textarea.ans{width:100%;box-sizing:border-box;min-height:84px;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:inherit}.src{font-size:.78rem;color:var(--mute);margin:6px 0 0}.model{background:#F2F8F3;border:1px solid #BFD9C6;border-radius:10px;padding:10px 12px;margin:8px 0;line-height:1.8}footer{border-top:1px solid var(--line);margin-top:10px}footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;padding-block:14px;color:var(--mute);font-size:.82rem}footer b{color:var(--g)}footer a{color:inherit}
 @media(max-width:720px){.hero{grid-template-columns:1fr}.hero .arch{order:-1;max-width:300px}.two{grid-template-columns:1fr}.dom{grid-template-columns:96px 1fr 46px}}
+
+.gm{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.pts{background:#3E1B47;color:#fff;border-radius:999px;padding:2px 14px;font-weight:700}.rnd{background:#B8902A;color:#fff;border-radius:999px;padding:0 12px;font-size:.85rem}
+#cert{border:6px double #B8902A;border-radius:14px;padding:26px 18px;text-align:center;background:#fffdf8;color:#2a1630;margin:12px 0}#cert h1{font-size:2rem;color:#3E1B47;margin:4px 0}#cert .nm{font-size:1.6rem;font-weight:700;color:#3E1B47;border-bottom:2px solid #B8902A;display:inline-block;padding:0 18px;margin:8px 0}#cert .sm{font-size:.82rem;color:#6a5a70;margin-top:14px}
+@media print{body.pc header,body.pc footer,body.pc .noprint,body.pc nav{display:none!important}body.pc #cert{margin:0;border-width:8px}@page{size:A4 landscape;margin:12mm}}
 </style></head><body>
 <header class="nav"><div class="wrap">
 <div class="brand" onclick="home()"><span class="logo"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6c5 9 5 17 0 25-5-8-5-16 0-25zM8 26c10 0 17 4 22 12-10 0-17-4-22-12zM56 26c-10 0-17 4-22 12 10 0 17-4 22-12zM32 58c-6-5-6-12 0-20 6 8 6 15 0 20z" fill="#D9B8E6"/></svg></span>السوسنة</div>
@@ -95,7 +99,7 @@ const bpOn=s=>{const b=window.SW_BP&&window.SW_BP[db.sel.g]&&window.SW_BP[db.sel
 const logA=ok=>{const t=today();db.dl=db.dl||{};const x=db.dl[t]=db.dl[t]||{ok:0,t:0};x.t++;if(ok)x.ok++;save()};
 const AR=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 let timer=null;
-function clear(){if(timer){clearInterval(timer);timer=null}app.replaceChildren();window.scrollTo(0,0)}
+function clear(){document.body.classList.remove("pc");if(timer){clearInterval(timer);timer=null}app.replaceChildren();window.scrollTo(0,0)}
 function setTab(t){document.querySelectorAll(".pills a").forEach(a=>a.classList.toggle("on",a.dataset.t===t))}
 function streak(){const set=new Set(db.days);let n=0;const d=new Date();if(!set.has(d.toISOString().slice(0,10)))d.setDate(d.getDate()-1);while(set.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}return n}
 function domStats(){const out=[];Object.keys(SUB).forEach(s=>(window.SW_DOMAINS[s]||[]).forEach((d,i)=>{const qs=Q.filter(q=>q.s===s&&q.d===d&&db.h[q.i]);out.push({s,d,i,tot:qs.length,ok:qs.filter(q=>db.h[q.i].ok).length})}));return out}
@@ -134,7 +138,7 @@ function gradeView(n){clear();setTab("t");db.sel.g=n;save();const sel=db.sel;
   if(!c){g.append(el("div",{class:"card",style:"background:var(--sand2)"},el("div",{class:"split"},el("h3",{style:"color:var(--mute);font-size:1.2rem"},ALLSUB[s]),el("span",{class:"cnt"},"قيد الإعداد")),el("p",{class:"muted",style:"margin:6px 0 0"},"أسئلة هذه المادة ستُضاف قريبًا.")));return}
   g.append(el("div",{class:"card"},el("div",{class:"split"},el("h3",{style:"color:var(--g);font-size:1.35rem"},ALLSUB[s]),el("span",{class:"cnt"},c+" سؤالًا")),
    el("div",{class:"chips"},doms(s).map(d=>el("span",{},d))),
-   el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت")),bpOn(s)?el("div",{class:"row",style:"margin-top:8px"},el("button",{class:"terra",onclick:()=>bpView(s)},"اختبار متوقع حسب إطار تيمس 2023")):""))});
+   el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت"),el("button",{class:"alt",onclick:()=>games(s)},"🎮 ألعاب")),bpOn(s)?el("div",{class:"row",style:"margin-top:8px"},el("button",{class:"terra",onclick:()=>bpView(s)},"اختبار متوقع حسب إطار تيمس 2023")):""))});
  app.append(g)}
 function topics(s){clear();setTab("t");app.append(crumb(SUB[s]));
  const g=el("div",{class:"grid"});
@@ -143,6 +147,40 @@ function topics(s){clear();setTab("t");app.append(crumb(SUB[s]));
 function diag(s){const ds=doms(s);let pick=[];ds.forEach(d=>pick.push(...shuffle(Q.filter(q=>!q.open&&!q.dup&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d)).slice(0,2)));
  run(shuffle(pick),"تشخيصي · "+SUB[s],{feedback:false,diag:true})}
 function mock(s){const pick=shuffle(Q.filter(q=>!q.open&&!q.dup&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s)).slice(0,12);run(pick,"اختبار بوقت · "+SUB[s],{feedback:false,minutes:18})}
+/* ---------- ألعاب تدريبية ---------- */
+function games(s){clear();setTab("t");app.append(crumb(SUB[s]+" · ألعاب"),el("section",{class:"sec"},el("div",{class:"eyebrow"},"ألعاب"),el("h2",{},"العبي وتعلّمي"),el("p",{},"كل لعبة 12 سؤالًا في ثلاث جولات: معرفة ثم تطبيق ثم استدلال. لكل إجابة صحيحة 3 نقاط. نتائج الألعاب للمتعة ولا تدخل في تقرير إنجازك.")));
+ const g=el("div",{class:"grid"});
+ const mk=(t,d,dom)=>g.append(el("div",{class:"card"},el("h3",{},"🎮 "+t),el("p",{class:"muted"},d),el("button",{onclick:()=>game(s,dom,t)},"ابدئي اللعبة  ←")));
+ doms(s).forEach(d=>mk("تحدّي "+d,"أسئلة هذا المجال فقط",d));mk("التحدّي الشامل","أسئلة من كل المجالات",null);app.append(g)}
+function game(s,dom,title){const pool=Q.filter(q=>!q.open&&!q.dup&&q.t==="timss"&&q.g===db.sel.g&&q.s===s&&(!dom||q.d===dom));
+ const used=new Set();let list=[];["معرفة","تطبيق","استدلال"].forEach(c=>{const a=shuffle(pool.filter(q=>q.c===c)).slice(0,4);a.forEach(q=>used.add(q.i));list.push(...a)});
+ if(list.length<12)shuffle(pool.filter(q=>!used.has(q.i))).slice(0,12-list.length).forEach(q=>list.push(q));
+ const ord={"معرفة":0,"تطبيق":1,"استدلال":2};list.sort((a,b)=>ord[a.c]-ord[b.c]);let n=0,pts=0,right=0;clear();
+ const top=el("div",{class:"card"}),box=el("div");app.append(crumb("لعبة · "+title),top,box);
+ const LT=["أ","ب","ج","د"];
+ function show(){const q=list[n];top.replaceChildren(el("div",{class:"gm"},el("span",{class:"rnd"},"الجولة: "+q.c),el("span",{class:"muted"},(n+1)+" / "+list.length),el("span",{class:"pts"},pts+" نقطة")),el("div",{class:"bar",style:"margin-top:8px"},el("i",{style:"width:"+(n/list.length*100)+"%"})));
+  box.replaceChildren();const c=el("div",{class:"card"},el("p",{style:"font-size:1.1rem;font-weight:500"},q.q));if(q.img)c.append(el("img",{class:"qimg",src:q.img,alt:"شكل السؤال"}));
+  let done=false;const fb=el("div");
+  const next=el("button",{hidden:true,onclick:()=>{n++;n<list.length?show():end()}},n+1<list.length?"التالي  ←":"النتيجة");
+  const btns=shuffle([0,1,2,3]).map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>{if(done)return;done=true;const ok=k===q.a;if(ok){pts+=3;right++}
+    btns.forEach(x=>{if(x._k===q.a)x.classList.add("right");else if(x._k===k)x.classList.add("wrong")});
+    fb.replaceChildren(el("div",{class:"exp"},(ok?"✔ أحسنتِ! +3 نقاط. ":"✘ الصحيح: "+q.o[q.a]+". "),q.why));top.querySelector(".pts").textContent=pts+" نقطة";next.hidden=false}},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});
+  c.append(...btns,fb,el("p",{style:"margin:6px 0"}),next);box.append(c)}
+ function end(){clear();const mx=list.length*3,st=pts>=mx*.8?"⭐⭐⭐":pts>=mx*.5?"⭐⭐":"⭐";
+  app.append(crumb("لعبة · "+title),el("div",{class:"card"},el("div",{class:"eyebrow"},"انتهت اللعبة"),el("h2",{},st+" "+pts+" من "+mx+" نقطة"),el("p",{},"أجبتِ "+right+" من "+list.length+" إجابة صحيحة. "+(pts>=mx*.8?"أداء رائع!":pts>=mx*.5?"جيد، وبالتدريب يصير أفضل.":"لا بأس، جرّبي التدريب حسب الموضوع ثم أعيدي اللعبة.")),
+   el("div",{class:"row"},el("button",{onclick:()=>game(s,dom,title)},"العبي مرة أخرى"),el("button",{class:"alt",onclick:()=>games(s)},"ألعاب أخرى"),el("button",{class:"alt",onclick:()=>gradeView(db.sel.g)},"رجوع"))))}
+ if(!list.length){app.append(el("div",{class:"card"},"لا توجد أسئلة كافية لهذه اللعبة بعد."));return}show()}
+/* ---------- شهادة تدريب ---------- */
+function cert(title,right,total){clear();const sub=title.split("·").pop().trim();app.append(crumb("شهادة تدريب"));
+ const nm=el("input",{type:"text",maxlength:"40",placeholder:"اسمك على الشهادة",style:"padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;width:230px"});
+ const out=el("div");
+ const show=()=>{const n=nm.value.trim();if(!n){nm.focus();return}document.body.classList.add("pc");
+  const pc=total?Math.round(right*100/total):0,dt=new Date().toLocaleDateString("ar-JO",{year:"numeric",month:"long",day:"numeric"});
+  out.replaceChildren(el("div",{id:"cert"},el("div",{style:"color:#B8902A;font-weight:700"},"منصة السوسنة للتدريب"),el("h1",{},"شهادة تدريب"),el("p",{},"تشهد منصة السوسنة بأن الطالبة"),el("div",{class:"nm"},n),
+   el("p",{},"أتمّت اختبارًا تدريبيًا بوقت في مادة "+sub+" للصف "+GN[db.sel.g-1]+" على نمط اختبارات تيمس، وحصلت على "+right+" من "+total+" ("+pc+"%)."),
+   el("p",{},"التاريخ: "+dt),el("div",{class:"sm"},"هذه الشهادة للتدريب فقط وغير رسمية، ولا تمثّل المركز الوطني لتنمية الموارد البشرية ولا الجهة المنظِّمة للدراسة الدولية."),el("div",{class:"sm"},"تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي")),
+   el("div",{class:"row noprint"},el("button",{onclick:()=>window.print()},"طباعة / حفظ PDF"),el("button",{class:"alt",onclick:()=>gradeView(db.sel.g)},"رجوع")))};
+ app.append(el("div",{class:"card noprint"},el("h3",{},"شهادتك"),el("p",{class:"muted"},"اكتبي اسمك ليظهر على الشهادة. لا يُحفظ الاسم ولا يُرسل لأي جهة."),el("div",{class:"row"},nm,el("button",{onclick:show},"إظهار الشهادة"))),out)}
 /* ---------- الاختبار المتوقع حسب جدول المواصفات ---------- */
 function bpBuild(g,s){const B=window.SW_BP[g][s],lrm=window.SW_lrm;
  const pool=Q.filter(q=>q.t==="timss"&&q.g===g&&q.s===s&&!q.open&&!q.dup);
@@ -191,7 +229,7 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
   clear();app.append(crumb(title),el("div",{class:"card"},el("div",{class:"eyebrow"},"النتيجة"),el("h2",{},right+" من "+list.length),el("p",{}),el("div",{class:"bar"},el("i",{style:"width:"+(right/list.length*100)+"%"}))));
   const rev=el("div",{class:"card"},el("h3",{},"مراجعة الأسئلة"));
   list.forEach((q,i)=>{const a=ans[i];const ok=a&&a.k===q.a;rev.append(el("div",{class:"exp",style:"margin:8px 0"},el("b",{},(ok?"✔ ":"✘ ")+q.q),el("br"),"الصحيح: "+(q.open?q.model:q.o[q.a]+". "+q.why)+" "))});
-  app.append(rev,el("div",{class:"row"},el("button",{onclick:report},"إنجازي"),el("button",{class:"alt",onclick:()=>gradeView(db.sel.g)},"تدريب آخر")))}
+  app.append(rev,el("div",{class:"row"},o.minutes?el("button",{onclick:()=>cert(title,right,list.length)},"🏅 شهادة تدريب"):"",el("button",{onclick:report},"إنجازي"),el("button",{class:"alt",onclick:()=>gradeView(db.sel.g)},"تدريب آخر")))}
  show()}
 /* ---------- إنجازي ---------- */
 function report(){clear();setTab("r");
