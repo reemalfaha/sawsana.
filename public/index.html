@@ -66,12 +66,13 @@ nav.crumb{font-size:.9rem;color:var(--mute)}nav.crumb a{color:var(--g);cursor:po
 <nav class="pills"><a data-t="h" class="on" onclick="home()">الرئيسية</a><a data-t="t" onclick="train()">التدريب</a><a data-t="r" onclick="report()">إنجازي</a><a data-t="m" href="teacher.html">للمعلمة 🔒</a></nav>
 <span class="school" id="school" hidden></span></div></header>
 <main id="app"></main>
-<footer><div class="wrap"><span><b>السوسنة</b> · مساحة للتعلّم. تدريب مجاني، ونتائجك محفوظة على جهازك فقط. الأسئلة أصلية، عدا ما كُتب مصدره تحت السؤال.</span><span>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي · <a href="about.html">تعرّفي على الاختبارات الدولية</a> · <a href="teacher.html">للمعلمات: تقرير الصف</a> · <a href="board.html">وضع السبورة</a></span></div></footer>
+<footer><div class="wrap"><span><b>السوسنة</b> · مساحة للتعلّم. تدريب مجاني، ونتائجك محفوظة على جهازك فقط. الأسئلة أصلية، عدا ما كُتب مصدره تحت السؤال.</span><span>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي · <a href="about.html">تعرّفي على الاختبارات الدولية</a> · <a href="framework.html">مطابقة الإطار</a> · <a href="teacher.html">للمعلمات: تقرير الصف</a> · <a href="board.html">وضع السبورة</a></span></div></footer>
 <script src="data.js"></script>
 <script src="data-sci.js"></script>
 <script src="data-timss8.js"></script><script src="data-qushi.js"></script>
 <script src="data-math.js"></script>
 <script src="data-math-parts.js"></script>
+<script src="data-tags.js"></script><script src="data-fw.js"></script><script src="blueprint.js"></script>
 <script>
 const $=id=>document.getElementById(id), app=$("app");
 const SUB={math:"الرياضيات",sci:"العلوم",ar:"اللغة العربية",en:"اللغة الإنجليزية"};
@@ -89,6 +90,8 @@ const TRACKS={national:"الامتحان الوطني",pisa:"بيزا",timss:"ت
 const ALLSUB={math:"الرياضيات",sci:"العلوم",ar:"اللغة العربية",en:"اللغة الإنجليزية"};
 db.sel=db.sel||{t:"timss",g:8};
 const cnt=(t,g,s)=>Q.filter(q=>q.t===t&&q.g===g&&q.s===s).length;
+const doms=s=>(window.SW_DOMAINS[s]||[]).filter(d=>Q.some(q=>q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d));
+const bpOn=s=>{const b=window.SW_BP&&window.SW_BP[db.sel.g]&&window.SW_BP[db.sel.g][s];return !!b&&db.sel.t==="timss"&&Q.filter(q=>q.t==="timss"&&q.g===db.sel.g&&q.s===s&&!q.open&&!q.dup).length>=b.n};
 const logA=ok=>{const t=today();db.dl=db.dl||{};const x=db.dl[t]=db.dl[t]||{ok:0,t:0};x.t++;if(ok)x.ok++;save()};
 const AR=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 let timer=null;
@@ -130,16 +133,36 @@ function gradeView(n){clear();setTab("t");db.sel.g=n;save();const sel=db.sel;
  Object.keys(ALLSUB).forEach(s=>{const c=cnt(sel.t,n,s);
   if(!c){g.append(el("div",{class:"card",style:"background:var(--sand2)"},el("div",{class:"split"},el("h3",{style:"color:var(--mute);font-size:1.2rem"},ALLSUB[s]),el("span",{class:"cnt"},"قيد الإعداد")),el("p",{class:"muted",style:"margin:6px 0 0"},"أسئلة هذه المادة ستُضاف قريبًا.")));return}
   g.append(el("div",{class:"card"},el("div",{class:"split"},el("h3",{style:"color:var(--g);font-size:1.35rem"},ALLSUB[s]),el("span",{class:"cnt"},c+" سؤالًا")),
-   el("div",{class:"chips"},(window.SW_DOMAINS[s]||[]).map(d=>el("span",{},d))),
-   el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت"))))});
+   el("div",{class:"chips"},doms(s).map(d=>el("span",{},d))),
+   el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت")),bpOn(s)?el("div",{class:"row",style:"margin-top:8px"},el("button",{class:"terra",onclick:()=>bpView(s)},"اختبار متوقع حسب إطار تيمس 2023")):""))});
  app.append(g)}
 function topics(s){clear();setTab("t");app.append(crumb(SUB[s]));
  const g=el("div",{class:"grid"});
- (window.SW_DOMAINS[s]||[]).forEach(d=>{const qs=Q.filter(q=>q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d);const got=qs.filter(q=>db.h[q.i]).length;
+ doms(s).forEach(d=>{const qs=Q.filter(q=>q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d);const got=qs.filter(q=>db.h[q.i]).length;
   g.append(el("div",{class:"card"},el("h3",{},d),el("p",{class:"muted"},got+" من "+qs.length+" أسئلة جرّبتِها"),el("div",{class:"bar"},el("i",{style:"width:"+(got/qs.length*100)+"%"})),el("p",{}),el("button",{onclick:()=>run(shuffle(qs),SUB[s]+" · "+d,{feedback:true})},"ابدئي التدريب")))});app.append(g)}
-function diag(s){const ds=window.SW_DOMAINS[s];let pick=[];ds.forEach(d=>pick.push(...shuffle(Q.filter(q=>!q.open&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d)).slice(0,2)));
+function diag(s){const ds=doms(s);let pick=[];ds.forEach(d=>pick.push(...shuffle(Q.filter(q=>!q.open&&!q.dup&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d)).slice(0,2)));
  run(shuffle(pick),"تشخيصي · "+SUB[s],{feedback:false,diag:true})}
-function mock(s){const pick=shuffle(Q.filter(q=>!q.open&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s)).slice(0,12);run(pick,"اختبار بوقت · "+SUB[s],{feedback:false,minutes:18})}
+function mock(s){const pick=shuffle(Q.filter(q=>!q.open&&!q.dup&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s)).slice(0,12);run(pick,"اختبار بوقت · "+SUB[s],{feedback:false,minutes:18})}
+/* ---------- الاختبار المتوقع حسب جدول المواصفات ---------- */
+function bpBuild(g,s){const B=window.SW_BP[g][s],lrm=window.SW_lrm;
+ const pool=Q.filter(q=>q.t==="timss"&&q.g===g&&q.s===s&&!q.open&&!q.dup);
+ const dT=lrm(B.n,B.dom),pick=[],used=new Set(),rem=lrm(B.n,B.cog);
+ Object.keys(B.dom).forEach(d=>{const cT=lrm(dT[d],Object.values(rem).some(v=>v>0)?rem:B.cog);Object.keys(cT).forEach(k=>{rem[k]=Math.max(0,rem[k]-cT[k])});Object.keys(B.cog).forEach(c=>{
+  shuffle(pool.filter(q=>q.d===d&&q.c===c)).slice(0,cT[c]).forEach(q=>{pick.push(q);used.add(q.i)})});
+  let need=dT[d]-pick.filter(q=>q.d===d).length;
+  if(need>0)shuffle(pool.filter(q=>q.d===d&&!used.has(q.i))).slice(0,need).forEach(q=>{pick.push(q);used.add(q.i)})});
+ let need=B.n-pick.length;if(need>0)shuffle(pool.filter(q=>!used.has(q.i))).slice(0,need).forEach(q=>{pick.push(q);used.add(q.i)});
+ return pick}
+function bpView(s){clear();setTab("t");const g=db.sel.g,B=window.SW_BP[g][s];app.append(crumb(SUB[s]+" · اختبار متوقع"));
+ const list=bpBuild(g,s),n=list.length,pc=(k,m)=>n?Math.round(m*100/n):0;
+ const rows=(title,w,key,lab)=>{const t=el("table",{style:"width:100%;border-collapse:collapse;font-size:.95rem"});
+  t.append(el("tr",{},["","المستهدف في الإطار","في هذا الاختبار"].map(x=>el("th",{style:"text-align:right;padding:4px 6px;border-bottom:2px solid var(--line);color:var(--g)"},x))));
+  Object.keys(w).forEach(k=>{const m=list.filter(q=>q[key]===k).length;t.append(el("tr",{},el("td",{style:"padding:4px 6px;border-bottom:1px solid var(--line)"},(lab&&lab[k])||k),el("td",{style:"padding:4px 6px;border-bottom:1px solid var(--line)"},w[k]+"%"),el("td",{style:"padding:4px 6px;border-bottom:1px solid var(--line)"},m+" أسئلة ("+pc(k,m)+"%)")))});
+  return el("div",{},el("h3",{style:"margin:10px 0 4px"},title),t)};
+ app.append(el("section",{class:"card"},el("div",{class:"eyebrow"},"الاختبار المتوقع"),el("h2",{},SUB[s]+" · الصف "+GN[g-1]),
+  el("p",{class:"muted"},"اختبار من "+AR(n)+" سؤالًا مبنيّ على جدول المواصفات في أطر تقييم تيمس 2023. الزمن المقترح "+AR(B.min)+" دقيقة، والنتيجة تظهر في آخره."),
+  rows("مجالات المحتوى",B.dom,"d",B.label),rows("المستويات العقلية",B.cog,"c"),
+  el("div",{class:"row",style:"margin-top:12px"},el("button",{onclick:()=>run(shuffle(list),"اختبار متوقع · "+SUB[s],{feedback:false,minutes:B.min})},"ابدئي الاختبار  ←"),el("button",{class:"alt",onclick:()=>bpView(s)},"اختبار آخر بأسئلة مختلفة"),el("a",{class:"alt",href:"framework.html",style:"align-self:center;padding:0 8px"},"عن جدول المواصفات"))))}
 /* ---------- تشغيل مجموعة أسئلة ---------- */
 function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
  const head=el("div",{class:"card"},el("div",{class:"split"},el("h3",{},title),o.minutes?el("span",{class:"timer",id:"tm"}):""),el("p",{style:"margin:6px 0"}),el("div",{class:"bar"},el("i",{id:"pb",style:"width:0"})));
