@@ -1,49 +1,82 @@
 <!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>السوسنة: روابط ورموز المدارس</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<title>السوسنة · خطة متابعة تيمس</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
 <style>
-:root{--wine:#3E1B47;--gold:#5E7B2F;--bg:#FAF7F8;--fg:#21152A;--mute:#6F6577;--line:#E6DEE6}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.8 "IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
-.top{background:#2A1031;color:#fff;padding:20px 16px;border-bottom:4px solid var(--gold)}.in,.main{max-width:820px;margin:0 auto}
-h1{font:700 1.6rem "IBM Plex Sans Arabic",sans-serif;margin:0}.main{padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
-.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
-label{display:block;font-weight:600;margin:6px 0 2px}
-input,textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:10px;padding:8px 10px}textarea{min-height:130px}
-button{font:inherit;border:0;border-radius:10px;padding:10px 18px;background:var(--wine);color:#fff;cursor:pointer;margin-top:10px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.s{background:#fff;border:2px solid var(--wine);border-radius:16px;padding:14px;text-align:center;break-inside:avoid}
-.s h3{font:700 1.05rem "IBM Plex Sans Arabic",sans-serif;color:var(--wine);margin:0 0 6px}.s svg{width:100%;max-width:190px;height:auto}
-.s small{display:block;color:var(--mute);font-size:.75rem;direction:ltr;word-break:break-all}.s p{margin:4px 0 0;font-size:.8rem}
-.muted{color:var(--mute);font-size:.9rem}
-@media print{.top,.card.ctl,button{display:none}body{background:#fff}.main{padding:0}}
+:root{--g:#3E1B47;--bg:#FBF8FC;--card:#fff;--line:#E2D6E8;--mute:#6F5C78;--sand:#F3EAF6;--gold:#B8902A;--ink:#241528;--ok:#2F7D4F;--warn:#B3541E}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--g:#D9B8E6;--bg:#17101B;--card:#221829;--line:#3A2C45;--mute:#B7A4C2;--sand:#2D2036;--ink:#F3EAF6;--ok:#7BD39B;--warn:#F0A57A;color-scheme:dark}}
+:root[data-theme="dark"]{--g:#D9B8E6;--bg:#17101B;--card:#221829;--line:#3A2C45;--mute:#B7A4C2;--sand:#2D2036;--ink:#F3EAF6;--ok:#7BD39B;--warn:#F0A57A;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.9 'Noto Naskh Arabic','Segoe UI',sans-serif}
+h1,h2,h3{font-family:'El Messiri','Noto Naskh Arabic',serif;margin:0;color:var(--g)}
+.top{background:#3E1B47;color:#fff;border-bottom:4px solid var(--gold)}.top div{max-width:900px;margin:auto;padding:16px max(16px,env(safe-area-inset-right,0px))}.top h1{color:#fff;font-size:1.6rem}.top a{color:#F3DFA8;font-weight:600}
+main{max-width:900px;margin:auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 30px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;min-width:0}
+.card h2{font-size:1.35rem;margin-bottom:2px}.sub{color:var(--mute);margin:0 0 8px;font-size:.95rem}
+.sc{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem;margin:6px 0 10px}th{text-align:right;color:var(--g);border-bottom:2px solid var(--line);padding:4px 8px;white-space:nowrap}td{border-bottom:1px solid var(--line);padding:4px 8px}
+.ok{color:var(--ok);font-weight:700}.gap{color:var(--warn);font-weight:700}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{background:var(--sand);color:var(--g);border-radius:999px;padding:0 12px;font-size:.9rem}
+ul{margin:6px 0;padding-inline-start:22px}dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}dt{font-weight:700;color:var(--g)}dd{margin:0}
+footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 24px}
+@media(max-width:520px){dl{grid-template-columns:1fr}}
+.tbl{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem;margin:6px 0}th{text-align:right;color:var(--g);border-bottom:2px solid var(--line);padding:4px 8px;white-space:nowrap}td{border-bottom:1px solid var(--line);padding:4px 8px}
+.hero2{background:var(--sand);border-radius:18px;padding:16px}.hero2 p{margin:4px 0}.big{font-family:'El Messiri',serif;font-size:1.9rem;color:var(--g);line-height:1.2}
+.steps{counter-reset:s;list-style:none;padding:0}.steps li{counter-increment:s;padding-inline-start:38px;position:relative;margin:6px 0}.steps li::before{content:counter(s);position:absolute;inset-inline-start:0;top:2px;width:28px;height:28px;border-radius:50%;background:#3E1B47;color:#fff;text-align:center;line-height:28px;font-size:.9rem}
+.btn{display:inline-block;background:#3E1B47;color:#fff;border-radius:14px;padding:8px 18px;text-decoration:none;font-weight:600}
+.fill{display:inline-block;min-width:130px;border-bottom:1px dashed var(--mute);color:var(--mute)}
+.pager{display:flex;gap:6px;flex-wrap:wrap}.pager a{background:var(--sand);color:var(--g);border-radius:999px;padding:0 14px;text-decoration:none;font-weight:600;font-size:.92rem}
+.say{background:var(--sand);border-radius:12px;padding:10px 14px;margin:8px 0}.say b{color:var(--g)}
+details.card summary{cursor:pointer;font-family:'El Messiri',serif;font-size:1.15rem;color:var(--g)}
 </style></head><body>
-<script src="config.js"></script><script src="gate.js"></script>
-<header class="top"><div class="in"><h1>السوسنة · روابط ورموز QR للمدارس</h1></div></header>
-<main class="main">
-<div class="card ctl">
-<label for="base">رابط المنصة</label><input id="base" dir="ltr" placeholder="https://sawsana.example.workers.dev/">
-<label for="names">أسماء المدارس (اسم في كل سطر)</label><textarea id="names" placeholder="مدرسة القطرانة الثانوية للبنات&#10;مدرسة ... الأساسية"></textarea>
-<button id="go">إنشاء الرموز</button><button id="pr" style="background:var(--gold)">طباعة</button>
-<p class="muted">الرمز يفتح المنصة ويعرض اسم المدرسة في أعلى الصفحة. اطبعي الصفحة من المتصفح (طباعة ← حفظ PDF) وأرسلي لكل مدرسة بطاقتها.</p></div>
-<div class="grid" id="out"></div>
+<header class="top"><div><h1>خطة متابعة اختبار تيمس للمدارس</h1><a href="timss.html">← نشرة تيمس</a></div></header>
+<main>
+<section class="hero2"><div class="big">دليل المدرسة</div>
+<p>خطة إجرائية وخطة تنفيذية وإذاعات مدرسية، للمدارس الخمس المشاركة. الأسماء والتواريخ الفارغة تُعبّأ حين تصل من الجهة المشرفة.</p>
+<div class="pager"><a href="#a1">١. المسؤولون</a><a href="#a2">٢. الخطة الإجرائية</a><a href="#a3">٣. الخطة التنفيذية</a><a href="#a4">٤. المتابعة</a><a href="#a5">٥. الإذاعات</a></div></section>
+
+<section class="card" id="a1"><h2>١. ضباط الارتباط والمعلمون المسؤولون</h2>
+<p class="sub">تُعبّأ الأسماء عند ورودها.</p>
+<div class="tbl"><table><tr><th>المدرسة</th><th>ضابط الارتباط</th><th>معلم/ة الرياضيات</th><th>معلم/ة العلوم</th><th>الصفوف والمباحث</th></tr><tr><td>الراشدية الأساسية المختلطة</td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الصفوف / المباحث</span></td></tr><tr><td>الشهيد ساند المعايطة</td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الصفوف / المباحث</span></td></tr><tr><td>هزاع الأساسية للبنين</td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الصفوف / المباحث</span></td></tr><tr><td>الكرك الثانوية للبنات</td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الصفوف / المباحث</span></td></tr><tr><td>الشهابية الثانوية للبنات</td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الاسم</span></td><td><span class="fill">الصفوف / المباحث</span></td></tr></table></div>
+<p>موعد الاختبار: <span class="fill">التاريخ</span> · مدة التدريب المقترحة: <span class="fill">عدد الأسابيع</span></p></section>
+
+<section class="card" id="a2"><h2>٢. الخطة الإجرائية</h2>
+<p class="sub">من يفعل ماذا، ومتى؟</p>
+<div class="tbl"><table><tr><th>المهمة</th><th>المسؤول</th><th>التوقيت</th></tr>
+<tr><td>تعميم الخطة على إدارة المدرسة والمعلمين المعنيين</td><td>ضابط الارتباط</td><td>الأسبوع ١</td></tr>
+<tr><td>تحديد الطلبة المشاركين وتجهيز قوائمهم</td><td>ضابط الارتباط + إدارة المدرسة</td><td>الأسبوع ١</td></tr>
+<tr><td>تعريف الطلبة وأولياء الأمور بالاختبار وأهميته</td><td>معلمو المبحثين</td><td>الأسبوع ١–٢</td></tr>
+<tr><td>إنشاء حسابات الطلبة على السوسنة أو توزيع رابط التدريب</td><td>معلم/ة العلوم أو الرياضيات</td><td>الأسبوع ٢</td></tr>
+<tr><td>اختبار تشخيصي قصير لمعرفة المستوى</td><td>معلمو المبحثين</td><td>الأسبوع ٢</td></tr>
+<tr><td>بدء الإذاعات المدرسية الأسبوعية عن تيمس</td><td>ضابط الارتباط + لجنة الإذاعة</td><td>من الأسبوع ٢</td></tr>
+<tr><td>حصص تدريب أسبوعية بإشراف المعلمين</td><td>معلمو المبحثين</td><td>الأسابيع ٣–٦</td></tr>
+<tr><td>مراجعة تقارير الأداء وتحديد المجالات الضعيفة</td><td>معلمو المبحثين</td><td>كل أسبوعين</td></tr>
+<tr><td>خطة علاجية للطلبة المتدنين</td><td>معلمو المبحثين</td><td>حسب التقرير</td></tr>
+<tr><td>اختبار تجريبي كامل بنموذج متوقع</td><td>ضابط الارتباط + المعلمون</td><td>قبل الاختبار بأسبوع</td></tr>
+<tr><td>التهيئة النفسية وتنظيم يوم الاختبار</td><td>الإدارة والمرشدة</td><td>قبل الاختبار بيومين</td></tr>
+<tr><td>تقرير ختامي ودروس مستفادة</td><td>ضابط الارتباط</td><td>بعد الاختبار</td></tr></table></div></section>
+
+<section class="card" id="a3"><h2>٣. الخطة التنفيذية (جدول أسبوعي مقترح)</h2>
+<div class="tbl"><table><tr><th>الأسبوع</th><th>التركيز</th><th>نشاط الحصة</th><th>تدريب الطلبة</th></tr>
+<tr><td>١</td><td>التعريف والتحفيز</td><td>نشرة تيمس + إذاعة ١</td><td>تجربة السوسنة (١٠ دقائق)</td></tr>
+<tr><td>٢</td><td>التشخيص</td><td>اختبار قصير ١٢ سؤالًا</td><td>٣ جلسات تدريب</td></tr>
+<tr><td>٣</td><td>الأعداد والأحياء</td><td>أسئلة معرفة وتطبيق</td><td>٣ جلسات + إذاعة ٢</td></tr>
+<tr><td>٤</td><td>الجبر / الهندسة والكيمياء / الفيزياء</td><td>أسئلة تطبيق واستدلال</td><td>٣ جلسات</td></tr>
+<tr><td>٥</td><td>البيانات وعلوم الأرض + الأسئلة المفتوحة</td><td>شرح الإجابة وكتابة التفسير</td><td>٣ جلسات + إذاعة ٤ أو ٥</td></tr>
+<tr><td>٦</td><td>العلاج والتثبيت</td><td>مجموعات حسب نقاط الضعف</td><td>تحدّي السوسنة + إذاعة ٦</td></tr>
+<tr><td>٧</td><td>اختبار تجريبي كامل</td><td>نموذج «الاختبار المتوقع»</td><td>مراجعة الأخطاء + إذاعة ٣</td></tr></table></div>
+<p class="sub">يُعدَّل حسب المدة المتاحة قبل موعد الاختبار.</p></section>
+
+<section class="card" id="a4"><h2>٤. متابعة الطلبة ومؤشرات النجاح</h2>
+<ul><li>نسبة الطلبة المشاركين في التدريب أسبوعيًا (الهدف: <span class="fill">٨٠٪</span>).</li>
+<li>متوسط نتيجة التدريب مقارنة بالتشخيصي.</li>
+<li>عدد الطلبة الذين انتقلوا من الأقل من ٤٠٠ نقطة إلى الأعلى.</li>
+<li>المجالات الأضعف حسب التقرير (أعداد، جبر، هندسة، بيانات، أحياء، كيمياء، فيزياء، أرض).</li>
+<li>الأسئلة المفتوحة: نسبة من تكتب تفسيرًا كاملًا.</li></ul>
+<p>تُستخلص هذه المؤشرات من «تقرير المعلمات» على السوسنة. لا تُنشر أسماء الطالبات ولا نتائجهن الفردية خارج المدرسة.</p>
+<p><a class="btn" href="teacher.html">تقرير المعلمات</a> <a class="btn" href="bank.html">بنك الأسئلة</a></p></section>
+
+<section class="card" id="a5"><h2>٥. إذاعات مدرسية عن تيمس</h2><p class="sub">ست إذاعات جاهزة، اضغطي على العنوان لفتحها.</p></section>
+<details class="card"><summary>إذاعة ١: ما هو التيمس؟</summary><div class="say"><b>المذيعة ١:</b> صباح الخير يا طالباتنا المبدعات! هل سمعتنّ بكلمة «تيمس»؟<br><b>المذيعة ٢:</b> التيمس اختبار دولي يُقام كل أربع سنوات، تشارك فيه عشرات الدول، ويقيس ما يعرفه طلبة الصفين الرابع والثامن في الرياضيات والعلوم.<br><b>المذيعة ١:</b> وليس المقصود منه أن نحفظ، بل أن نفهم ونفكّر ونحلّ المسائل.<br><b>المذيعة ٢:</b> وحين تجيب كل واحدة منا بإخلاص، فإنها ترفع اسم مدرستها ووطنها.</div><p><b>معلومة اليوم:</b> يُعرف الاختبار بأنه «الدراسة الدولية للاتجاهات في الرياضيات والعلوم».</p><p class="sub">مدة القراءة: نحو ٣ دقائق. المراجعة والتعديل بما يناسب مدرستكم.</p></details><details class="card"><summary>إذاعة ٢: كيف أستعدّ؟</summary><div class="say"><b>المذيعة ١:</b> التحضير للتيمس لا يحتاج سهرًا طويلًا، بل عادة يومية صغيرة.<br><b>المذيعة ٢:</b> عشر دقائق تدريب كل يوم على منصة السوسنة خير من ساعتين في ليلة الامتحان.<br><b>المذيعة ١:</b> اقرئي السؤال بهدوء مرتين، وحدّدي المطلوب، ثم ارسمي أو اكتبي خطواتك.<br><b>المذيعة ٢:</b> وإن أخطأتِ فاقرئي الشرح، فالخطأ بداية التعلّم.</div><p><b>شعار الأسبوع:</b> «تدريب قليل كل يوم يصنع فرقًا كبيرًا».</p><p class="sub">مدة القراءة: نحو ٣ دقائق. المراجعة والتعديل بما يناسب مدرستكم.</p></details><details class="card"><summary>إذاعة ٣: نصائح ليوم الاختبار</summary><div class="say"><b>المذيعة ١:</b> تذكّري أن تنامي مبكرًا وتتناولي فطورًا صحيًا.<br><b>المذيعة ٢:</b> وزّعي وقتك على الأسئلة، ولا تتوقفي طويلًا عند سؤال صعب، فانتقلي ثم عودي إليه.<br><b>المذيعة ١:</b> أجيبي عن كل الأسئلة، فلا خصم على الإجابة الخاطئة.<br><b>المذيعة ٢:</b> وثقي بنفسك، فقد تدرّبتِ وتعبتِ وأنتِ قادرة.</div><p><b>جملة ختام:</b> «أنتِ مستعدة، فابدئي بثقة».</p><p class="sub">مدة القراءة: نحو ٣ دقائق. المراجعة والتعديل بما يناسب مدرستكم.</p></details><details class="card"><summary>إذاعة ٤: الرياضيات حولنا</summary><div class="say"><b>المذيعة ١:</b> هل فكرتِ كم مرة استخدمتِ الرياضيات اليوم؟<br><b>المذيعة ٢:</b> في حساب الوقت، وفي تقسيم الحلوى، وفي قياس المسافة إلى المدرسة.<br><b>المذيعة ١:</b> أسئلة التيمس تشبه مواقف الحياة هذه، فتدرّبي على فهم الموقف أولًا.<br><b>المذيعة ٢:</b> الرياضيات لغة نفهم بها العالم.</div><p class="sub">مدة القراءة: نحو ٣ دقائق. المراجعة والتعديل بما يناسب مدرستكم.</p></details><details class="card"><summary>إذاعة ٥: العلوم حولنا</summary><div class="say"><b>المذيعة ١:</b> لماذا يطفو الخشب ويغرق الحجر؟ ولماذا نرى قوس قزح بعد المطر؟<br><b>المذيعة ٢:</b> العلوم تجيب عن أسئلة نراها كل يوم، والتيمس يسأل: هل تلاحظين وتفسّرين وتستنتجين؟<br><b>المذيعة ١:</b> اسألي «لماذا؟» دائمًا، وجرّبي، وفسّري إجابتك بجملة واضحة.<br><b>المذيعة ٢:</b> فالفضول بداية كل عالمة.</div><p class="sub">مدة القراءة: نحو ٣ دقائق. المراجعة والتعديل بما يناسب مدرستكم.</p></details><details class="card"><summary>إذاعة ٦: تحدّي الأسبوع</summary><div class="say"><b>المذيعة ١:</b> أعلنّا في مدرستنا «تحدّي السوسنة»!<br><b>المذيعة ٢:</b> من تتدرب أكثر أيام متتالية، ومن ترفع نتيجتها أكثر، تنال شهادة تقدير من المدرسة.<br><b>المذيعة ١:</b> المنافسة هنا مع نفسك أولًا: كوني اليوم أفضل من أمس.<br><b>المذيعة ٢:</b> وتجدين التحدي في «الألعاب» و«شهادة التدريب» على منصة السوسنة.</div><p class="sub">مدة القراءة: نحو ٣ دقائق. المراجعة والتعديل بما يناسب مدرستكم.</p></details>
 </main>
-<script src="qrcode.js"></script>
-<script>
-const base=document.getElementById("base");try{base.value=location.origin+location.pathname.replace(/schools\.html$/,"")}catch(e){}
-document.getElementById("pr").onclick=()=>window.print();
-document.getElementById("go").onclick=()=>{
- const out=document.getElementById("out");out.replaceChildren();
- const b=base.value.trim().replace(/\?.*$/,"");
- document.getElementById("names").value.split("\n").map(x=>x.trim()).filter(Boolean).forEach(n=>{
-  const url=b+(b.includes("?")?"":"?")+"school="+encodeURIComponent(n);
-  const q=qrcode(0,"M");q.addData(url);q.make();
-  const d=document.createElement("div");d.className="s";
-  const h=document.createElement("h3");h.textContent=n;
-  const svg=document.createElement("div");svg.innerHTML=q.createSvgTag({cellSize:4,margin:2,scalable:true});
-  const u=document.createElement("small");u.textContent=url;
-  const p=document.createElement("p");p.textContent="امسحي الرمز وابدئي التدريب";
-  const c=document.createElement("p");c.className="muted";c.textContent="تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي";
-  d.append(h,svg,p,u,c);out.append(d)})};
-</script></body></html>
+<footer>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي</footer>
+<script src="config.js"></script><script src="gate.js"></script></body></html>
