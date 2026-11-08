@@ -138,7 +138,7 @@ function gradeView(n){clear();setTab("t");db.sel.g=n;save();const sel=db.sel;
   if(!c){g.append(el("div",{class:"card",style:"background:var(--sand2)"},el("div",{class:"split"},el("h3",{style:"color:var(--mute);font-size:1.2rem"},ALLSUB[s]),el("span",{class:"cnt"},"قيد الإعداد")),el("p",{class:"muted",style:"margin:6px 0 0"},"أسئلة هذه المادة ستُضاف قريبًا.")));return}
   g.append(el("div",{class:"card"},el("div",{class:"split"},el("h3",{style:"color:var(--g);font-size:1.35rem"},ALLSUB[s]),el("span",{class:"cnt"},c+" سؤالًا")),
    el("div",{class:"chips"},doms(s).map(d=>el("span",{},d))),
-   el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت"),el("button",{class:"alt",onclick:()=>games(s)},"🎮 ألعاب")),bpOn(s)?el("div",{class:"row",style:"margin-top:8px"},el("button",{class:"terra",onclick:()=>bpView(s)},"اختبار متوقع حسب إطار تيمس 2023")):""))});
+   el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت"),el("button",{class:"alt",onclick:()=>games(s)},"🎮 ألعاب")),bpOn(s)?el("div",{class:"row",style:"margin-top:8px"},el("button",{class:"terra",onclick:()=>bpView(s)},"اختبار متوقع حسب إطار تيمس 2027")):""))});
  app.append(g)}
 function topics(s){clear();setTab("t");app.append(crumb(SUB[s]));
  const g=el("div",{class:"grid"});
@@ -151,7 +151,7 @@ function mock(s){const pick=shuffle(Q.filter(q=>!q.open&&!q.dup&&q.t===db.sel.t&
 function games(s){clear();setTab("t");app.append(crumb(SUB[s]+" · ألعاب"),el("section",{class:"sec"},el("div",{class:"eyebrow"},"ألعاب"),el("h2",{},"العبي وتعلّمي"),el("p",{},"كل لعبة 12 سؤالًا في ثلاث جولات: معرفة ثم تطبيق ثم استدلال. لكل إجابة صحيحة 3 نقاط. نتائج الألعاب للمتعة ولا تدخل في تقرير إنجازك.")));
  const g=el("div",{class:"grid"});
  const mk=(t,d,dom)=>g.append(el("div",{class:"card"},el("h3",{},"🎮 "+t),el("p",{class:"muted"},d),el("button",{onclick:()=>game(s,dom,t)},"ابدئي اللعبة  ←")));
- doms(s).forEach(d=>mk("تحدّي "+d,"أسئلة هذا المجال فقط",d));mk("التحدّي الشامل","أسئلة من كل المجالات",null);app.append(g)}
+ doms(s).forEach(d=>mk("تحدّي "+d,"أسئلة هذا المجال فقط",d));mk("التحدّي الشامل","أسئلة من كل المجالات",null);g.append(el("div",{class:"card"},el("h3",{},"🎯 تحدّي كاهوت"),el("p",{class:"muted"},"تحدٍّ خارجي على منصة كاهوت (يفتح في صفحة جديدة). نتائجه لا تدخل في تقرير إنجازك."),el("a",{href:"https://kahoot.it/challenge/?quiz-id=f27425c9-0490-4009-b827-3cdc4f95cf22&single-player=true",target:"_blank",rel:"noopener noreferrer"},el("button",{class:"alt"},"افتحي التحدّي  ↗"))));app.append(g)}
 function game(s,dom,title){const pool=Q.filter(q=>!q.open&&!q.dup&&q.t==="timss"&&q.g===db.sel.g&&q.s===s&&(!dom||q.d===dom));
  const used=new Set();let list=[];["معرفة","تطبيق","استدلال"].forEach(c=>{const a=shuffle(pool.filter(q=>q.c===c)).slice(0,4);a.forEach(q=>used.add(q.i));list.push(...a)});
  if(list.length<12)shuffle(pool.filter(q=>!used.has(q.i))).slice(0,12-list.length).forEach(q=>list.push(q));
