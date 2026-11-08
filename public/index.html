@@ -76,7 +76,7 @@ nav.crumb{font-size:.9rem;color:var(--mute)}nav.crumb a{color:var(--g);cursor:po
 <script src="data-timss8.js"></script><script src="data-qushi.js"></script>
 <script src="data-math.js"></script>
 <script src="data-math-parts.js"></script>
-<script src="data-tags.js"></script><script src="data-fw.js"></script><script src="data-fw2.js"></script><script src="data-fw3.js"></script><script src="data-timss11.js"></script><script src="data-timss11b.js"></script><script src="blueprint.js"></script>
+<script src="data-tags.js"></script><script src="data-fw.js"></script><script src="data-fw2.js"></script><script src="data-fw3.js"></script><script src="data-timss11.js"></script><script src="data-timss11b.js"></script><script src="data-timss03.js"></script><script src="blueprint.js"></script>
 <script>
 const $=id=>document.getElementById(id), app=$("app");
 const SUB={math:"الرياضيات",sci:"العلوم",ar:"اللغة العربية",en:"اللغة الإنجليزية"};
@@ -157,12 +157,12 @@ function game(s,dom,title){const pool=Q.filter(q=>!q.open&&!q.dup&&q.t==="timss"
  if(list.length<12)shuffle(pool.filter(q=>!used.has(q.i))).slice(0,12-list.length).forEach(q=>list.push(q));
  const ord={"معرفة":0,"تطبيق":1,"استدلال":2};list.sort((a,b)=>ord[a.c]-ord[b.c]);let n=0,pts=0,right=0;clear();
  const top=el("div",{class:"card"}),box=el("div");app.append(crumb("لعبة · "+title),top,box);
- const LT=["أ","ب","ج","د"];
+ const LT=["أ","ب","ج","د","هـ"];
  function show(){const q=list[n];top.replaceChildren(el("div",{class:"gm"},el("span",{class:"rnd"},"الجولة: "+q.c),el("span",{class:"muted"},(n+1)+" / "+list.length),el("span",{class:"pts"},pts+" نقطة")),el("div",{class:"bar",style:"margin-top:8px"},el("i",{style:"width:"+(n/list.length*100)+"%"})));
   box.replaceChildren();const c=el("div",{class:"card"},el("p",{style:"font-size:1.1rem;font-weight:500"},q.q));if(q.img)c.append(el("img",{class:"qimg",src:q.img,alt:"شكل السؤال"}));
   let done=false;const fb=el("div");
   const next=el("button",{hidden:true,onclick:()=>{n++;n<list.length?show():end()}},n+1<list.length?"التالي  ←":"النتيجة");
-  const btns=shuffle([0,1,2,3]).map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>{if(done)return;done=true;const ok=k===q.a;if(ok){pts+=3;right++}
+  const btns=shuffle(q.o.map((_,i)=>i)).map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>{if(done)return;done=true;const ok=k===q.a;if(ok){pts+=3;right++}
     btns.forEach(x=>{if(x._k===q.a)x.classList.add("right");else if(x._k===k)x.classList.add("wrong")});
     fb.replaceChildren(el("div",{class:"exp"},(ok?"✔ أحسنتِ! +3 نقاط. ":"✘ الصحيح: "+q.o[q.a]+". "),q.why));top.querySelector(".pts").textContent=pts+" نقطة";next.hidden=false}},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});
   c.append(...btns,fb,el("p",{style:"margin:6px 0"}),next);box.append(c)}
@@ -207,7 +207,7 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
  const box=el("div");app.append(crumb(title),head,box);
  if(o.minutes){let left=o.minutes*60;const tm=$("tm");const tick=()=>{tm.textContent=String(left/60|0).padStart(2,"0")+":"+String(left%60).padStart(2,"0");if(left--<=0){clearInterval(timer);finish()}};tick();timer=setInterval(tick,1000)}
  function show(){box.replaceChildren();$("pb").style.width=(n/list.length*100)+"%";
-  const q=list[n];const order=shuffle([0,1,2,3]);let chosen=null;
+  const q=list[n];const order=shuffle(q.o.map((_,i)=>i));let chosen=null;
   const c=el("div",{class:"card"},el("div",{class:"row"},el("span",{class:"tag"},q.d),el("span",{class:"tag"},q.c),el("span",{class:"muted"},(n+1)+" / "+list.length)),el("p",{style:"font-size:1.1rem;font-weight:500"},q.q));
   const img=q.img?el("img",{class:"qimg",src:q.img,alt:"شكل السؤال"}):null;if(img)c.append(img);
   const srcl=q.src?el("p",{class:"src"},"المصدر: "+q.src):null;
@@ -215,7 +215,7 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
    const rate=ok=>{ans[n]={q,k:ok?0:-1};db.h[q.i]={ok};logA(ok);if(!db.days.includes(today()))db.days.push(today());save();n++;n<list.length?show():finish()};
    const reveal=el("button",{onclick:()=>{reveal.hidden=true;ta.readOnly=true;area.replaceChildren(el("div",{class:"model"},el("b",{},"نموذج الإجابة: "),q.model),el("p",{class:"muted"},"قارني إجابتك بالنموذج:"),el("div",{class:"row"},el("button",{onclick:()=>rate(true)},"✔ إجابتي صحيحة"),el("button",{class:"alt",onclick:()=>rate(false)},"✘ أحتاج مراجعة")))}},"اعرضي نموذج الإجابة");
    c.append(ta,reveal,area);if(srcl)c.append(srcl);box.append(c);return}
-  const LT=["أ","ب","ج","د"];const btns=order.map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>pick(k)},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});c.append(...btns);if(srcl)c.append(srcl);
+  const LT=["أ","ب","ج","د","هـ"];const btns=order.map((k,j)=>{const b=el("button",{class:"opt",onclick:()=>pick(k)},el("span",{class:"l"},LT[j]),q.o[k]);b._k=k;return b});c.append(...btns);if(srcl)c.append(srcl);
   const next=el("button",{hidden:true,onclick:()=>{n++;n<list.length?show():finish()}},n+1<list.length?"التالي  ←":"إنهاء");
   const fb=el("div");c.append(fb,el("p",{style:"margin:6px 0"}),next);box.append(c);
   function pick(k){if(chosen!==null&&o.feedback)return;chosen=k;ans[n]={q,k};if(!db.days.includes(today())){db.days.push(today());save()}if(o.feedback){db.h[q.i]={ok:k===q.a};logA(k===q.a);save()}

@@ -58,15 +58,15 @@ button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:9px 16px
 <div id="prt"></div>
 <footer>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي</footer>
 <script src="config.js"></script><script src="gate.js"></script>
-<script src="data.js"></script><script src="data-sci.js"></script><script src="data-timss8.js"></script><script src="data-qushi.js"></script><script src="data-math.js"></script><script src="data-math-parts.js"></script><script src="data-tags.js"></script><script src="data-fw.js"></script><script src="data-fw2.js"></script><script src="data-fw3.js"></script><script src="data-timss11.js"></script><script src="data-timss11b.js"></script><script src="blueprint.js"></script>
+<script src="data.js"></script><script src="data-sci.js"></script><script src="data-timss8.js"></script><script src="data-qushi.js"></script><script src="data-math.js"></script><script src="data-math-parts.js"></script><script src="data-tags.js"></script><script src="data-fw.js"></script><script src="data-fw2.js"></script><script src="data-fw3.js"></script><script src="data-timss11.js"></script><script src="data-timss11b.js"></script><script src="data-timss03.js"></script><script src="blueprint.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const Q=window.SW_Q.map((q,i)=>({t:"timss",g:8,...q,i}));
-const SUBN={math:"الرياضيات",sci:"العلوم"},GN={4:"الرابع",8:"الثامن"},LT=["أ","ب","ج","د"];
+const SUBN={math:"الرياضيات",sci:"العلوم"},GN={4:"الرابع",8:"الثامن"},LT=["أ","ب","ج","د","هـ"];
 const el=(t,a,...k)=>{const e=document.createElement(t);for(const x in a||{}){if(x==="class")e.className=a[x];else e.setAttribute(x,a[x])}k.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?"":c)));return e};
 let SEL=[];const sel=new Set();
 /* ترتيب خيارات ثابت لكل سؤال، حتى تتطابق الورقة ونسخة المفتاح والرابط */
-function order(q){let h=(q.i+1)*2654435761>>>0;const a=[0,1,2,3];for(let i=3;i>0;i--){h=(h*1103515245+12345)>>>0;const j=h%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function order(q){let h=(q.i+1)*2654435761>>>0;const a=q.o.map((_,i)=>i);for(let i=a.length-1;i>0;i--){h=(h*1103515245+12345)>>>0;const j=h%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 const stem=q=>q.q;
 function pool(){const g=+$("g").value,s=$("s").value,d=$("d").value,c=$("c").value,y=$("y").value,f=$("f").value.trim();
  return Q.filter(q=>q.t==="timss"&&(q.g===4||q.g===8)&&!q.dup&&(!g||q.g===g)&&(!s||q.s===s)&&(!d||q.d===d)&&(!c||q.c===c)&&(!y||(y==="op")===!!q.open)&&(!f||(q.q||"").includes(f)))}
