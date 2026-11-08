@@ -198,7 +198,7 @@ function bpView(s){clear();setTab("t");const g=db.sel.g,B=window.SW_BP[g][s];app
   Object.keys(w).forEach(k=>{const m=list.filter(q=>q[key]===k).length;t.append(el("tr",{},el("td",{style:"padding:4px 6px;border-bottom:1px solid var(--line)"},(lab&&lab[k])||k),el("td",{style:"padding:4px 6px;border-bottom:1px solid var(--line)"},w[k]+"%"),el("td",{style:"padding:4px 6px;border-bottom:1px solid var(--line)"},m+" أسئلة ("+pc(k,m)+"%)")))});
   return el("div",{},el("h3",{style:"margin:10px 0 4px"},title),t)};
  app.append(el("section",{class:"card"},el("div",{class:"eyebrow"},"الاختبار المتوقع"),el("h2",{},SUB[s]+" · الصف "+GN[g-1]),
-  el("p",{class:"muted"},"اختبار من "+AR(n)+" سؤالًا مبنيّ على جدول المواصفات في أطر تقييم تيمس 2023. الزمن المقترح "+AR(B.min)+" دقيقة، والنتيجة تظهر في آخره."),
+  el("p",{class:"muted"},"اختبار من "+AR(n)+" سؤالًا مبنيّ على جدول المواصفات في أطر تقييم تيمس 2027. الزمن المقترح "+AR(B.min)+" دقيقة، والنتيجة تظهر في آخره."),
   rows("مجالات المحتوى",B.dom,"d",B.label),rows("المستويات العقلية",B.cog,"c"),
   el("div",{class:"row",style:"margin-top:12px"},el("button",{onclick:()=>run(shuffle(list),"اختبار متوقع · "+SUB[s],{feedback:false,minutes:B.min})},"ابدئي الاختبار  ←"),el("button",{class:"alt",onclick:()=>bpView(s)},"اختبار آخر بأسئلة مختلفة"),el("a",{class:"alt",href:"framework.html",style:"align-self:center;padding:0 8px"},"عن جدول المواصفات"))))}
 /* ---------- تشغيل مجموعة أسئلة ---------- */

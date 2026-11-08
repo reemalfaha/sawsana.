@@ -87,7 +87,7 @@ function upd(){$("sel").textContent=sel.size;compare()}
 function compare(){const box=$("cmp");box.replaceChildren();const g=+$("g").value,s=$("s").value;if(!g||!s||!sel.size)return;const B=window.SW_BP[g]&&window.SW_BP[g][s];if(!B)return;
  const A=[...sel].map(i=>Q[i]).filter(q=>q.g===g&&q.s===s);if(!A.length)return;const n=A.length;
  const tb=(w,k,lab)=>{const t=el("table",{class:"cmp"},el("tr",{},["","المستهدف","في تحديدك"].map(x=>el("th",{},x))));Object.keys(w).forEach(x=>{const m=A.filter(q=>q[k]===x).length;t.append(el("tr",{},el("td",{},(lab&&lab[x])||x),el("td",{},w[x]+"%"),el("td",{},m+" ("+Math.round(m*100/n)+"%)")))});return el("div",{class:"sc"},t)};
- box.append(el("section",{class:"card"},el("h2",{},"مطابقة تحديدك لإطار تيمس 2023"),el("p",{class:"sub"},n+" سؤالًا محدَّدًا في "+SUBN[s]+" للصف "+GN[g]),tb(B.dom,"d",B.label),tb(B.cog,"c")))}
+ box.append(el("section",{class:"card"},el("h2",{},"مطابقة تحديدك لإطار تيمس 2027"),el("p",{class:"sub"},n+" سؤالًا محدَّدًا في "+SUBN[s]+" للصف "+GN[g]),tb(B.dom,"d",B.label),tb(B.cog,"c")))}
 /* توليد نموذج حسب جدول المواصفات */
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 function gen(){const g=+$("g").value,s=$("s").value;if(!g||!s){alert("اختاري الصف والمادة أولًا.");return}
@@ -108,7 +108,7 @@ function printSheet(key){const L=chosen();if(!L.length){alert("حدّدي أسئ
   if(q.open){if(key)d.append(el("div",{},el("b",{},"نموذج الإجابة: "),q.model||""));else for(let i=0;i<3;i++)d.append(el("div",{class:"ln"}))}
   else{const o=order(q);d.append(el("ol",{},o.map((k,j)=>el("li",{},LT[j]+") "+q.o[k]))));if(key)d.append(el("div",{},el("b",{},"الإجابة: "+LT[o.indexOf(0)]+" — "),q.why||""))}
   P.append(d)});
- P.append(el("div",{class:"ft"},"أسئلة على نمط تيمس 2023 · تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"));
+ P.append(el("div",{class:"ft"},"أسئلة على نمط تيمس 2027 · تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"));
  setTimeout(()=>window.print(),150)}
 function link(){const L=chosen();if(!L.length){alert("حدّدي أسئلة أولًا.");return}
  const u=location.href.replace(/[^\/]*$/,"")+"index.html?set="+L.map(q=>q.i).join(".")+"&t="+encodeURIComponent(title());
