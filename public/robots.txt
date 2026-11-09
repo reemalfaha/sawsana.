@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /bank.html
+Disallow: /schools.html
+Disallow: /remedial.html
+Disallow: /teacher.html
+Disallow: /accounts.html
+Disallow: /cards.html
+Disallow: /board.html
+Disallow: /api/
+
+Sitemap: https://sawsana.reemalfahad-an.workers.dev/sitemap.xml
