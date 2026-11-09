@@ -138,7 +138,7 @@ function gradeView(n){clear();setTab("t");db.sel.g=n;save();const sel=db.sel;
   if(!c){g.append(el("div",{class:"card",style:"background:var(--sand2)"},el("div",{class:"split"},el("h3",{style:"color:var(--mute);font-size:1.2rem"},ALLSUB[s]),el("span",{class:"cnt"},"قيد الإعداد")),el("p",{class:"muted",style:"margin:6px 0 0"},"أسئلة هذه المادة ستُضاف قريبًا.")));return}
   g.append(el("div",{class:"card"},el("div",{class:"split"},el("h3",{style:"color:var(--g);font-size:1.35rem"},ALLSUB[s]),el("span",{class:"cnt"},c+" سؤالًا")),
    el("div",{class:"chips"},doms(s).map(d=>el("span",{},d))),
-   el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت"),el("button",{class:"alt",onclick:()=>games(s)},"🎮 ألعاب")),bpOn(s)?el("div",{class:"row",style:"margin-top:8px"},el("button",{class:"terra",onclick:()=>bpView(s)},"اختبار متوقع حسب إطار تيمس 2027")):""))});
+   el("div",{class:"row"},el("button",{onclick:()=>diag(s)},"اختبار تشخيصي"),el("button",{class:"alt",onclick:()=>topics(s)},"حسب الموضوع"),el("button",{class:"alt",onclick:()=>mock(s)},"اختبار بوقت"),el("button",{class:"alt",onclick:()=>games(s)},"🎮 ألعاب")),el("div",{class:"row",style:"margin-top:8px"},el("button",{class:"terra",onclick:()=>path(s)},"🪜 المسار المتدرّج (٨ أسابيع)")),bpOn(s)?el("div",{class:"row",style:"margin-top:8px"},el("button",{class:"terra",onclick:()=>bpView(s)},"اختبار متوقع حسب إطار تيمس 2027")):""))});
  app.append(g)}
 function topics(s){clear();setTab("t");app.append(crumb(SUB[s]));
  const g=el("div",{class:"grid"});
@@ -147,6 +147,37 @@ function topics(s){clear();setTab("t");app.append(crumb(SUB[s]));
 function diag(s){const ds=doms(s);let pick=[];ds.forEach(d=>pick.push(...shuffle(Q.filter(q=>!q.open&&!q.dup&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s&&q.d===d)).slice(0,2)));
  run(shuffle(pick),"تشخيصي · "+SUB[s],{feedback:false,diag:true})}
 function mock(s){const pick=shuffle(Q.filter(q=>!q.open&&!q.dup&&q.t===db.sel.t&&q.g===db.sel.g&&q.s===s)).slice(0,12);run(pick,"اختبار بوقت · "+SUB[s],{feedback:false,minutes:18})}
+/* ---------- المسار المتدرّج ---------- */
+const GRP=["المجموعة الأساسية","المجموعة المتوسطة","المجموعة المتقدمة"],PASS=70,WKS=8;
+const CB={"معرفة":35,"تطبيق":55,"استدلال":75};
+const dif=q=>q.avg!=null?100-q.avg:(CB[q.c]||55)+Math.min(12,(q.q||"").length/12)+(q.o||[]).reduce((m,x)=>Math.max(m,String(x).length),0)/15;
+function pathPool(s){return Q.filter(q=>!q.open&&!q.dup&&q.t==="timss"&&q.g===db.sel.g&&q.s===s).sort((a,b)=>dif(a)-dif(b))}
+function pathState(s){db.path=db.path||{};const k=db.sel.g+s;return db.path[k]=db.path[k]||{grp:null,wk:1,res:[]}}
+function weekSet(s,st){const P=pathPool(s),w=st.wk,lo=Math.min(st.grp*15+(w-2)*10,60),a=Math.floor(P.length*lo/100),b=Math.ceil(P.length*Math.min(lo+40,100)/100),band=P.slice(a,b);
+ const fresh=shuffle(band.filter(q=>!db.h[q.i])),wr=shuffle(band.filter(q=>db.h[q.i]&&!db.h[q.i].ok)),rest=shuffle(band.filter(q=>db.h[q.i]&&db.h[q.i].ok));
+ return shuffle([...fresh,...wr,...rest].slice(0,10))}
+function pathDone(s,right,n){const st=pathState(s),p=Math.round(right/n*100);
+ if(st.wk===1){st.grp=p>=75?2:p>=50?1:0;st.res.push({w:1,p,grp:st.grp});st.wk=2}
+ else{const ok=p>=PASS;st.res.push({w:st.wk,p,grp:st.grp});
+  if(p>=85&&st.grp<2)st.grp++;else if(p<40&&st.grp>0)st.grp--;
+  if(ok&&st.wk<=WKS)st.wk++}
+ save()}
+function path(s){clear();setTab("t");const st=pathState(s);app.append(crumb(SUB[s]+" · المسار المتدرّج"));
+ app.append(el("section",{class:"sec"},el("div",{class:"eyebrow"},"استعداد على "+WKS+" أسابيع"),el("h2",{},"مسارك المتدرّج"),el("p",{},"أسبوع تشخيص لتحديد مجموعتك، ثم أسابيع أسئلة تتصاعد من الأسهل إلى الأصعب. تنتقل للأسبوع التالي حين تصل إلى "+AR(PASS)+"%، وفي الأسبوعين الأخيرين تتدرّب على اختبار كامل بنمط تيمس.")));
+ if(st.grp!==null)app.append(el("div",{class:"card",style:"border-right:4px solid var(--g)"},el("div",{class:"split"},el("h3",{},GRP[st.grp]),el("span",{class:"cnt"},"أسبوع "+AR(Math.min(st.wk,WKS))+" من "+AR(WKS))),
+  el("p",{class:"muted",style:"margin:4px 0"},"تتغيّر مجموعتك تلقائيًا حسب نتائجك، فمن يتجاوز ٨٥٪ يرتقي ومن يقل عن ٤٠٪ يعود خطوة ليثبّت الأساس."),
+  el("div",{class:"row"},[0,1,2].map(g=>el("button",{class:g===st.grp?"":"alt",onclick:()=>{st.grp=g;save();path(s)}},GRP[g].replace("المجموعة ","")))),
+  el("p",{class:"muted",style:"margin:6px 0 0;font-size:.85rem"},"يمكنك تغيير المجموعة بالاتفاق مع معلّمك.")));
+ const list=el("div",{class:"grid"});
+ for(let w=1;w<=WKS;w++){const r=st.res.filter(x=>x.w===w),best=r.length?Math.max(...r.map(x=>x.p)):null,cur=w===Math.min(st.wk,WKS)&&st.wk<=WKS,done=w<st.wk,lock=w>st.wk;
+  const lbl=w===1?"اختبار تشخيصي":w<=6?"أسئلة متدرّجة":"اختبار كامل بنمط تيمس";
+  const go=()=>{if(w===1){const P=pathPool(s),ds=doms(s);let pk=[];ds.forEach(d=>pk.push(...shuffle(P.filter(q=>q.d===d)).slice(0,3)));pk=shuffle(pk).slice(0,15);run(pk,"المسار · التشخيص · "+SUB[s],{feedback:false,onDone:(r,n)=>{pathDone(s,r,n)},back:()=>path(s)})}
+   else if(w<=6){const L=weekSet(s,st);run(L,"المسار · أسبوع "+w+" · "+GRP[st.grp].replace("المجموعة ","")+" · "+SUB[s],{feedback:true,onDone:(r,n)=>{pathDone(s,r,n)},back:()=>path(s)})}
+   else{const P=shuffle(pathPool(s)).slice(0,14);run(P,"المسار · أسبوع "+w+" · اختبار كامل · "+SUB[s],{feedback:false,minutes:20,onDone:(r,n)=>{pathDone(s,r,n)},back:()=>path(s)})}};
+  list.append(el("div",{class:"card",style:lock?"opacity:.55":(cur?"border-right:4px solid var(--t)":"")},el("div",{class:"split"},el("h3",{},"أسبوع "+AR(w)+(done?" ✔":"")),el("span",{class:"cnt"},best!==null?"أفضل نتيجة "+AR(best)+"٪":lbl)),
+   el("p",{class:"muted",style:"margin:4px 0"},lbl+(w>1&&w<=6?" (عشرة أسئلة)":"")),
+   (cur||done)&&!(w>1&&st.grp===null)?el("button",{class:cur?"":"alt",onclick:go},cur?"ابدأ الآن  ←":"أعد الأسبوع"):el("p",{class:"muted"},"🔒 يفتح بعد إنهاء الأسبوع السابق")))}
+ app.append(list,el("div",{class:"row"},el("button",{class:"alt",onclick:()=>gradeView(db.sel.g)},"رجوع"),el("button",{class:"alt",onclick:()=>{if(window._pc){window._pc=0;delete db.path[db.sel.g+s];save();path(s)}else{window._pc=1;path(s)}}},window._pc?"اضغط للتأكيد: إعادة المسار":"إعادة المسار من البداية")))}
 /* ---------- ألعاب تدريبية ---------- */
 function games(s){clear();setTab("t");app.append(crumb(SUB[s]+" · ألعاب"),el("section",{class:"sec"},el("div",{class:"eyebrow"},"ألعاب"),el("h2",{},"العب وتعلّم"),el("p",{},"كل لعبة 12 سؤالًا في ثلاث جولات: معرفة ثم تطبيق ثم استدلال. لكل إجابة صحيحة 3 نقاط. نتائج الألعاب للمتعة ولا تدخل في تقرير إنجازك.")));
  const g=el("div",{class:"grid"});
@@ -225,11 +256,11 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
    next.hidden=false}}
  function finish(){if(timer){clearInterval(timer);timer=null}
   ans.forEach(x=>{if(x){db.h[x.q.i]={ok:x.k===x.q.a};if(!o.feedback)logA(x.k===x.q.a)}});if(!db.days.includes(today()))db.days.push(today());save();
-  const right=ans.filter(x=>x&&x.k===x.q.a).length;pushAttempt(title,list,ans,o,right);
+  const right=ans.filter(x=>x&&x.k===x.q.a).length;pushAttempt(title,list,ans,o,right);if(o.onDone)o.onDone(right,list.length);
   clear();app.append(crumb(title),el("div",{class:"card"},el("div",{class:"eyebrow"},"النتيجة"),el("h2",{},right+" من "+list.length),el("p",{}),el("div",{class:"bar"},el("i",{style:"width:"+(right/list.length*100)+"%"}))));
   const rev=el("div",{class:"card"},el("h3",{},"مراجعة الأسئلة"));
   list.forEach((q,i)=>{const a=ans[i];const ok=a&&a.k===q.a;rev.append(el("div",{class:"exp",style:"margin:8px 0"},el("b",{},(ok?"✔ ":"✘ ")+q.q),el("br"),"الصحيح: "+(q.open?q.model:q.o[q.a]+". "+q.why)+" "))});
-  app.append(rev,el("div",{class:"row"},o.minutes?el("button",{onclick:()=>cert(title,right,list.length)},"🏅 شهادة تدريب"):"",el("button",{onclick:report},"إنجازي"),el("button",{class:"alt",onclick:()=>gradeView(db.sel.g)},"تدريب آخر")))}
+  app.append(rev,el("div",{class:"row"},o.minutes?el("button",{onclick:()=>cert(title,right,list.length)},"🏅 شهادة تدريب"):"",o.back?el("button",{onclick:o.back},"متابعة المسار  ←"):"",el("button",{class:o.back?"alt":"",onclick:report},"إنجازي"),el("button",{class:"alt",onclick:()=>gradeView(db.sel.g)},"تدريب آخر")))}
  show()}
 /* ---------- إنجازي ---------- */
 function report(){clear();setTab("r");
