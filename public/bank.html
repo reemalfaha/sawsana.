@@ -38,20 +38,20 @@ button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:9px 16px
 </style></head><body>
 <header class="top"><div><h1>بنك الأسئلة</h1><a href="index.html">← إلى المنصة</a></div></header>
 <main>
-<section class="card"><h2>اختاري أسئلة وجهّزي نموذجًا لطالباتك</h2>
-<p class="sub">رتّبي الأسئلة حسب الصف والمادة والمجال والمستوى العقلي، ثم حدّدي ما يناسبك. بعدها اطبعي ورقة عمل، أو أرسلي رابط تدريب تفاعلي، أو ولّدي نموذجًا يطابق جدول مواصفات تيمس 2023.</p>
+<section class="card"><h2>اختر أسئلة وجهّز نموذجًا لطلبةك</h2>
+<p class="sub">رتّب الأسئلة حسب الصف والمادة والمجال والمستوى العقلي، ثم حدّد ما يناسبك. بعدها اطبع ورقة عمل، أو أرسل رابط تدريب تفاعلي، أو ولّد نموذجًا يطابق جدول مواصفات تيمس 2023.</p>
 <div class="bar"><select id="g"><option value="">كل الصفوف</option><option value="4">الصف الرابع</option><option value="8">الصف الثامن</option></select>
 <select id="s"><option value="">كل المواد</option><option value="math">الرياضيات</option><option value="sci">العلوم</option></select>
 <select id="d"><option value="">كل المجالات</option></select><select id="c"><option value="">كل المستويات</option><option>معرفة</option><option>تطبيق</option><option>استدلال</option></select>
 <select id="y"><option value="">كل الأنواع</option><option value="mc">اختيار من متعدد</option><option value="op">مفتوحة الإجابة</option></select>
 <input id="f" type="search" placeholder="بحث في نص السؤال"></div>
 <p class="sub" id="cnt" style="margin-top:8px"></p>
-<div class="bar"><button class="alt sm" id="all">تحديد كل المعروض</button><button class="alt sm" id="none">إلغاء التحديد</button><button class="alt sm" id="gen">ولّدي نموذجًا حسب الإطار</button></div></section>
+<div class="bar"><button class="alt sm" id="all">تحديد كل المعروض</button><button class="alt sm" id="none">إلغاء التحديد</button><button class="alt sm" id="gen">ولّد نموذجًا حسب الإطار</button></div></section>
 <div id="cmp"></div>
 <div id="list" style="display:flex;flex-direction:column;gap:10px"></div>
 <div class="tray" id="tray"><span>المحدَّد: <b id="sel">0</b></span>
-<button id="pw">ورقة الطالبة</button><button class="alt" id="pk">نسخة المعلمة بالمفتاح</button><button class="alt" id="lk">رابط للطالبات</button></div>
-<section class="card" id="lkbox" hidden><h2>رابط التدريب</h2><p class="sub">تفتح الطالبة الرابط فتجد الأسئلة المحدّدة بالترتيب مع الشرح بعد كل إجابة. لا يحتاج الرابط إلى تسجيل دخول.</p>
+<button id="pw">ورقة الطالب</button><button class="alt" id="pk">نسخة المعلمة بالمفتاح</button><button class="alt" id="lk">رابط للطلبة</button></div>
+<section class="card" id="lkbox" hidden><h2>رابط التدريب</h2><p class="sub">تفتح الطالب الرابط فتجد الأسئلة المحدّدة بالترتيب مع الشرح بعد كل إجابة. لا يحتاج الرابط إلى تسجيل دخول.</p>
 <textarea class="lk" id="lkv" readonly></textarea><div class="bar" style="margin-top:6px"><button id="cp" class="sm">نسخ الرابط</button><a id="op" class="sm" style="align-self:center">فتح الرابط</a></div></section>
 <section class="card"><h2>بيانات الورقة المطبوعة</h2><div class="bar"><input id="t" placeholder="عنوان الورقة (مثال: تدريب على الأعداد)"><input id="sc" placeholder="اسم المدرسة"><input id="tn" placeholder="اسم المعلمة"></div></section>
 </main>
@@ -82,7 +82,7 @@ function render(){const L=pool();$("cnt").textContent=L.length+" سؤالًا م
   const tg=el("button",{class:"alt sm"},"الإجابة والشرح");tg.onclick=()=>{ans.classList.toggle("show");ul&&ul.querySelectorAll(".r").forEach(x=>x.classList.toggle("show"))};
   box.append(el("div",{class:"card q"},cb,el("div",{class:"b"},el("div",{},el("span",{class:"tag"},SUBN[q.s]+" · "+GN[q.g]),el("span",{class:"tag"},q.d),el("span",{class:"tag"},q.c),q.open?el("span",{class:"tag"},"مفتوحة"):"",q.u?el("span",{class:"tag s"},q.u):""),
    el("p",{style:"margin:4px 0;font-weight:500"},stem(q)),q.img?el("img",{class:"qi",src:q.img,alt:""}):"",ul||"",el("div",{},tg),ans,q.src?el("div",{class:"sub"},"المصدر: "+q.src):"")))});
- if(L.length>150)box.append(el("p",{class:"sub",style:"text-align:center"},"عُرضت أول 150 سؤالًا، ضيّقي البحث لرؤية الباقي."));upd()}
+ if(L.length>150)box.append(el("p",{class:"sub",style:"text-align:center"},"عُرضت أول 150 سؤالًا، ضيّق البحث لرؤية الباقي."));upd()}
 function upd(){$("sel").textContent=sel.size;compare()}
 function compare(){const box=$("cmp");box.replaceChildren();const g=+$("g").value,s=$("s").value;if(!g||!s||!sel.size)return;const B=window.SW_BP[g]&&window.SW_BP[g][s];if(!B)return;
  const A=[...sel].map(i=>Q[i]).filter(q=>q.g===g&&q.s===s);if(!A.length)return;const n=A.length;
@@ -90,7 +90,7 @@ function compare(){const box=$("cmp");box.replaceChildren();const g=+$("g").valu
  box.append(el("section",{class:"card"},el("h2",{},"مطابقة تحديدك لإطار تيمس 2027"),el("p",{class:"sub"},n+" سؤالًا محدَّدًا في "+SUBN[s]+" للصف "+GN[g]),tb(B.dom,"d",B.label),tb(B.cog,"c")))}
 /* توليد نموذج حسب جدول المواصفات */
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-function gen(){const g=+$("g").value,s=$("s").value;if(!g||!s){alert("اختاري الصف والمادة أولًا.");return}
+function gen(){const g=+$("g").value,s=$("s").value;if(!g||!s){alert("اختر الصف والمادة أولًا.");return}
  const B=window.SW_BP[g][s],pl=Q.filter(q=>q.t==="timss"&&q.g===g&&q.s===s&&!q.open&&!q.dup),lrm=window.SW_lrm;
  const n=Math.min(B.n,pl.length),dT=lrm(n,B.dom),rem=lrm(n,B.cog),pick=[],used=new Set();
  Object.keys(B.dom).forEach(d=>{const cT=lrm(dT[d],Object.values(rem).some(v=>v>0)?rem:B.cog);Object.keys(cT).forEach(k=>{rem[k]=Math.max(0,rem[k]-cT[k])});
@@ -100,17 +100,17 @@ function gen(){const g=+$("g").value,s=$("s").value;if(!g||!s){alert("اختار
  sel.clear();pick.forEach(q=>sel.add(q.i));$("d").value="";$("c").value="";$("y").value="";$("f").value="";fillDomains();render();$("cmp").scrollIntoView({behavior:"smooth"})}
 function chosen(){return [...sel].sort((a,b)=>a-b).map(i=>Q[i])}
 function title(){return $("t").value.trim()||"نموذج أسئلة على نمط تيمس"}
-function printSheet(key){const L=chosen();if(!L.length){alert("حدّدي أسئلة أولًا.");return}
+function printSheet(key){const L=chosen();if(!L.length){alert("حدّد أسئلة أولًا.");return}
  const P=$("prt");P.replaceChildren();const gs=[...new Set(L.map(q=>q.g))].map(x=>GN[x]).join(" و"),ss=[...new Set(L.map(q=>SUBN[q.s]))].join(" و");
  P.append(el("h1",{},title()+(key?" — نسخة المعلمة":"")),el("div",{class:"m"},el("span",{},"المدرسة: "+($("sc").value||"..................")),el("span",{},"المادة: "+ss+" · الصف: "+gs),el("span",{},"المعلمة: "+($("tn").value||"..................")),el("span",{},"التاريخ: .........")));
- if(!key)P.append(el("div",{class:"m"},el("span",{},"اسم الطالبة: ......................................."),el("span",{},"الشعبة: ........"),el("span",{},"العلامة: ...... / "+L.length)));
+ if(!key)P.append(el("div",{class:"m"},el("span",{},"اسم الطالب: ......................................."),el("span",{},"الشعبة: ........"),el("span",{},"العلامة: ...... / "+L.length)));
  L.forEach((q,n)=>{const d=el("div",{class:"pq"},el("div",{},el("b",{},(n+1)+". "),stem(q)));if(q.img)d.append(el("img",{src:q.img,alt:""}));
   if(q.open){if(key)d.append(el("div",{},el("b",{},"نموذج الإجابة: "),q.model||""));else for(let i=0;i<3;i++)d.append(el("div",{class:"ln"}))}
   else{const o=order(q);d.append(el("ol",{},o.map((k,j)=>el("li",{},LT[j]+") "+q.o[k]))));if(key)d.append(el("div",{},el("b",{},"الإجابة: "+LT[o.indexOf(0)]+" — "),q.why||""))}
   P.append(d)});
  P.append(el("div",{class:"ft"},"أسئلة على نمط تيمس 2027 · تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"));
  setTimeout(()=>window.print(),150)}
-function link(){const L=chosen();if(!L.length){alert("حدّدي أسئلة أولًا.");return}
+function link(){const L=chosen();if(!L.length){alert("حدّد أسئلة أولًا.");return}
  const u=location.href.replace(/[^\/]*$/,"")+"index.html?set="+L.map(q=>q.i).join(".")+"&t="+encodeURIComponent(title());
  $("lkbox").hidden=false;$("lkv").value=u;$("op").href=u;$("op").target="_blank";$("lkbox").scrollIntoView({behavior:"smooth"})}
 ["g","s"].forEach(i=>$(i).onchange=()=>{fillDomains();render()});["d","c","y"].forEach(i=>$(i).onchange=render);$("f").oninput=render;

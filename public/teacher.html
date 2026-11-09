@@ -18,11 +18,11 @@ button{font:inherit;border:0;border-radius:10px;padding:10px 18px;background:var
 footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 24px}
 </style></head><body>
 <script src="config.js"></script><script src="gate.js"></script>
-<header class="top"><div class="in"><h1>السوسنة · تقرير الصف</h1><div style="margin-top:4px"><a href="index.html" style="color:#EADFEE">← للطالبات</a> · <a href="accounts.html" style="color:#EADFEE">حسابات الطالبات</a> · <a href="board.html" style="color:#EADFEE">وضع السبورة</a> · <a href="schools.html" style="color:#EADFEE">بطاقات QR</a></div><div style="opacity:.9;font-size:.95rem">ألصقي رموز تقارير الطالبات (رمز في كل سطر) لترَي أداء الصف حسب المجال. لا تُرسَل أي بيانات لأي خادم.</div></div></header>
+<header class="top"><div class="in"><h1>السوسنة · تقرير الصف</h1><div style="margin-top:4px"><a href="index.html" style="color:#EADFEE">← للطلبة</a> · <a href="accounts.html" style="color:#EADFEE">حسابات الطلبة</a> · <a href="board.html" style="color:#EADFEE">وضع السبورة</a> · <a href="schools.html" style="color:#EADFEE">بطاقات QR</a></div><div style="opacity:.9;font-size:.95rem">ألصق رموز تقارير الطلبة (رمز في كل سطر) لترى أداء الصف حسب المجال. لا تُرسَل أي بيانات لأي خادم.</div></div></header>
 <main class="main">
 <div class="card" id="set"></div>
-<div class="card"><h3>1) ألصقي رموز الطالبات</h3><p class="muted">رمز في كل سطر (SW1 أو SW2). تُحفظ المتابعة على جهازك فقط بحسب رقم الطالبة في الكشف، دون أي اسم. اطلبي من الطالبات إرسال الرمز أسبوعيًا.</p>
-<textarea id="in" placeholder="SW2.xxxxxxxx&#10;SW2.yyyyyyyy"></textarea><button id="go">أضيفي وحلّلي</button> <button id="clr" style="background:#8a7a90">مسح البيانات المحفوظة</button></div>
+<div class="card"><h3>1) ألصق رموز الطلبة</h3><p class="muted">رمز في كل سطر (SW1 أو SW2). تُحفظ المتابعة على جهازك فقط بحسب رقم الطالب في الكشف، دون أي اسم. اطلب من الطلبة إرسال الرمز أسبوعيًا.</p>
+<textarea id="in" placeholder="SW2.xxxxxxxx&#10;SW2.yyyyyyyy"></textarea><button id="go">أضف وحلّل</button> <button id="clr" style="background:#8a7a90">مسح البيانات المحفوظة</button></div>
 <div id="out"></div>
 </main>
 <footer>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي</footer>
@@ -35,7 +35,7 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(T))}catch(e){}};
 const $=id=>document.getElementById(id);
 const E=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 
-/* ---------- الإعدادات: قائمة الطالبات (مشفّرة على جهازك) ---------- */
+/* ---------- الإعدادات: قائمة الطلبة (مشفّرة على جهازك) ---------- */
 const RK="sawsana.roster.v1";let R=null,PASS=null;
 const b64=u=>btoa(String.fromCharCode(...u)),unb=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function key(p,salt){const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(p),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:150000,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
@@ -45,15 +45,15 @@ const stored=()=>{try{return localStorage.getItem(RK)}catch(e){return null}};
 async function persist(){try{localStorage.setItem(RK,await seal(R,PASS))}catch(e){}}
 const nameOf=(sec,n)=>{if(!R||!R.sec[sec])return"";return R.sec[sec][n-1]||""};
 function settings(){const c=$("set");c.replaceChildren();
- const h=E("h3","","⚙ الإعدادات · قائمة طالبات المدرسة");c.append(h);
+ const h=E("h3","","⚙ الإعدادات · قائمة طلبة المدرسة");c.append(h);
  const msg=E("p","muted","");
  const inp=(ph,type)=>{const i=document.createElement("input");i.placeholder=ph;i.type=type||"text";i.style.cssText="padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;margin:4px 4px 4px 0;max-width:100%";return i};
  const btn=(t,f,alt)=>{const b=E("button","",t);b.onclick=f;if(alt)b.style.background="#8a7a90";b.style.marginTop="4px";return b};
  if(!R){
-  if(!stored()){c.append(E("p","muted","أضيفي طالبات مدرستك لتظهر أسماؤهن بجانب أرقامهن في المتابعة. تُحفظ الأسماء مشفّرة على هذا الجهاز فقط، ولا تدخل في أي رمز تقرير. اختاري كلمة سر (إذا نسيتها لا يمكن استرجاع القائمة)."));
+  if(!stored()){c.append(E("p","muted","أضف طلبة مدرستك لتظهر أسماؤهن بجانب أرقامهن في المتابعة. تُحفظ الأسماء مشفّرة على هذا الجهاز فقط، ولا تدخل في أي رمز تقرير. اختر كلمة سر (إذا نسيتها لا يمكن استرجاع القائمة)."));
    const p=inp("كلمة السر","password");c.append(p,btn("إنشاء القائمة",async()=>{if(p.value.length<4){msg.textContent="كلمة السر قصيرة (4 أحرف على الأقل).";return}PASS=p.value;R={school:"",sec:{}};await persist();settings()}))}
-  else{c.append(E("p","muted","القائمة مقفلة. أدخلي كلمة السر لفتحها."));const p=inp("كلمة السر","password");
-   c.append(p,btn("فتح",async()=>{try{R=await unseal(stored(),p.value);PASS=p.value;settings();render()}catch(e){msg.textContent="كلمة السر غير صحيحة."}}),btn("استيراد نسخة احتياطية",()=>{const t=document.createElement("textarea");t.placeholder="ألصقي النسخة الاحتياطية هنا ثم أدخلي كلمة سرها أعلاه";t.style.minHeight="70px";c.append(t,btn("استيراد",async()=>{try{R=await unseal(t.value.trim(),p.value);PASS=p.value;localStorage.setItem(RK,t.value.trim());settings();render()}catch(e){msg.textContent="تعذّر الاستيراد: تأكدي من النص وكلمة السر."}}))},true))}
+  else{c.append(E("p","muted","القائمة مقفلة. أدخل كلمة السر لفتحها."));const p=inp("كلمة السر","password");
+   c.append(p,btn("فتح",async()=>{try{R=await unseal(stored(),p.value);PASS=p.value;settings();render()}catch(e){msg.textContent="كلمة السر غير صحيحة."}}),btn("استيراد نسخة احتياطية",()=>{const t=document.createElement("textarea");t.placeholder="ألصق النسخة الاحتياطية هنا ثم أدخل كلمة سرها أعلاه";t.style.minHeight="70px";c.append(t,btn("استيراد",async()=>{try{R=await unseal(t.value.trim(),p.value);PASS=p.value;localStorage.setItem(RK,t.value.trim());settings();render()}catch(e){msg.textContent="تعذّر الاستيراد: تأكد من النص وكلمة السر."}}))},true))}
   c.append(msg);return}
  // مفتوحة
  const sc=inp("اسم المدرسة");sc.value=R.school||"";sc.onchange=async()=>{R.school=sc.value;await persist()};c.append(sc);
@@ -62,16 +62,16 @@ function settings(){const c=$("set");c.replaceChildren();
  const ns=inp("شعبة جديدة (مثل 8أ)");ns.style.width="150px";
  const row=E("div");row.append(sel,ns,btn("إضافة شعبة",async()=>{const v=ns.value.trim();if(!v||R.sec[v])return;R.sec[v]=[];await persist();settings()}));c.append(row);
  if(secs.length){const cur=window._cur&&R.sec[window._cur]?window._cur:secs[0];sel.value=cur;
-  const ta=document.createElement("textarea");ta.style.cssText="min-height:150px;direction:rtl;font:15px/1.6 inherit;font-family:inherit";ta.placeholder="اسم طالبة في كل سطر. رقم الطالبة = ترتيبها في القائمة (مثل الكشف الرسمي)";ta.value=R.sec[cur].join("\n");
+  const ta=document.createElement("textarea");ta.style.cssText="min-height:150px;direction:rtl;font:15px/1.6 inherit;font-family:inherit";ta.placeholder="اسم طالب في كل سطر. رقم الطالب = ترتيبها في القائمة (مثل الكشف الرسمي)";ta.value=R.sec[cur].join("\n");
   sel.onchange=()=>{window._cur=sel.value;settings()};
-  c.append(E("p","muted","أسماء الشعبة "+cur+" (اسم في كل سطر، والرقم هو الترتيب). اطلبي من كل طالبة كتابة شعبتها ورقمها في صفحة «إنجازي»."),ta,
+  c.append(E("p","muted","أسماء الشعبة "+cur+" (اسم في كل سطر، والرقم هو الترتيب). اطلب من كل طالب كتابة شعبتها ورقمها في صفحة «إنجازي»."),ta,
    btn("حفظ القائمة",async()=>{R.sec[cur]=ta.value.split("\n").map(x=>x.trim()).filter(Boolean);await persist();msg.textContent="تم الحفظ مشفّرًا على جهازك ✔";render()}),
    btn("حذف الشعبة",async()=>{delete R.sec[cur];await persist();settings();render()},true))}
- const bk=btn("نسخة احتياطية مشفّرة",async()=>{const t=document.createElement("textarea");t.readOnly=true;t.style.minHeight="70px";t.value=await seal(R,PASS);c.append(t,E("p","muted","انسخي النص واحفظيه (مثلًا في ملاحظاتك). لا يُفتح إلا بكلمة السر."));t.select()},true);
+ const bk=btn("نسخة احتياطية مشفّرة",async()=>{const t=document.createElement("textarea");t.readOnly=true;t.style.minHeight="70px";t.value=await seal(R,PASS);c.append(t,E("p","muted","انسخ النص واحفظه (مثلًا في ملاحظاتك). لا يُفتح إلا بكلمة السر."));t.select()},true);
  c.append(E("br"),bk,btn("قفل",()=>{R=null;PASS=null;settings();render()},true),msg)}
 
 function decode(l){try{return JSON.parse(decodeURIComponent(escape(atob(l.slice(4)))))}catch(e){return null}}
-$("clr").onclick=()=>{if($("clr").dataset.sure){T={};save();$("clr").dataset.sure="";$("clr").textContent="مسح البيانات المحفوظة";render()}else{$("clr").dataset.sure="1";$("clr").textContent="اضغطي مرة ثانية للتأكيد"}};
+$("clr").onclick=()=>{if($("clr").dataset.sure){T={};save();$("clr").dataset.sure="";$("clr").textContent="مسح البيانات المحفوظة";render()}else{$("clr").dataset.sure="1";$("clr").textContent="اضغط مرة ثانية للتأكيد"}};
 $("go").onclick=()=>{
  const lines=$("in").value.split(/\s+/).filter(x=>/^SW[12]\./.test(x));let added=0,bad=0;
  lines.forEach(l=>{const o=decode(l);if(!o||!o.d){bad++;return}
@@ -82,14 +82,14 @@ $("go").onclick=()=>{
 const lab=k=>{const sp=k.indexOf("|"),sec=sp>=0?k.slice(0,sp):"",no=sp>=0?k.slice(sp+1):k;const nm=nameOf(sec,+no);return (sec?sec+"-":"")+no+(nm?" ("+nm+")":"")};
 const pct=(d,s)=>{let ok=0,t=0;d.forEach(([ss,i,o,n])=>{if(s==null||ss===s){ok+=o;t+=n}});return t?Math.round(ok/t*100):null};
 function render(added,bad){const out=$("out");out.replaceChildren();const keys=Object.keys(T);
- if(!keys.length){out.append(E("div","card","لا توجد بيانات بعد. ألصقي الرموز أعلاه."));return}
+ if(!keys.length){out.append(E("div","card","لا توجد بيانات بعد. ألصق الرموز أعلاه."));return}
  const latest=keys.map(k=>({k,h:T[k],l:T[k][T[k].length-1]}));
- // أداء الصف حسب المجال (آخر تقرير لكل طالبة)
+ // أداء الصف حسب المجال (آخر تقرير لكل طالب)
  SUB.forEach((s,si)=>{const c=E("div","card");c.append(E("h3","",NAME[s]));
   window.SW_DOMAINS[s].forEach((d,i)=>{let ok=0,t=0,n=0;latest.forEach(x=>x.l.d.forEach(([ss,ii,o,tt])=>{if(ss===si&&ii===i){ok+=o;t+=tt;n++}}));const p=t?Math.round(ok/t*100):null;
-   const r=E("div","dom");r.append(E("span","",d));const b=E("div","bar"),f=document.createElement("i");f.style.width=(p||0)+"%";f.style.background=p==null?"#ccc":col(p);b.append(f);r.append(b,E("span","muted",p==null?"لا بيانات":p+"% · "+n+" طالبة"));c.append(r)});out.append(c)});
+   const r=E("div","dom");r.append(E("span","",d));const b=E("div","bar"),f=document.createElement("i");f.style.width=(p||0)+"%";f.style.background=p==null?"#ccc":col(p);b.append(f);r.append(b,E("span","muted",p==null?"لا بيانات":p+"% · "+n+" طالب"));c.append(r)});out.append(c)});
  // جدول المتابعة
- const tb=E("div","card");tb.append(E("h3","","متابعة الطالبات (بالرقم)"),E("p","muted","التغيّر = الفرق عن التقرير السابق للطالبة نفسها. الأحمر يحتاج تدخلًا."));
+ const tb=E("div","card");tb.append(E("h3","","متابعة الطلبة (بالرقم)"),E("p","muted","التغيّر = الفرق عن التقرير السابق للطالب نفسها. الأحمر يحتاج تدخلًا."));
  const tbl=document.createElement("table");tbl.style.cssText="width:100%;border-collapse:collapse;font-size:.95rem";
  const hr=tbl.insertRow();["رقم","التطور","آخر نسبة","التغيّر","أضعف مجال"].forEach(h=>{const th=E("th","",h);th.style.cssText="text-align:right;border-bottom:2px solid var(--line);padding:4px";hr.append(th)});
  latest.sort((a,b)=>(pct(a.l.d)??101)-(pct(b.l.d)??101)).forEach(x=>{const r=tbl.insertRow();const seq=x.h.map(h=>pct(h.d));const cur=seq[seq.length-1],prev=seq.length>1?seq[seq.length-2]:null;
@@ -98,15 +98,15 @@ function render(added,bad){const out=$("out");out.replaceChildren();const keys=O
   cells.forEach((v,k)=>{const td=r.insertCell();td.textContent=v;td.style.cssText="padding:6px 4px;border-bottom:1px solid var(--line)";if(k===2)td.style.color=col(cur);if(k===3&&prev!=null)td.style.color=cur>prev?"#2F7D4F":cur<prev?"#B3261E":"inherit"})});
  tb.append(tbl);out.append(tb);
  // مجموعات علاجية
- const g=E("div","card");g.append(E("h3","","المجموعات العلاجية المقترحة"),E("p","muted","طالبات نسبتهن أقل من 60% في المجال (بعد سؤالين على الأقل). ابدئي بالمجالات الأكثر طالبات."));
+ const g=E("div","card");g.append(E("h3","","المجموعات العلاجية المقترحة"),E("p","muted","طلبة نسبتهن أقل من 60% في المجال (بعد سؤالين على الأقل). ابدأ بالمجالات الأكثر طلبة."));
  const groups=[];SUB.forEach((s,si)=>window.SW_DOMAINS[s].forEach((d,i)=>{const m=[];latest.forEach(x=>x.l.d.forEach(([ss,ii,o,t])=>{if(ss===si&&ii===i&&t>=2&&o/t<.6)m.push(x.k.startsWith("?")?"؟":lab(x.k))}));if(m.length)groups.push({s,d,m})}));
  groups.sort((a,b)=>b.m.length-a.m.length);let txt="";
  if(!groups.length)g.append(E("p","","لا توجد مجموعات علاجية الآن. أداء الصف جيد."));
- groups.forEach(x=>{const line="«"+x.d+"» ("+NAME[x.s]+"): الطالبات رقم "+x.m.join("، ");txt+=line+"\n";g.append(E("p","",line))});
- if(groups.length){g.append(E("p","muted","خطة الأسبوع: حصة علاجية قصيرة (10–15 دقيقة) لكل مجموعة، ثم تُطلب من الطالبات خطة «العلاج» داخل صفحة إنجازي (تصحيح الأخطاء ← أسئلة جديدة ← اختبار بعدي)، وبعد أسبوع تُقارَن النسبة الجديدة هنا."));
+ groups.forEach(x=>{const line="«"+x.d+"» ("+NAME[x.s]+"): الطلبة رقم "+x.m.join("، ");txt+=line+"\n";g.append(E("p","",line))});
+ if(groups.length){g.append(E("p","muted","خطة الأسبوع: حصة علاجية قصيرة (10–15 دقيقة) لكل مجموعة، ثم تُطلب من الطلبة خطة «العلاج» داخل صفحة إنجازي (تصحيح الأخطاء ← أسئلة جديدة ← اختبار بعدي)، وبعد أسبوع تُقارَن النسبة الجديدة هنا."));
   const cp=E("button","","نسخ الخطة");cp.onclick=()=>{try{navigator.clipboard.writeText(txt).then(()=>cp.textContent="تم النسخ ✔")}catch(e){}};g.append(cp)}
  out.append(g);
  if(R){const miss=[];Object.keys(R.sec).forEach(sec=>R.sec[sec].forEach((nm,i)=>{if(!T[sec+"|"+(i+1)])miss.push(sec+"-"+(i+1)+" "+nm)}));if(miss.length){const m=E("div","card");m.append(E("h3","","لم يصل لهن تقرير بعد"),E("p","muted","للمتابعة: ذكّريهن بنسخ «رمز تقريري» من صفحة إنجازي."),E("p","",miss.join("، ")));out.append(m)}}
- out.append(E("p","muted","عدد الطالبات: "+keys.length+(added!=null?(" · أضفتُ "+added+" تقريرًا"+(bad?("، وغير صالح: "+bad):"")):"")));}
+ out.append(E("p","muted","عدد الطلبة: "+keys.length+(added!=null?(" · أضفتُ "+added+" تقريرًا"+(bad?("، وغير صالح: "+bad):"")):"")));}
 settings();render();
 </script></body></html>

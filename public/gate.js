@@ -13,12 +13,12 @@ const btn=(t,f,alt)=>{const b=mk("button",t,"font:inherit;font-weight:600;border
 const msg=mk("p",null,"color:#B3261E;margin:6px 0");
 box.append(mk("h2","🔒 صفحة المعلمات","margin:0 0 6px;color:#3E1B47"));
 if(H){
- box.append(mk("p","أدخلي كلمة السر للمتابعة.","margin:0"));const p=inp("كلمة السر");
+ box.append(mk("p","أدخل كلمة السر للمتابعة.","margin:0"));const p=inp("كلمة السر");
  const go=async()=>{if(await sha(p.value)===H){try{sessionStorage.setItem(SK,H)}catch(e){}o.remove()}else{msg.textContent="كلمة السر غير صحيحة.";p.value=""}};
  p.addEventListener("keydown",e=>{if(e.key==="Enter")go()});
  box.append(p,btn("دخول",go),btn("← للطالبات",()=>location.href="index.html",true),msg);
 }else{
- box.append(mk("p","لم تُحدَّد كلمة سر للمعلمات بعد. اكتبي الكلمة التي تريدينها، وسيظهر لك رمز (بصمة) ترسلينه للمنفّذ ليُضاف للمنصة. الكلمة نفسها لا تُرسَل.","margin:0"));
+ box.append(mk("p","لم تُحدَّد كلمة سر للمعلمات بعد. اكتب الكلمة التي تريدينها، وسيظهر لك رمز (بصمة) ترسلينه للمنفّذ ليُضاف للمنصة. الكلمة نفسها لا تُرسَل.","margin:0"));
  const p=inp("كلمة السر الجديدة (6 أحرف على الأقل)"),out=mk("textarea",null,"width:100%;min-height:70px;direction:ltr;font:12px monospace;margin-top:8px");out.readOnly=true;out.hidden=true;
  box.append(p,btn("إنشاء البصمة",async()=>{if(p.value.length<6){msg.textContent="الكلمة قصيرة.";return}msg.textContent="";out.value=await sha(p.value);out.hidden=false;out.select()}),out,
   btn("متابعة مؤقتًا بدون كلمة سر",()=>o.remove(),true),btn("← للطالبات",()=>location.href="index.html",true),msg);

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>السوسنة: حسابات الطالبات</title>
+<title>السوسنة: حسابات الطلبة</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
 :root{--wine:#3E1B47;--bg:#FAF7F8;--fg:#21152A;--mute:#6F6577;--line:#E6DEE6;--soft:#EADFEE;--ok:#2F7D4F;--no:#B3261E;--mid:#C08A2B}
@@ -25,7 +25,7 @@ button.alt{background:var(--soft);color:var(--wine)}button.del{background:#fff;c
 footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 24px}a{color:var(--wine)}
 </style></head><body>
 <script src="config.js"></script><script src="gate.js"></script>
-<header class="top"><div class="in"><h1>السوسنة · حسابات الطالبات</h1><div style="margin-top:4px"><a href="teacher.html" style="color:#EADFEE">← تقرير الصف</a> · <a href="index.html" style="color:#EADFEE">للطالبات</a></div></div></header>
+<header class="top"><div class="in"><h1>السوسنة · حسابات الطلبة</h1><div style="margin-top:4px"><a href="teacher.html" style="color:#EADFEE">← تقرير الصف</a> · <a href="index.html" style="color:#EADFEE">للطلبة</a></div></div></header>
 <main class="main" id="app"></main><div id="prt"></div>
 <footer>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي</footer>
 <script src="data.js"></script>
@@ -49,14 +49,14 @@ function stats(at){const pc=a=>a.total?Math.round(a.right/a.total*100):0;const g
  const tot=at.reduce((a,b)=>a+b.total,0),rt=at.reduce((a,b)=>a+b.right,0);return{pc,dom,avg:tot?Math.round(rt/tot*100):0,tot,rt}}
 function report(r){const d=document.createElement("div");d.className="rp";const sc=SCH(),st=stats(r.at),pc=st.pc;
  const T=(h,rows)=>{const t=E("table");const tr=E("tr");h.forEach(x=>tr.append(E("th","",x)));t.append(tr);rows.forEach(rw=>{const q=E("tr");rw.forEach(x=>q.append(E("td","",x)));t.append(q)});return t};
- d.append(E("h1","","تقرير إنجاز الطالبة"));const m=E("div","meta");m.append(E("div","","المدرسة: "+(sc.school||"................")),E("div","","المعلمة: "+(sc.teacher||"................")),E("div","","التاريخ: "+fmt(Date.now())));d.append(m);
- const m2=E("div","meta");m2.append(E("div","","اسم الطالبة: "+(r.nm||"................")),E("div","","الشعبة: "+r.s.sec),E("div","","الرقم: "+r.s.no));d.append(m2);
+ d.append(E("h1","","تقرير إنجاز الطالب"));const m=E("div","meta");m.append(E("div","","المدرسة: "+(sc.school||"................")),E("div","","المعلمة: "+(sc.teacher||"................")),E("div","","التاريخ: "+fmt(Date.now())));d.append(m);
+ const m2=E("div","meta");m2.append(E("div","","اسم الطالب: "+(r.nm||"................")),E("div","","الشعبة: "+r.s.sec),E("div","","الرقم: "+r.s.no));d.append(m2);
  d.append(E("h2","","ملخص الأداء"));
- if(!r.at.length){d.append(E("p","","لم تسجّل الطالبة أي محاولة بعد."))}else{
+ if(!r.at.length){d.append(E("p","","لم تسجّل الطالب أي محاولة بعد."))}else{
   const ex=r.at.filter(a=>a.mode==="mock"||a.mode==="diag"||a.mode==="test"),l=ex[ex.length-1];
   d.append(E("p","","عدد المحاولات: "+r.at.length+" — مجموع الأسئلة: "+st.tot+" — المعدل العام: "+st.avg+"%"+(l?" — آخر اختبار: "+fmt(l.ts)+" ("+pc(l)+"%)":"")));
   if(ex.length>1)d.append(E("p","","تطور علامات الاختبارات: "+ex.slice(-6).map(pc).join("% ← ")+"%"));
-  d.append(E("h2","","أداء الطالبة حسب المجال"));
+  d.append(E("h2","","أداء الطالب حسب المجال"));
   d.append(T(["المجال","الصحيح / الكلي","النسبة","التقدير"],st.dom.map(x=>[x.n,x.ok+" / "+x.t,x.p+"%",x.t<3?"بيانات قليلة":x.p>=75?"قوة":x.p<60?"يحتاج علاجًا":"متوسط"])));
   d.append(E("h2","","سجل المحاولات"));
   d.append(T(["التاريخ","النشاط","العلامة","النسبة"],r.at.slice().reverse().slice(0,25).map(a=>[fmt(a.ts),a.title,a.right+" / "+a.total,pc(a)+"%"])))}
@@ -66,31 +66,31 @@ function printRep(list){const p=$("prt");p.replaceChildren(...list.map(report));
 function loginView(){app.replaceChildren();const c=E("div","card");c.append(E("h2","","دخول المعلمة"));
  const u=E("input");u.placeholder="اسم المستخدم";const p=E("input");p.type="password";p.placeholder="كلمة السر";const inv=E("input");inv.placeholder="رمز الدعوة (للتسجيل أول مرة)";const sc=E("input");sc.placeholder="اسم المدرسة (للتسجيل)";const msg=E("p","err","");
  const go=async reg=>{msg.textContent="";try{const j=await api(reg?"/api/teacher/register":"/api/teacher/login",{username:u.value,password:p.value,invite:inv.value,school:sc.value});TOK=j.token;USER=u.value.trim().toLowerCase();try{sessionStorage.setItem("sw.api",TOK);sessionStorage.setItem("sw.user",USER)}catch(e){}main()}catch(e){msg.textContent=e.status===503?"الحسابات غير مفعّلة بعد على الخادم. يلزم إعداد قاعدة البيانات أولًا.":e.message}};
- c.append(u,p,E("br"),btn("دخول",()=>go(false)),E("hr"),E("p","muted","أول مرة؟ أنشئي حسابًا برمز الدعوة الذي حصلتِ عليه من المشرفة:"),inv,sc,E("br"),btn("إنشاء حساب",()=>go(true),"alt"),msg);app.append(c)}
+ c.append(u,p,E("br"),btn("دخول",()=>go(false)),E("hr"),E("p","muted","أول مرة؟ أنشئ حسابًا برمز الدعوة الذي حصلت عليه من المشرفة:"),inv,sc,E("br"),btn("إنشاء حساب",()=>go(true),"alt"),msg);app.append(c)}
 let DATA={students:[],attempts:[]},SEC="";
 async function main(){app.replaceChildren();
- const k=E("div","card");k.append(E("h3","","1) مفتاح الأسماء"),E("p","muted","أسماء الطالبات تُشفَّر في متصفحك قبل الحفظ، ولا يرى الخادم إلا نصًا مشفّرًا. اختاري كلمة سر للأسماء (غير كلمة دخولك) وأدخليها في كل زيارة. إن نسيتِها لا تُسترجع الأسماء."));
+ const k=E("div","card");k.append(E("h3","","1) مفتاح الأسماء"),E("p","muted","أسماء الطلبة تُشفَّر في متصفحك قبل الحفظ، ولا يرى الخادم إلا نصًا مشفّرًا. اختر كلمة سر للأسماء (غير كلمة دخولك) وأدخلها في كل زيارة. إن نسيتِها لا تُسترجع الأسماء."));
  const pk=E("input");pk.type="password";pk.placeholder="كلمة سر الأسماء";const km=E("span","muted","");
  k.append(pk,btn("فتح",async()=>{if(pk.value.length<4){km.textContent="قصيرة";return}NK=await nkey(pk.value);km.textContent="تم ✔";await load()}),km);app.append(k);
- const a=E("div","card");a.append(E("h3","","2) إضافة طالبات"),E("p","muted","اكتبي اسم طالبة في كل سطر. يُنشأ لكل طالبة رمز دخول تعطينه لها لتربط حسابها في صفحة «إنجازي»."));
- const sec=E("input");sec.placeholder="الشعبة (مثل 8أ)";sec.style.width="140px";const st=E("input");st.type="number";st.placeholder="يبدأ الترقيم من";st.value="1";st.style.width="130px";const ta=E("textarea");ta.placeholder="اسم الطالبة الأولى\nاسم الطالبة الثانية";const am=E("p","muted","");
- a.append(sec,st,ta,btn("إنشاء الحسابات",async()=>{if(!NK){am.textContent="افتحي مفتاح الأسماء أولًا.";return}const names=ta.value.split("\n").map(x=>x.trim()).filter(Boolean);if(!names.length||!sec.value.trim()){am.textContent="اكتبي الشعبة والأسماء.";return}
+ const a=E("div","card");a.append(E("h3","","2) إضافة طلبة"),E("p","muted","اكتب اسم طالب في كل سطر. يُنشأ لكل طالب رمز دخول تعطينه لها لتربط حسابها في صفحة «إنجازي»."));
+ const sec=E("input");sec.placeholder="الشعبة (مثل 8أ)";sec.style.width="140px";const st=E("input");st.type="number";st.placeholder="يبدأ الترقيم من";st.value="1";st.style.width="130px";const ta=E("textarea");ta.placeholder="اسم الطالب الأولى\nاسم الطالب الثانية";const am=E("p","muted","");
+ a.append(sec,st,ta,btn("إنشاء الحسابات",async()=>{if(!NK){am.textContent="افتح مفتاح الأسماء أولًا.";return}const names=ta.value.split("\n").map(x=>x.trim()).filter(Boolean);if(!names.length||!sec.value.trim()){am.textContent="اكتب الشعبة والأسماء.";return}
   try{const arr=[];let n=parseInt(st.value)||1;for(const nm of names)arr.push({encName:await encName(nm),sec:sec.value.trim(),no:n++});
    const j=await api("/api/students",{students:arr});const lines=j.created.map((x,i)=>x.sec+"-"+x.no+" "+names[i]+"  ←  "+x.code);
-   const o=E("textarea");o.readOnly=true;o.value=lines.join("\n");o.style.direction="rtl";am.textContent="تم إنشاء "+j.created.length+" حسابًا. انسخي القائمة واحفظيها (لن تظهر الأسماء مع الرموز مرة أخرى إلا هنا):";am.after(o);ta.value="";await load()}catch(e){am.textContent=e.message}}),am);app.append(a);
+   const o=E("textarea");o.readOnly=true;o.value=lines.join("\n");o.style.direction="rtl";am.textContent="تم إنشاء "+j.created.length+" حسابًا. انسخ القائمة واحفظها (لن تظهر الأسماء مع الرموز مرة أخرى إلا هنا):";am.after(o);ta.value="";await load()}catch(e){am.textContent=e.message}}),am);app.append(a);
  const d=E("div","card");d.id="dash";app.append(d);await load()}
 async function load(){let j;try{j=await api("/api/students")}catch(e){if(e.status===401){loginView();return}$("dash").textContent=e.message;return}
  DATA=j;draw()}
-async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","3) متابعة الطالبات"));
+async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","3) متابعة الطلبة"));
  const secs=[...new Set(DATA.students.map(s=>s.sec))];const sel=E("select");sel.append(new Option("كل الشعب",""));secs.forEach(x=>sel.append(new Option("الشعبة "+x,x)));sel.value=SEC;sel.onchange=()=>{SEC=sel.value;draw()};
  const sc=SCH(),si=E("input");si.placeholder="اسم المدرسة (للطباعة)";si.value=sc.school||"";const ti=E("input");ti.placeholder="اسم المعلمة (للطباعة)";ti.value=sc.teacher||"";
  const sv=()=>{try{localStorage.setItem("sw.sch",JSON.stringify({school:si.value,teacher:ti.value}))}catch(e){}};si.oninput=ti.oninput=sv;
  const rows=[];
  d.append(si,ti,E("br"),sel,btn("🖨 طباعة تقارير الشعبة",()=>printRep(rows)),btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt"));
- if(!DATA.students.length){d.append(E("p","muted","لا توجد طالبات بعد."));return}
+ if(!DATA.students.length){d.append(E("p","muted","لا توجد طلبة بعد."));return}
  const by={};DATA.attempts.forEach(a=>(by[a.student_id]=by[a.student_id]||[]).push(a));
  for(const s of DATA.students.filter(x=>!SEC||x.sec===SEC)){const at=(by[s.id]||[]).sort((x,y)=>x.ts-y.ts);const nm=NK?await decName(s.enc_name):null;
-  const c=E("div","st"),h=E("div","row");const rr={s,nm,at};rows.push(rr);h.append(E("b","",(nm||"طالبة")+" ("+s.sec+"-"+s.no+")"),E("span","code",s.code));c.append(h);
+  const c=E("div","st"),h=E("div","row");const rr={s,nm,at};rows.push(rr);h.append(E("b","",(nm||"طالب")+" ("+s.sec+"-"+s.no+")"),E("span","code",s.code));c.append(h);
   const pc=a=>a.total?Math.round(a.right/a.total*100):0;
   const ex=at.filter(a=>a.mode==="mock"||a.mode==="diag"||a.mode==="test");
   if(!at.length)c.append(E("p","muted","لم تبدأ التدريب بعد."));
@@ -100,6 +100,6 @@ async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","
    const row=E("div");Object.values(g).filter(x=>x.t>=3).forEach(x=>{const p=Math.round(x.ok/x.t*100);const dn=(window.SW_DOMAINS[SUBN[x.si]]||[])[x.di];if(!dn)return;if(p>=75)row.append(E("span","tag s","قوة: "+dn+" "+p+"%"));else if(p<60)row.append(E("span","tag w","ضعف: "+dn+" "+p+"%"))});
    if(row.children.length)c.append(row);else c.append(E("p","muted","نقاط القوة والضعف تظهر بعد 3 أسئلة على الأقل في المجال."));
    const rec=E("details");rec.append(E("summary","muted","آخر المحاولات ("+at.length+")"));at.slice(-6).reverse().forEach(a=>rec.append(E("div","muted",fmt(a.ts)+" · "+a.title+" · "+a.right+"/"+a.total)));c.append(rec)}
-  c.append(btn("🖨 طباعة تقرير الطالبة",()=>printRep([rr]),"alt"),btn("حذف الحساب",async()=>{if(c.dataset.s){await api("/api/students/"+s.id,null,"DELETE");await load()}else{c.dataset.s=1;c.lastChild.textContent="اضغطي مرة أخرى للتأكيد"}},"del"));d.append(c)}}
+  c.append(btn("🖨 طباعة تقرير الطالب",()=>printRep([rr]),"alt"),btn("حذف الحساب",async()=>{if(c.dataset.s){await api("/api/students/"+s.id,null,"DELETE");await load()}else{c.dataset.s=1;c.lastChild.textContent="اضغط مرة أخرى للتأكيد"}},"del"));d.append(c)}}
 TOK?main().catch(()=>loginView()):loginView();
 </script></body></html>
