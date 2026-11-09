@@ -39,6 +39,15 @@ export default{async fetch(req,env){
   const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
   try{const r=await db.prepare("INSERT INTO teachers(username,school,salt,hash,created) VALUES(?,?,?,?,?)").bind(un,sc,salt,await pw(ps,salt),Date.now()).run();
    return json({token:await mint(env,"T",r.meta.last_row_id,30),school:sc})}catch(e){return err("اسم المستخدم مستخدم",409)}}
+ if(p==="/api/teacher/reset"&&m==="POST"){
+  if(!eq(String(body.invite||""),env.TEACHER_INVITE))return err("رمز الدعوة غير صحيح",403);
+  const un=clip(body.username,40).trim().toLowerCase(),ps=String(body.password||"");
+  if(ps.length<6)return err("كلمة السر قصيرة (6 أحرف على الأقل)");
+  const r=await db.prepare("SELECT id,school FROM teachers WHERE username=?").bind(un).first();
+  if(!r)return err("اسم المستخدم غير موجود",404);
+  const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
+  await db.prepare("UPDATE teachers SET salt=?,hash=? WHERE id=?").bind(salt,await pw(ps,salt),r.id).run();
+  return json({token:await mint(env,"T",r.id,30),school:r.school})}
  if(p==="/api/teacher/login"&&m==="POST"){
   const r=await db.prepare("SELECT * FROM teachers WHERE username=?").bind(clip(body.username,40).trim().toLowerCase()).first();
   if(!r||!eq(await pw(String(body.password||""),r.salt),r.hash))return err("بيانات الدخول غير صحيحة",401);
