@@ -21,7 +21,7 @@ async function check(env,req,t){const a=(req.headers.get("authorization")||"").r
  if(await hmac(env.SESSION_SECRET,p)!==s)return null;try{const o=JSON.parse(new TextDecoder().decode(unb(p)));return o.t===t&&o.exp>Date.now()?o.id:null}catch(e){return null}}
 async function pw(password,salt){const k=await crypto.subtle.importKey("raw",te.encode(password),"PBKDF2",false,["deriveBits"]);return b64(await crypto.subtle.deriveBits({name:"PBKDF2",salt:unb(salt),iterations:100000,hash:"SHA-256"},k,256))}
 const ALPHA="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-const mkcode=()=>{const r=crypto.getRandomValues(new Uint8Array(8));return[...r].map(x=>ALPHA[x%32]).join("")};
+const mkcode=()=>{const r=crypto.getRandomValues(new Uint32Array(1))[0];return String(100000+r%900000)};
 const eq=(a,b)=>{if(a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};
 const clip=(s,n)=>String(s==null?"":s).slice(0,n);
 export default{async fetch(req,env){
