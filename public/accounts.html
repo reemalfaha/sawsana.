@@ -75,7 +75,18 @@ async function main(){app.replaceChildren();
  k.append(pk,btn("فتح",async()=>{if(pk.value.length<4){km.textContent="قصيرة";return}NK=await nkey(pk.value);km.textContent="تم ✔";await load()}),km);app.append(k);
  const a=E("div","card");a.append(E("h3","","2) إضافة طلبة"),E("p","muted","اكتب اسم طالب في كل سطر. يُنشأ لكل طالب رمز دخول تعطيه للطالب ليربط حسابه في صفحة «إنجازي»."));
  const sec=E("input");sec.placeholder="الشعبة (مثل 8أ)";sec.style.width="140px";const st=E("input");st.type="number";st.placeholder="يبدأ الترقيم من";st.value="1";st.style.width="130px";const ta=E("textarea");ta.placeholder="اسم الطالب الأول\nاسم الطالب الثاني";const am=E("p","muted","");
- a.append(sec,st,ta,btn("إنشاء الحسابات",async()=>{if(!NK){am.textContent="افتح مفتاح الأسماء أولًا.";return}const names=ta.value.split("\n").map(x=>x.trim()).filter(Boolean);if(!names.length||!sec.value.trim()){am.textContent="اكتب الشعبة والأسماء.";return}
+ const fi=E("input");fi.type="file";fi.accept=".xlsx,.xls,.csv,.txt,.docx";const fm=E("p","muted","");
+ const lib=src=>new Promise((ok,no)=>{const x=document.createElement("script");x.src=src;x.onload=ok;x.onerror=no;document.head.append(x)});
+ const AR=/[\u0600-\u06FF]/,HDR=/^(الاسم|اسم .*|الطالب[ةه]?|م|ت|الرقم.*|رقم.*|.*الوطني.*|.*الهوية.*|الشعبة|الصف|الجنس|ملاحظات)$/;
+ const clean=t=>String(t||"").replace(/\s+/g," ").trim();
+ const pick=cells=>{for(const c of cells){const t=clean(c);if(t&&AR.test(t)&&!HDR.test(t))return t}return ""};
+ fi.onchange=async()=>{const f=fi.files[0];if(!f)return;fm.textContent="جارٍ القراءة...";try{let names=[];const ext=f.name.split(".").pop().toLowerCase();
+  if(ext==="txt"||ext==="csv"){const tx=await f.text();names=tx.split(/\r?\n/).map(l=>pick(l.split(/[,;\t]/)))}
+  else if(ext==="docx"){await lib("lib/mammoth.browser.min.js");const r=await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()});names=r.value.split(/\r?\n/).map(l=>pick(l.split(/\t/).length>1?l.split(/\t/):[l]))}
+  else{await lib("lib/xlsx.mini.min.js");const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});for(const n of wb.SheetNames){XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:""}).forEach(r=>names.push(pick(r)))}}
+  names=names.filter(Boolean);if(!names.length){fm.textContent="لم أجد أسماء عربية في الملف. تأكد أن الأسماء في عمود واحد.";return}
+  ta.value=names.join("\n");fm.textContent="قُرئ "+names.length+" اسمًا. راجعها وعدّلها إن لزم ثم اضغط «إنشاء الحسابات». (أي عمود أرقام، مثل الأرقام الوطنية، يُتجاهل ولا يُحفظ.)"}catch(e){fm.textContent="تعذّرت قراءة الملف. جرّب Excel أو Word أو txt."}fi.value=""};
+ a.append(sec,st,E("p","muted","أو ارفع ملف الأسماء (Excel أو Word أو CSV أو txt):"),fi,fm,ta,btn("إنشاء الحسابات",async()=>{if(!NK){am.textContent="افتح مفتاح الأسماء أولًا.";return}const names=ta.value.split("\n").map(x=>x.trim()).filter(Boolean);if(!names.length||!sec.value.trim()){am.textContent="اكتب الشعبة والأسماء.";return}
   try{const arr=[];let n=parseInt(st.value)||1;for(const nm of names)arr.push({encName:await encName(nm),sec:sec.value.trim(),no:n++});
    const j=await api("/api/students",{students:arr});const lines=j.created.map((x,i)=>x.sec+"-"+x.no+" "+names[i]+"  ←  "+x.code);
    const o=E("textarea");o.readOnly=true;o.value=lines.join("\n");o.style.direction="rtl";am.textContent="تم إنشاء "+j.created.length+" حسابًا. انسخ القائمة واحفظها (لن تظهر الأسماء مع الرموز مرة أخرى إلا هنا):";am.after(o);ta.value="";await load()}catch(e){am.textContent=e.message}}),am);app.append(a);
