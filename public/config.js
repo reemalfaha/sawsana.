@@ -1,2 +1,2 @@
 /* كلمة سر المعلمات: يوضع هنا ناتج SHA-256 لكلمة السر (وليس الكلمة نفسها). اتركيه فارغًا حتى تحدّد الكلمة من شاشة الإعداد. */
-window.SW_TEACHER_HASH="e280c68784e0612cbe50fe824dabddfdac368a64af02961a5a09d1ef4386ce25";
+window.SW_TEACHER_HASH="cdd7f9ea02642d87497255d8af2fbf74055269711bd4453acd3c655a40bb2e12";
