@@ -1,4 +1,4 @@
-/* بوابة كلمة سر لصفحات المعلمة. تنبيه: هي حاجز على مستوى المتصفح وليست حماية خوادم؛ بيانات الطالبات نفسها مشفّرة بكلمة سر القائمة. */
+/* بوابة كلمة سر لصفحات المعلمة. تنبيه: هي حاجز على مستوى المتصفح وليست حماية خوادم؛ بيانات الطلبة أنفسهم مشفّرة بكلمة سر القائمة. */
 (function(){
 const H=window.SW_TEACHER_HASH||"",SK="sawsana.t.ok";
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
@@ -16,12 +16,12 @@ if(H){
  box.append(mk("p","أدخل كلمة السر للمتابعة.","margin:0"));const p=inp("كلمة السر");
  const go=async()=>{if(await sha(p.value)===H){try{sessionStorage.setItem(SK,H)}catch(e){}o.remove()}else{msg.textContent="كلمة السر غير صحيحة.";p.value=""}};
  p.addEventListener("keydown",e=>{if(e.key==="Enter")go()});
- box.append(p,btn("دخول",go),btn("← للطالبات",()=>location.href="index.html",true),msg);
+ box.append(p,btn("دخول",go),btn("← للطلبة",()=>location.href="index.html",true),msg);
 }else{
  box.append(mk("p","لم تُحدَّد كلمة سر للمعلمات بعد. اكتب الكلمة التي تريدينها، وسيظهر لك رمز (بصمة) ترسلينه للمنفّذ ليُضاف للمنصة. الكلمة نفسها لا تُرسَل.","margin:0"));
  const p=inp("كلمة السر الجديدة (6 أحرف على الأقل)"),out=mk("textarea",null,"width:100%;min-height:70px;direction:ltr;font:12px monospace;margin-top:8px");out.readOnly=true;out.hidden=true;
  box.append(p,btn("إنشاء البصمة",async()=>{if(p.value.length<6){msg.textContent="الكلمة قصيرة.";return}msg.textContent="";out.value=await sha(p.value);out.hidden=false;out.select()}),out,
-  btn("متابعة مؤقتًا بدون كلمة سر",()=>o.remove(),true),btn("← للطالبات",()=>location.href="index.html",true),msg);
+  btn("متابعة مؤقتًا بدون كلمة سر",()=>o.remove(),true),btn("← للطلبة",()=>location.href="index.html",true),msg);
 }
 o.append(box);(document.body||document.documentElement).append(o);
 })();
