@@ -38,7 +38,7 @@ const btn=(t,f,c)=>{const b=E("button",c||"",t);b.onclick=f;return b};
 let TOK=null,USER="",NK=null,SUBJ="";try{TOK=sessionStorage.getItem("sw.api");USER=sessionStorage.getItem("sw.user")||""}catch(e){}
 async function api(path,body,method){const r=await fetch(path,{method:method||(body?"POST":"GET"),headers:{"content-type":"application/json",...(TOK?{authorization:"Bearer "+TOK}:{})},body:body?JSON.stringify(body):undefined});let j={};try{j=await r.json()}catch(e){}
  if(!r.ok){const er=new Error(j.error||"خطأ");er.status=r.status;throw er}return j}
-/* تشفير الأسماء في متصفح المعلمة */
+/* تشفير الأسماء في متصفح المعلم/ة */
 const b64=u=>btoa(String.fromCharCode(...u)),unb=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function nkey(pass){const salt=new TextEncoder().encode("sawsana-names|"+USER);const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:150000,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
 async function encName(n){const iv=crypto.getRandomValues(new Uint8Array(12));const c=await crypto.subtle.encrypt({name:"AES-GCM",iv},NK,new TextEncoder().encode(n));return b64(iv)+"."+b64(new Uint8Array(c))}
@@ -64,10 +64,10 @@ function report(r){const d=document.createElement("div");d.className="rp";const 
   d.append(T(["المجال","الصحيح / الكلي","النسبة","التقدير"],st.dom.map(x=>[x.n,x.ok+" / "+x.t,x.p+"%",x.t<3?"بيانات قليلة":x.p>=75?"قوة":x.p<60?"يحتاج علاجًا":"متوسط"])));
   d.append(E("h2","","سجل المحاولات"));
   d.append(T(["التاريخ","النشاط","العلامة","النسبة"],r.at.slice().reverse().slice(0,25).map(a=>[fmt(a.ts),a.title,a.right+" / "+a.total,pc(a)+"%"])))}
- const sg=E("div","sig");sg.append(E("div","","المعلمة"),E("div","","مدير/ة المدرسة"));d.append(sg);
+ const sg=E("div","sig");sg.append(E("div","","المعلم/ة"),E("div","","مدير/ة المدرسة"));d.append(sg);
  d.append(E("div","foot","تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"));return d}
 function printRep(list){const p=$("prt");p.replaceChildren(...list.map(report));setTimeout(()=>window.print(),150)}
-function loginView(){app.replaceChildren();const c=E("div","card");c.append(E("h2","","دخول المعلمة"));
+function loginView(){app.replaceChildren();const c=E("div","card");c.append(E("h2","","دخول المعلم/ة"));
  const u=E("input");u.placeholder="اسم المستخدم";const p=E("input");p.type="password";p.placeholder="كلمة السر";const inv=E("input");inv.placeholder="رمز الدعوة (للتسجيل أول مرة)";const sc=E("input");sc.placeholder="اسم المدرسة (للتسجيل)";const sj=E("select");[["","مادتي (للتسجيل)"],["math","معلمة رياضيات"],["sci","معلمة علوم"]].forEach(([v,t])=>sj.append(new Option(t,v)));const msg=E("p","err","");
  const go=async reg=>{msg.textContent="";try{const j=await api(reg===2?"/api/teacher/reset":reg?"/api/teacher/register":"/api/teacher/login",{username:u.value,password:p.value,invite:inv.value,school:sc.value,subject:sj.value});TOK=j.token;USER=u.value.trim().toLowerCase();try{sessionStorage.setItem("sw.api",TOK);sessionStorage.setItem("sw.user",USER)}catch(e){}main()}catch(e){msg.textContent=e.status===503?"الحسابات غير مفعّلة بعد على الخادم. يلزم إعداد قاعدة البيانات أولًا.":e.message}};
  c.append(u,p,E("br"),btn("دخول",()=>go(false)),E("hr"),E("p","muted","أول مرة؟ أنشئ حسابًا برمز الدعوة الذي حصلت عليه من المشرفة:"),inv,sc,sj,E("br"),btn("إنشاء حساب",()=>go(true),"alt"),btn("نسيت كلمة السر؟ (اسم المستخدم + رمز الدعوة + كلمة سر جديدة)",()=>go(2),"alt"),msg);app.append(c)}
@@ -93,16 +93,16 @@ async function main(){app.replaceChildren();
   try{const arr=[];let n=parseInt(st.value)||1;for(const nm of names)arr.push({encName:await encName(nm),sec:sec.value.trim(),no:n++});
    const j=await api("/api/students",{students:arr});const lines=j.created.map((x,i)=>x.sec+"-"+x.no+" "+names[i]+"  ←  "+x.code);
    const o=E("textarea");o.readOnly=true;o.value=lines.join("\n");o.style.direction="rtl";am.textContent="تم إنشاء "+j.created.length+" حسابًا. انسخ القائمة واحفظها (لن تظهر الأسماء مع الرموز مرة أخرى إلا هنا):";am.after(o);ta.value="";await load()}catch(e){am.textContent=e.message}}),am);app.append(a);
- const lk=E("div","card");lk.append(E("h3","","2-ب) إضافة طالبات لهن رمز من معلمة أخرى"),E("p","muted","اكتب في كل سطر اسم الطالبة ثم رمزها، مثل: «ليان أحمد 482915». يمكنك لصق قائمة المعلمة الأخرى كما وصلتك (8أ-1 الاسم ← الرمز). لا يُنشأ حساب جديد: الطالبة تبقى برمزها، وتظهر لك نتائج مادتك فقط."));
+ const lk=E("div","card");lk.append(E("h3","","2-ب) إضافة طالبات لهن رمز من معلم/ة آخر"),E("p","muted","اكتب في كل سطر اسم الطالبة ثم رمزها، مثل: «ليان أحمد 482915». يمكنك لصق قائمة المعلم/ة الآخر كما وصلتك (8أ-1 الاسم ← الرمز). لا يُنشأ حساب جديد: الطالبة تبقى برمزها، وتظهر لك نتائج مادتك فقط."));
  const ls=E("input");ls.placeholder="الشعبة (مثل 8أ)";ls.style.width="140px";const ln=E("input");ln.type="number";ln.placeholder="يبدأ الترقيم من";ln.value="1";ln.style.width="130px";const lt=E("textarea");lt.placeholder="الاسم 482915\nالاسم 731206";const lm=E("p","muted","");
  lk.append(ls,ln,lt,btn("إضافة بالرمز",async()=>{if(!NK){lm.textContent="افتح مفتاح الأسماء أولًا.";return}if(!ls.value.trim()){lm.textContent="اكتب الشعبة.";return}
   const rows=[],junk=[];for(const l of lt.value.split("\n")){let t=l.trim();if(!t)continue;let code,name;if(t.includes("←")){const [a,b]=t.split("←");code=b.trim();name=a.trim().replace(/^\S+-\d+\s+/,"")}else{const m=t.match(/^(.+?)\s+([A-Za-z0-9-]{4,12})$/);if(!m){junk.push(t);continue}name=m[1].trim();code=m[2]}rows.push({name,code})}
   if(!rows.length){lm.textContent=junk.length?"أسطر غير مفهومة (اكتب الاسم ثم الرمز): "+junk.join(" · "):"اكتب سطرًا واحدًا على الأقل.";return}
   let n=parseInt(ln.value)||1,ok=0,bad=[];for(const r of rows){try{await api("/api/students/link",{code:r.code,encName:await encName(r.name),sec:ls.value.trim(),no:n});n++;ok++}catch(e){bad.push(r.name+": "+e.message)}}
   lm.textContent="أُضيفت "+ok+" طالبة."+(bad.length?" لم تُضف: "+bad.join(" · "):"")+(junk.length?" أسطر غير مفهومة: "+junk.join(" · "):"");if(ok){lt.value="";await load()}}),lm);app.append(lk);
- const sh=E("div","card");sh.append(E("h3","","2-ج) مشاركة شعبة مع معلم/ة (لضابط الارتباط)"),E("p","muted","اكتبي الشعبة (التي أنشأتِها أنتِ) واسم مستخدم المعلم/ة. تظهر له/ها الشعبة كلها برموز الطالبات ونتائج مادته/ها، دون أن تحتاجي لإعطائه/ها القائمة. وتظهر الأسماء عند المعلم/ة إن أعطيتِه/ها كلمة سر الأسماء."));
+ const sh=E("div","card");sh.append(E("h3","","2-ج) مشاركة شعبة مع معلم/ة (لضابط الارتباط)"),E("p","muted","اكتب/ي الشعبة (التي أنشأتَها/أنشأتِها أنت) واسم مستخدم المعلم/ة. تظهر له/ها الشعبة كلها برموز الطالبات ونتائج مادته/ها، دون أن تحتاجي لإعطائه/ها القائمة. وتظهر الأسماء عند المعلم/ة إن أعطيتَ المعلم/ة كلمة سر الأسماء."));
  const ss=E("input");ss.placeholder="الشعبة (مثل 8أ)";ss.style.width="140px";const su=E("input");su.placeholder="اسم مستخدم المعلم/ة";su.style.width="190px";const sm=E("p","muted","");
- sh.append(ss,su,btn("مشاركة الشعبة",async()=>{if(!ss.value.trim()||!su.value.trim()){sm.textContent="اكتبي الشعبة واسم المستخدم.";return}try{const r=await api("/api/students/share",{username:su.value,sec:ss.value.trim()});sm.textContent="تمت مشاركة "+r.shared+" طالبة مع "+su.value.trim()+"."}catch(e){sm.textContent=e.message}}),sm);app.append(sh);
+ sh.append(ss,su,btn("مشاركة الشعبة",async()=>{if(!ss.value.trim()||!su.value.trim()){sm.textContent="اكتب/ي الشعبة واسم المستخدم.";return}try{const r=await api("/api/students/share",{username:su.value,sec:ss.value.trim()});sm.textContent="تمت مشاركة "+r.shared+" طالبة مع "+su.value.trim()+"."}catch(e){sm.textContent=e.message}}),sm);app.append(sh);
  const d=E("div","card");d.id="dash";app.append(d);await load()}
 async function load(){let j;try{j=await api("/api/students")}catch(e){if(e.status===401){loginView();return}$("dash").textContent=e.message;return}
  DATA=j;SUBJ=j.subject||"";draw()}
@@ -146,7 +146,7 @@ async function planNode(m,print){const R=print?"rp":"pl";const root=document.cre
  const act=m.n-m.active;if(act>0)root.append(E("p","","لم تتدرّب هذا الشهر: "+act+" طالبة. يُوصى بتذكيرهن برمز الدخول وتخصيص حصة تدريب صفّية."));
  root.append(E(print?"h2":"h3","","مؤشرات الشهر القادم"));
  const u=E("ul");["رفع إتقان كل مجال أولوية بمقدار 10 نقاط على الأقل، أو بلوغ 70%.","زيادة نسبة المشاركات إلى 90% من طالبات الشعبة.","إعادة اختبار تشخيصي قصير في نهاية الشهر لقياس التحسّن."].forEach(t=>u.append(E("li","",t)));root.append(u);
- if(print){const sg=E("div","sig");sg.append(E("div","","المعلمة"),E("div","","ضابط الارتباط"),E("div","","مدير/ة المدرسة"));root.append(sg);root.append(E("div","foot","تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"))}
+ if(print){const sg=E("div","sig");sg.append(E("div","","المعلم/ة"),E("div","","ضابط الارتباط"),E("div","","مدير/ة المدرسة"));root.append(sg);root.append(E("div","foot","تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"))}
  return root}
 let PM="";
 async function planCard(d){const months=[...new Set(DATA.attempts.map(a=>MON(a.ts)))].sort().reverse();

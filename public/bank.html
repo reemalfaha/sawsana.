@@ -51,7 +51,7 @@ button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:9px 16px
 <div id="cmp"></div>
 <div id="list" style="display:flex;flex-direction:column;gap:10px"></div>
 <div class="tray" id="tray"><span>المحدَّد: <b id="sel">0</b></span>
-<button id="pw">ورقة الطالب</button><button class="alt" id="pk">نسخة المعلمة بالمفتاح</button><button class="alt" id="lk">رابط للطلبة</button></div>
+<button id="pw">ورقة الطالب</button><button class="alt" id="pk">نسخة المعلم/ة بالمفتاح</button><button class="alt" id="lk">رابط للطلبة</button></div>
 <section class="card" id="lkbox" hidden><h2>رابط التدريب</h2><p class="sub">تفتح الطالب الرابط فتجد الأسئلة المحدّدة بالترتيب مع الشرح بعد كل إجابة. لا يحتاج الرابط إلى تسجيل دخول.</p>
 <textarea class="lk" id="lkv" readonly></textarea><div class="bar" style="margin-top:6px"><button id="cp" class="sm">نسخ الرابط</button><a id="op" class="sm" style="align-self:center">فتح الرابط</a></div></section>
 <section class="card"><h2>بيانات الورقة المطبوعة</h2><div class="bar"><input id="t" placeholder="عنوان الورقة (مثال: تدريب على الأعداد)"><input id="sc" placeholder="اسم المدرسة"><input id="tn" placeholder="اسم المعلمة"></div></section>
@@ -103,7 +103,7 @@ function chosen(){return [...sel].sort((a,b)=>a-b).map(i=>Q[i])}
 function title(){return $("t").value.trim()||"نموذج أسئلة على نمط تيمس"}
 function printSheet(key){const L=chosen();if(!L.length){alert("حدّد أسئلة أولًا.");return}
  const P=$("prt");P.replaceChildren();const gs=[...new Set(L.map(q=>q.g))].map(x=>GN[x]).join(" و"),ss=[...new Set(L.map(q=>SUBN[q.s]))].join(" و");
- P.append(el("h1",{},title()+(key?" — نسخة المعلمة":"")),el("div",{class:"m"},el("span",{},"المدرسة: "+($("sc").value||"..................")),el("span",{},"المادة: "+ss+" · الصف: "+gs),el("span",{},"المعلمة: "+($("tn").value||"..................")),el("span",{},"التاريخ: .........")));
+ P.append(el("h1",{},title()+(key?" — نسخة المعلم/ة":"")),el("div",{class:"m"},el("span",{},"المدرسة: "+($("sc").value||"..................")),el("span",{},"المادة: "+ss+" · الصف: "+gs),el("span",{},"المعلمة: "+($("tn").value||"..................")),el("span",{},"التاريخ: .........")));
  if(!key)P.append(el("div",{class:"m"},el("span",{},"اسم الطالب: ......................................."),el("span",{},"الشعبة: ........"),el("span",{},"العلامة: ...... / "+L.length)));
  L.forEach((q,n)=>{const d=el("div",{class:"pq"},el("div",{},el("b",{},(n+1)+". "),stem(q)));if(q.img)d.append(el("img",{src:q.img,alt:""}));
   if(q.open){if(key)d.append(el("div",{},el("b",{},"نموذج الإجابة: "),q.model||""));else for(let i=0;i<3;i++)d.append(el("div",{class:"ln"}))}
