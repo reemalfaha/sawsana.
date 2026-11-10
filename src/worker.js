@@ -13,7 +13,8 @@ async function schema(db){if(ready)return;
   db.prepare("CREATE TABLE IF NOT EXISTS teachers(id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT UNIQUE,school TEXT,salt TEXT,hash TEXT,created INTEGER)"),
   db.prepare("CREATE TABLE IF NOT EXISTS students(id INTEGER PRIMARY KEY AUTOINCREMENT,teacher_id INTEGER,code TEXT UNIQUE,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER)"),
   db.prepare("CREATE TABLE IF NOT EXISTS attempts(id INTEGER PRIMARY KEY AUTOINCREMENT,student_id INTEGER,ts INTEGER,title TEXT,mode TEXT,subject TEXT,right INTEGER,total INTEGER,d TEXT)"),
-  db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
+  db.prepare("CREATE TABLE IF NOT EXISTS student_links(student_id INTEGER,teacher_id INTEGER,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER,PRIMARY KEY(student_id,teacher_id))"),db.prepare("CREATE INDEX IF NOT EXISTS ix_lnk ON student_links(teacher_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
+ try{await db.prepare("ALTER TABLE teachers ADD COLUMN subject TEXT").run()}catch(e){}
  ready=true}
 async function hmac(secret,data){const k=await crypto.subtle.importKey("raw",te.encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);return b64(await crypto.subtle.sign("HMAC",k,te.encode(data)))}
 async function mint(env,t,id,days){const p=b64(te.encode(JSON.stringify({t,id,exp:Date.now()+days*864e5})));return p+"."+await hmac(env.SESSION_SECRET,p)}
@@ -23,6 +24,7 @@ async function pw(password,salt){const k=await crypto.subtle.importKey("raw",te.
 const ALPHA="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const mkcode=()=>{const r=crypto.getRandomValues(new Uint32Array(1))[0];return String(100000+r%900000)};
 const eq=(a,b)=>{if(a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};
+const SUBJ=v=>v==="math"||v==="sci"?v:null;
 const clip=(s,n)=>String(s==null?"":s).slice(0,n);
 export default{async fetch(req,env){
  const u=new URL(req.url);
@@ -34,36 +36,50 @@ export default{async fetch(req,env){
  // ---- المعلمات
  if(p==="/api/teacher/register"&&m==="POST"){
   if(!eq(String(body.invite||""),env.TEACHER_INVITE))return err("رمز الدعوة غير صحيح",403);
-  const un=clip(body.username,40).trim().toLowerCase(),sc=clip(body.school,80),ps=String(body.password||"");
+  const un=clip(body.username,40).trim().toLowerCase(),sc=clip(body.school,80),ps=String(body.password||""),sj=SUBJ(body.subject);
   if(un.length<3||ps.length<6)return err("اسم المستخدم أو كلمة السر قصيرة");
   const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
-  try{const r=await db.prepare("INSERT INTO teachers(username,school,salt,hash,created) VALUES(?,?,?,?,?)").bind(un,sc,salt,await pw(ps,salt),Date.now()).run();
-   return json({token:await mint(env,"T",r.meta.last_row_id,30),school:sc})}catch(e){return err("اسم المستخدم مستخدم",409)}}
+  try{const r=await db.prepare("INSERT INTO teachers(username,school,salt,hash,created,subject) VALUES(?,?,?,?,?,?)").bind(un,sc,salt,await pw(ps,salt),Date.now(),sj).run();
+   return json({token:await mint(env,"T",r.meta.last_row_id,30),school:sc,subject:sj})}catch(e){return err("اسم المستخدم مستخدم",409)}}
  if(p==="/api/teacher/reset"&&m==="POST"){
   if(!eq(String(body.invite||""),env.TEACHER_INVITE))return err("رمز الدعوة غير صحيح",403);
   const un=clip(body.username,40).trim().toLowerCase(),ps=String(body.password||"");
   if(ps.length<6)return err("كلمة السر قصيرة (6 أحرف على الأقل)");
-  const r=await db.prepare("SELECT id,school FROM teachers WHERE username=?").bind(un).first();
+  const r=await db.prepare("SELECT id,school,subject FROM teachers WHERE username=?").bind(un).first();
   if(!r)return err("اسم المستخدم غير موجود",404);
   const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
   await db.prepare("UPDATE teachers SET salt=?,hash=? WHERE id=?").bind(salt,await pw(ps,salt),r.id).run();
-  return json({token:await mint(env,"T",r.id,30),school:r.school})}
+  return json({token:await mint(env,"T",r.id,30),school:r.school,subject:r.subject||""})}
  if(p==="/api/teacher/login"&&m==="POST"){
   const r=await db.prepare("SELECT * FROM teachers WHERE username=?").bind(clip(body.username,40).trim().toLowerCase()).first();
   if(!r||!eq(await pw(String(body.password||""),r.salt),r.hash))return err("بيانات الدخول غير صحيحة",401);
-  return json({token:await mint(env,"T",r.id,30),school:r.school})}
+  return json({token:await mint(env,"T",r.id,30),school:r.school,subject:r.subject||""})}
+ if(p==="/api/teacher/subject"&&m==="POST"){
+  const t=await check(env,req,"T");if(!t)return err("غير مصرّح",401);
+  await db.prepare("UPDATE teachers SET subject=? WHERE id=?").bind(SUBJ(body.subject),t).run();return json({ok:1})}
  if(p==="/api/students"||p.startsWith("/api/students/")){
   const tid=await check(env,req,"T");if(!tid)return err("غير مصرّح",401);
   if(p==="/api/students"&&m==="GET"){
-   const st=(await db.prepare("SELECT id,code,enc_name,sec,no FROM students WHERE teacher_id=? ORDER BY sec,no").bind(tid).all()).results;
-   const at=(await db.prepare("SELECT a.student_id,a.ts,a.title,a.mode,a.subject,a.right,a.total,a.d FROM attempts a JOIN students s ON s.id=a.student_id WHERE s.teacher_id=? ORDER BY a.ts DESC LIMIT 4000").bind(tid).all()).results;
-   return json({students:st,attempts:at})}
+   const me=await db.prepare("SELECT subject FROM teachers WHERE id=?").bind(tid).first();const sj=me&&me.subject||null;
+   const own=(await db.prepare("SELECT id,code,enc_name,sec,no,0 AS linked FROM students WHERE teacher_id=?").bind(tid).all()).results;
+   const lk=(await db.prepare("SELECT s.id AS id,s.code AS code,l.enc_name AS enc_name,l.sec AS sec,l.no AS no,1 AS linked FROM student_links l JOIN students s ON s.id=l.student_id WHERE l.teacher_id=?").bind(tid).all()).results;
+   const st=own.concat(lk).sort((a,b)=>String(a.sec).localeCompare(String(b.sec),"ar")||a.no-b.no);
+   const at=(await db.prepare("SELECT a.student_id,a.ts,a.title,a.mode,a.subject,a.right,a.total,a.d FROM attempts a JOIN students s ON s.id=a.student_id WHERE (s.teacher_id=?1 OR s.id IN (SELECT student_id FROM student_links WHERE teacher_id=?1)) AND (?2 IS NULL OR a.subject=?2) ORDER BY a.ts DESC LIMIT 4000").bind(tid,sj).all()).results;
+   return json({students:st,attempts:at,subject:sj||""})}
   if(p==="/api/students"&&m==="POST"){
    const arr=Array.isArray(body.students)?body.students.slice(0,80):[];const out=[];
    for(const s of arr){let code,ok=false;for(let i=0;i<5&&!ok;i++){code=mkcode();try{await db.prepare("INSERT INTO students(teacher_id,code,enc_name,sec,no,created) VALUES(?,?,?,?,?,?)").bind(tid,code,clip(s.encName,500),clip(s.sec,10),parseInt(s.no)||0,Date.now()).run();ok=true}catch(e){}}
     if(ok)out.push({code,sec:clip(s.sec,10),no:parseInt(s.no)||0})}
    return json({created:out})}
+  if(p==="/api/students/link"&&m==="POST"){
+   const r=await db.prepare("SELECT id,teacher_id FROM students WHERE code=?").bind(clip(body.code,12).trim().toUpperCase()).first();
+   if(!r)return err("الرمز غير صحيح",404);if(r.teacher_id===tid)return err("هذه الطالبة في قائمتك أصلًا",409);
+   await db.prepare("INSERT OR REPLACE INTO student_links(student_id,teacher_id,enc_name,sec,no,created) VALUES(?,?,?,?,?,?)").bind(r.id,tid,clip(body.encName,500),clip(body.sec,10),parseInt(body.no)||0,Date.now()).run();
+   return json({ok:1})}
   if(m==="DELETE"){const id=parseInt(p.split("/").pop());
+   const own=await db.prepare("SELECT id FROM students WHERE id=? AND teacher_id=?").bind(id,tid).first();
+   if(!own){await db.prepare("DELETE FROM student_links WHERE student_id=? AND teacher_id=?").bind(id,tid).run();return json({ok:1})}
+   await db.prepare("DELETE FROM student_links WHERE student_id=?").bind(id).run();
    await db.prepare("DELETE FROM attempts WHERE student_id IN (SELECT id FROM students WHERE id=? AND teacher_id=?)").bind(id,tid).run();
    await db.prepare("DELETE FROM students WHERE id=? AND teacher_id=?").bind(id,tid).run();return json({ok:1})}}
  // ---- الطالبات
