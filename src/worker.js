@@ -15,6 +15,7 @@ async function schema(db){if(ready)return;
   db.prepare("CREATE TABLE IF NOT EXISTS attempts(id INTEGER PRIMARY KEY AUTOINCREMENT,student_id INTEGER,ts INTEGER,title TEXT,mode TEXT,subject TEXT,right INTEGER,total INTEGER,d TEXT)"),
   db.prepare("CREATE TABLE IF NOT EXISTS student_links(student_id INTEGER,teacher_id INTEGER,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER,PRIMARY KEY(student_id,teacher_id))"),db.prepare("CREATE INDEX IF NOT EXISTS ix_lnk ON student_links(teacher_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
  try{await db.prepare("ALTER TABLE teachers ADD COLUMN subject TEXT").run()}catch(e){}
+ try{await db.prepare("ALTER TABLE student_links ADD COLUMN src TEXT").run()}catch(e){}
  ready=true}
 async function hmac(secret,data){const k=await crypto.subtle.importKey("raw",te.encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);return b64(await crypto.subtle.sign("HMAC",k,te.encode(data)))}
 async function mint(env,t,id,days){const p=b64(te.encode(JSON.stringify({t,id,exp:Date.now()+days*864e5})));return p+"."+await hmac(env.SESSION_SECRET,p)}
@@ -62,7 +63,7 @@ export default{async fetch(req,env){
   if(p==="/api/students"&&m==="GET"){
    const me=await db.prepare("SELECT subject FROM teachers WHERE id=?").bind(tid).first();const sj=me&&me.subject||null;
    const own=(await db.prepare("SELECT id,code,enc_name,sec,no,0 AS linked FROM students WHERE teacher_id=?").bind(tid).all()).results;
-   const lk=(await db.prepare("SELECT s.id AS id,s.code AS code,l.enc_name AS enc_name,l.sec AS sec,l.no AS no,1 AS linked FROM student_links l JOIN students s ON s.id=l.student_id WHERE l.teacher_id=?").bind(tid).all()).results;
+   const lk=(await db.prepare("SELECT s.id AS id,s.code AS code,l.enc_name AS enc_name,l.sec AS sec,l.no AS no,l.src AS src,1 AS linked FROM student_links l JOIN students s ON s.id=l.student_id WHERE l.teacher_id=?").bind(tid).all()).results;
    const st=own.concat(lk).sort((a,b)=>String(a.sec).localeCompare(String(b.sec),"ar")||a.no-b.no);
    const at=(await db.prepare("SELECT a.student_id,a.ts,a.title,a.mode,a.subject,a.right,a.total,a.d FROM attempts a JOIN students s ON s.id=a.student_id WHERE (s.teacher_id=?1 OR s.id IN (SELECT student_id FROM student_links WHERE teacher_id=?1)) AND (?2 IS NULL OR a.subject=?2) ORDER BY a.ts DESC LIMIT 4000").bind(tid,sj).all()).results;
    return json({students:st,attempts:at,subject:sj||""})}
@@ -71,6 +72,15 @@ export default{async fetch(req,env){
    for(const s of arr){let code,ok=false;for(let i=0;i<5&&!ok;i++){code=mkcode();try{await db.prepare("INSERT INTO students(teacher_id,code,enc_name,sec,no,created) VALUES(?,?,?,?,?,?)").bind(tid,code,clip(s.encName,500),clip(s.sec,10),parseInt(s.no)||0,Date.now()).run();ok=true}catch(e){}}
     if(ok)out.push({code,sec:clip(s.sec,10),no:parseInt(s.no)||0})}
    return json({created:out})}
+  if(p==="/api/students/share"&&m==="POST"){
+   const un=clip(body.username,40).trim().toLowerCase(),sec=clip(body.sec,10).trim();
+   const to=await db.prepare("SELECT id FROM teachers WHERE username=?").bind(un).first();
+   if(!to)return err("لا يوجد معلم بهذا الاسم",404);if(to.id===tid)return err("هذا حسابك",400);
+   const me=await db.prepare("SELECT username FROM teachers WHERE id=?").bind(tid).first();
+   const rows=(await db.prepare("SELECT id,enc_name,sec,no FROM students WHERE teacher_id=? AND sec=?").bind(tid,sec).all()).results;
+   if(!rows.length)return err("لا توجد شعبة بهذا الاسم في قائمتك",404);
+   await db.batch(rows.map(r=>db.prepare("INSERT OR IGNORE INTO student_links(student_id,teacher_id,enc_name,sec,no,created,src) VALUES(?,?,?,?,?,?,?)").bind(r.id,to.id,r.enc_name,r.sec,r.no,Date.now(),me.username)));
+   return json({shared:rows.length})}
   if(p==="/api/students/link"&&m==="POST"){
    const r=await db.prepare("SELECT id,teacher_id FROM students WHERE code=?").bind(clip(body.code,12).trim().toUpperCase()).first();
    if(!r)return err("الرمز غير صحيح",404);if(r.teacher_id===tid)return err("هذه الطالبة في قائمتك أصلًا",409);

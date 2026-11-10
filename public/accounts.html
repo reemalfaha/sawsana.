@@ -42,7 +42,9 @@ async function api(path,body,method){const r=await fetch(path,{method:method||(b
 const b64=u=>btoa(String.fromCharCode(...u)),unb=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function nkey(pass){const salt=new TextEncoder().encode("sawsana-names|"+USER);const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:150000,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
 async function encName(n){const iv=crypto.getRandomValues(new Uint8Array(12));const c=await crypto.subtle.encrypt({name:"AES-GCM",iv},NK,new TextEncoder().encode(n));return b64(iv)+"."+b64(new Uint8Array(c))}
-async function decName(s){try{const [i,c]=s.split(".");return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb(i)},NK,unb(c)))}catch(e){return null}}
+const SK={};
+async function nkeyFor(pass,user){const salt=new TextEncoder().encode("sawsana-names|"+user);const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:150000,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["decrypt"])}
+async function decName(s,src){const K=src?SK[src]:NK;if(!K)return null;try{const [i,c]=s.split(".");return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb(i)},K,unb(c)))}catch(e){return null}}
 const fmt=ts=>new Date(ts).toLocaleDateString("ar",{year:"numeric",month:"short",day:"numeric"});
 const col=p=>p>=75?"var(--ok)":p>=50?"var(--mid)":"var(--no)";
 const SCH=()=>{try{return JSON.parse(localStorage.getItem("sw.sch")||"{}")}catch(e){return{}}};
@@ -98,6 +100,9 @@ async function main(){app.replaceChildren();
   if(!rows.length){lm.textContent=junk.length?"أسطر غير مفهومة (اكتب الاسم ثم الرمز): "+junk.join(" · "):"اكتب سطرًا واحدًا على الأقل.";return}
   let n=parseInt(ln.value)||1,ok=0,bad=[];for(const r of rows){try{await api("/api/students/link",{code:r.code,encName:await encName(r.name),sec:ls.value.trim(),no:n});n++;ok++}catch(e){bad.push(r.name+": "+e.message)}}
   lm.textContent="أُضيفت "+ok+" طالبة."+(bad.length?" لم تُضف: "+bad.join(" · "):"")+(junk.length?" أسطر غير مفهومة: "+junk.join(" · "):"");if(ok){lt.value="";await load()}}),lm);app.append(lk);
+ const sh=E("div","card");sh.append(E("h3","","2-ج) مشاركة شعبة مع معلم/ة (لضابط الارتباط)"),E("p","muted","اكتبي الشعبة (التي أنشأتِها أنتِ) واسم مستخدم المعلم/ة. تظهر له/ها الشعبة كلها برموز الطالبات ونتائج مادته/ها، دون أن تحتاجي لإعطائه/ها القائمة. وتظهر الأسماء عند المعلم/ة إن أعطيتِه/ها كلمة سر الأسماء."));
+ const ss=E("input");ss.placeholder="الشعبة (مثل 8أ)";ss.style.width="140px";const su=E("input");su.placeholder="اسم مستخدم المعلم/ة";su.style.width="190px";const sm=E("p","muted","");
+ sh.append(ss,su,btn("مشاركة الشعبة",async()=>{if(!ss.value.trim()||!su.value.trim()){sm.textContent="اكتبي الشعبة واسم المستخدم.";return}try{const r=await api("/api/students/share",{username:su.value,sec:ss.value.trim()});sm.textContent="تمت مشاركة "+r.shared+" طالبة مع "+su.value.trim()+"."}catch(e){sm.textContent=e.message}}),sm);app.append(sh);
  const d=E("div","card");d.id="dash";app.append(d);await load()}
 async function load(){let j;try{j=await api("/api/students")}catch(e){if(e.status===401){loginView();return}$("dash").textContent=e.message;return}
  DATA=j;SUBJ=j.subject||"";draw()}
@@ -124,7 +129,7 @@ function planModel(sec,mk){
  return{sec,mk,n:stu.length,active:active.size,att:at.length,avg:tt?Math.round(rt/tt*100):0,tests:tests.length,dom,per:Object.values(per),stu,
   weak:dom.filter(x=>x.p<60),ok:dom.filter(x=>x.p>=75)}}
 async function planNode(m,print){const R=print?"rp":"pl";const root=document.createElement("div");root.className=R;const T=(h,rows)=>{const t=E("table");const tr=E("tr");h.forEach(x=>tr.append(E("th","",x)));t.append(tr);rows.forEach(r=>{const q=E("tr");r.forEach(x=>q.append(E("td","",x)));t.append(q)});return t};
- const sc=SCH(),nm=async s=>NK?(await decName(s.enc_name))||("طالبة "+s.sec+"-"+s.no):("طالبة "+s.sec+"-"+s.no);
+ const sc=SCH(),nm=async s=>(await decName(s.enc_name,s.src))||("طالبة "+s.sec+"-"+s.no);
  if(print){root.append(E("h1","","الخطة العلاجية الشهرية للصف"));const mt=E("div","meta");mt.append(E("div","","المدرسة: "+(sc.school||"................")),E("div","","المعلمة: "+(sc.teacher||"................")),E("div","","الشعبة: "+m.sec),E("div","","الشهر: "+MNAME(m.mk)));root.append(mt)}
  root.append(E(print?"h2":"h3","","ملخص الشهر — الشعبة "+m.sec+" ("+MNAME(m.mk)+")"));
  if(!m.att){root.append(E("p","muted","لا توجد محاولات مسجّلة لهذه الشعبة في هذا الشهر."));return root}
@@ -162,10 +167,12 @@ async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","
  const sv=()=>{try{localStorage.setItem("sw.sch",JSON.stringify({school:si.value,teacher:ti.value}))}catch(e){}};si.oninput=ti.oninput=sv;
  const rows=[];
  d.append(si,ti,E("br"),sel,btn("🖨 طباعة تقارير الشعبة",()=>printRep(rows)),btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt"));
- if(!DATA.students.length){d.append(E("p","muted","لا توجد طلبة بعد."));return}
+ if(!DATA.students.length){d.append(E("p","muted","لا توجد طلبة بعد."));return} 
+ const srcs=[...new Set(DATA.students.filter(x=>x.src).map(x=>x.src))];
+ for(const src of srcs){const o=E("div","st");o.append(E("b","","أسماء شعبة مشتركة من "+src));const pi=E("input");pi.type="password";pi.placeholder="كلمة سر أسماء "+src;const om=E("span","muted",SK[src]?" مفتوحة ✔":"");o.append(pi,btn("فتح",async()=>{if(pi.value.length<4)return;SK[src]=await nkeyFor(pi.value,src);await draw()}),om);d.append(o)}
  await planCard(d);
  const by={};DATA.attempts.forEach(a=>(by[a.student_id]=by[a.student_id]||[]).push(a));
- for(const s of DATA.students.filter(x=>!SEC||x.sec===SEC)){const at=(by[s.id]||[]).sort((x,y)=>x.ts-y.ts);const nm=NK?await decName(s.enc_name):null;
+ for(const s of DATA.students.filter(x=>!SEC||x.sec===SEC)){const at=(by[s.id]||[]).sort((x,y)=>x.ts-y.ts);const nm=await decName(s.enc_name,s.src);
   const c=E("div","st"),h=E("div","row");const rr={s,nm,at};rows.push(rr);h.append(E("b","",(nm||"طالب")+" ("+s.sec+"-"+s.no+")"),E("span","code",s.code));if(s.linked)h.append(E("span","muted","(مضافة بالرمز)"));c.append(h);
   const pc=a=>a.total?Math.round(a.right/a.total*100):0;
   const ex=at.filter(a=>a.mode==="mock"||a.mode==="diag"||a.mode==="test");
