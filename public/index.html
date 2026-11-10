@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>السوسنة: التدريب على اختبارات تيمس</title>
-<meta name="description" content="السوسنة: منصة مجانية للتدريب على اختبارات تيمس (TIMSS) في الرياضيات والعلوم للصفين الرابع والثامن، بأسئلة رسمية مفرج عنها وشرح فوري ومسار تدريب متدرّج.">
+<title>سوسنة الكرك: التدريب على اختبارات تيمس</title>
+<meta name="description" content="سوسنة الكرك: منصة مجانية للتدريب على اختبارات تيمس (TIMSS) في الرياضيات والعلوم للصفين الرابع والثامن، بأسئلة رسمية مفرج عنها وشرح فوري ومسار تدريب متدرّج.">
 <link rel="canonical" href="https://sawsana.reemalfahad-an.workers.dev/">
-<meta property="og:type" content="website"><meta property="og:locale" content="ar_JO"><meta property="og:site_name" content="السوسنة"><meta property="og:title" content="السوسنة · تدريب تيمس"><meta property="og:description" content="السوسنة: منصة مجانية للتدريب على اختبارات تيمس (TIMSS) في الرياضيات والعلوم للصفين الرابع والثامن، بأسئلة رسمية مفرج عنها وشرح فوري ومسار تدريب متدرّج."><meta property="og:url" content="https://sawsana.reemalfahad-an.workers.dev/">
+<meta property="og:type" content="website"><meta property="og:locale" content="ar_JO"><meta property="og:site_name" content="سوسنة الكرك"><meta property="og:title" content="سوسنة الكرك · تدريب تيمس"><meta property="og:description" content="سوسنة الكرك: منصة مجانية للتدريب على اختبارات تيمس (TIMSS) في الرياضيات والعلوم للصفين الرابع والثامن، بأسئلة رسمية مفرج عنها وشرح فوري ومسار تدريب متدرّج."><meta property="og:url" content="https://sawsana.reemalfahad-an.workers.dev/">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%233E1B47'/%3E%3Cpath d='M32 10c4 8 4 14 0 20-4-6-4-12 0-20zM14 28c8 0 14 3 18 9-8 0-14-3-18-9zM50 28c-8 0-14 3-18 9 8 0 14-3 18-9zM32 54c-5-5-5-10 0-16 5 6 5 11 0 16z' fill='%23D9B8E6'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
@@ -23,6 +23,8 @@ main{padding:22px 16px 40px;display:flex;flex-direction:column;gap:22px;max-widt
 h1,h2,h3{margin:0;line-height:1.35;font-weight:700}
 .eyebrow{display:flex;align-items:center;gap:8px;color:var(--t);font-size:.82rem;font-weight:600}.eyebrow:before{content:"";width:22px;height:2px;background:var(--t)}
 .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center}
+.hero{position:relative;padding:30px 26px;border-radius:26px;background:linear-gradient(to left,rgba(250,247,248,.9) 0%,rgba(250,247,248,.72) 50%,rgba(250,247,248,.3) 100%),url(karak.jpg) center/cover;box-shadow:0 2px 0 var(--line)}
+.hero:after{content:"قلعة الكرك";position:absolute;left:14px;bottom:8px;font-size:.72rem;color:#fff;background:rgba(30,10,36,.55);padding:1px 10px;border-radius:20px}
 .hero h1{font-size:clamp(2rem,6.5vw,3.2rem);line-height:1.25;margin:8px 0}.hero h1 em{color:var(--t);font-style:normal;display:block}
 .hero p{color:var(--mute);margin:0 0 16px;max-width:46ch}
 .arch{position:relative;border-radius:200px 200px 20px 20px;background:var(--g);overflow:hidden;box-shadow:10px 10px 0 var(--sand);aspect-ratio:1/1.02;max-width:360px;width:100%;justify-self:center}
@@ -63,18 +65,18 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--t);outline-offset:2
 textarea.code{width:100%;min-height:64px;font:13px/1.5 monospace;direction:ltr;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:10px}
 nav.crumb{font-size:.9rem;color:var(--mute)}nav.crumb a{color:var(--g);cursor:pointer;font-weight:600}
 .qimg{display:block;max-width:100%;margin:8px auto;border:1px solid var(--line);border-radius:10px;background:#fff}textarea.ans{width:100%;box-sizing:border-box;min-height:84px;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:inherit}.src{font-size:.78rem;color:var(--mute);margin:6px 0 0}.model{background:#F2F8F3;border:1px solid #BFD9C6;border-radius:10px;padding:10px 12px;margin:8px 0;line-height:1.8}footer{border-top:1px solid var(--line);margin-top:10px}footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;padding-block:14px;color:var(--mute);font-size:.82rem}footer b{color:var(--g)}footer a{color:inherit}
-@media(max-width:720px){.hero{grid-template-columns:1fr}.hero .arch{order:-1;max-width:300px}.two{grid-template-columns:1fr}.dom{grid-template-columns:96px 1fr 46px}}
+@media(max-width:720px){.hero{grid-template-columns:1fr;padding:22px 16px}.hero .arch{order:-1;max-width:300px}.two{grid-template-columns:1fr}.dom{grid-template-columns:96px 1fr 46px}}
 
 .gm{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.pts{background:#3E1B47;color:#fff;border-radius:999px;padding:2px 14px;font-weight:700}.rnd{background:#B8902A;color:#fff;border-radius:999px;padding:0 12px;font-size:.85rem}
 #cert{border:6px double #B8902A;border-radius:14px;padding:26px 18px;text-align:center;background:#fffdf8;color:#2a1630;margin:12px 0}#cert h1{font-size:2rem;color:#3E1B47;margin:4px 0}#cert .nm{font-size:1.6rem;font-weight:700;color:#3E1B47;border-bottom:2px solid #B8902A;display:inline-block;padding:0 18px;margin:8px 0}#cert .sm{font-size:.82rem;color:#6a5a70;margin-top:14px}
 @media print{body.pc header,body.pc footer,body.pc .noprint,body.pc nav{display:none!important}body.pc #cert{margin:0;border-width:8px}@page{size:A4 landscape;margin:12mm}}
 </style></head><body>
 <header class="nav"><div class="wrap">
-<div class="brand" onclick="home()"><span class="logo"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6c5 9 5 17 0 25-5-8-5-16 0-25zM8 26c10 0 17 4 22 12-10 0-17-4-22-12zM56 26c-10 0-17 4-22 12 10 0 17-4 22-12zM32 58c-6-5-6-12 0-20 6 8 6 15 0 20z" fill="#D9B8E6"/></svg></span>السوسنة</div>
+<div class="brand" onclick="home()"><span class="logo"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6c5 9 5 17 0 25-5-8-5-16 0-25zM8 26c10 0 17 4 22 12-10 0-17-4-22-12zM56 26c-10 0-17 4-22 12 10 0 17-4 22-12zM32 58c-6-5-6-12 0-20 6 8 6 15 0 20z" fill="#D9B8E6"/></svg></span>سوسنة الكرك</div>
 <nav class="pills"><a data-t="h" class="on" onclick="home()">الرئيسية</a><a data-t="t" onclick="train()">التدريب</a><a data-t="r" onclick="report()">إنجازي</a><a href="bank.html">بنك الأسئلة 🔒</a><a href="timss.html">نشرة تيمس</a><a href="schools.html">خطة المدارس 🔒</a><a href="about.html">تعرّف</a><a href="framework.html">مطابقة الإطار</a><a data-t="m" href="teacher.html">تقرير المعلمات 🔒</a></nav>
 <span class="school" id="school" hidden></span></div></header>
 <main id="app"></main>
-<footer><div class="wrap"><span><b>السوسنة</b> · مساحة للتعلّم. تدريب مجاني، ونتائجك محفوظة على جهازك فقط. الأسئلة أصلية، عدا أسئلة تيمس 2011 المنشورة (© IEA) وقد كُتب مصدرها تحت السؤال.</span><span>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي · <a href="about.html">تعرّف على الاختبارات الدولية</a> · <a href="framework.html">مطابقة الإطار</a> · <a href="teacher.html">للمعلمات: تقرير الصف</a> · <a href="board.html">وضع السبورة</a></span></div></footer>
+<footer><div class="wrap"><span><b>سوسنة الكرك</b> · مساحة للتعلّم. تدريب مجاني، ونتائجك محفوظة على جهازك فقط. الأسئلة أصلية، عدا أسئلة تيمس 2011 المنشورة (© IEA) وقد كُتب مصدرها تحت السؤال.</span><span>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي · <a href="about.html">تعرّف على الاختبارات الدولية</a> · <a href="framework.html">مطابقة الإطار</a> · <a href="teacher.html">للمعلمات: تقرير الصف</a> · <a href="board.html">وضع السبورة</a></span></div></footer>
 <script src="data.js"></script>
 <script src="data-sci.js"></script>
 <script src="data-timss8.js"></script><script src="data-qushi.js"></script>
@@ -211,7 +213,7 @@ function cert(title,right,total){clear();const sub=title.split("·").pop().trim(
  const out=el("div");
  const show=()=>{const n=nm.value.trim();if(!n){nm.focus();return}document.body.classList.add("pc");
   const pc=total?Math.round(right*100/total):0,dt=new Date().toLocaleDateString("ar-JO",{year:"numeric",month:"long",day:"numeric"});
-  out.replaceChildren(el("div",{id:"cert"},el("div",{style:"color:#B8902A;font-weight:700"},"منصة السوسنة للتدريب"),el("h1",{},"شهادة تدريب"),el("p",{},"تشهد منصة السوسنة بأن الطالب"),el("div",{class:"nm"},n),
+  out.replaceChildren(el("div",{id:"cert"},el("div",{style:"color:#B8902A;font-weight:700"},"منصة سوسنة الكرك للتدريب"),el("h1",{},"شهادة تدريب"),el("p",{},"تشهد منصة سوسنة الكرك بأن الطالب"),el("div",{class:"nm"},n),
    el("p",{},"أتمّت اختبارًا تدريبيًا بوقت في مادة "+sub+" للصف "+GN[db.sel.g-1]+" على نمط اختبارات تيمس، وحصلت على "+right+" من "+total+" ("+pc+"%)."),
    el("p",{},"التاريخ: "+dt),el("div",{class:"sm"},"هذه الشهادة للتدريب فقط وغير رسمية، ولا تمثّل المركز الوطني لتنمية الموارد البشرية ولا الجهة المنظِّمة للدراسة الدولية."),el("div",{class:"sm"},"تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي")),
    el("div",{class:"row noprint"},el("button",{onclick:()=>window.print()},"طباعة / حفظ PDF"),el("button",{class:"alt",onclick:()=>gradeView(db.sel.g)},"رجوع")))};
