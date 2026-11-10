@@ -17,6 +17,7 @@ button.alt{background:var(--soft);color:var(--wine)}button.del{background:#fff;c
 .s{background:#EAF4EC;color:var(--ok)}.w{background:#FBE9E7;color:var(--no)}.code{font:600 .95rem monospace;direction:ltr;background:var(--soft);border-radius:6px;padding:0 8px}
 .st{border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
 #prt{display:none}
+.pl table{width:100%;border-collapse:collapse;font-size:.92rem;margin:6px 0}.pl th{background:var(--soft);color:var(--wine);padding:4px 8px;text-align:right}.pl td{border-bottom:1px solid var(--line);padding:4px 8px}.pl .bn{background:#FFF6DD;border:1px solid #B8902A;border-radius:10px;padding:6px 12px;margin:6px 0}.pl ul{margin:4px 0;padding-inline-start:20px}
 @media print{body>*:not(#prt){display:none!important}#prt{display:block!important}body{background:#fff}
  @page{size:A4;margin:14mm}.rp{page-break-after:always;font-family:'Sakkal Majalla','Noto Naskh Arabic','IBM Plex Sans Arabic',serif;font-size:15pt;color:#222;line-height:1.7}.rp:last-child{page-break-after:auto}
  .rp h1{color:#7A1F2E;font-size:22pt;border-bottom:3px solid #B8902A;padding-bottom:6px;margin:0 0 8px;text-align:center}.rp h2{color:#7A1F2E;font-size:16pt;margin:14px 0 4px}
@@ -100,6 +101,60 @@ async function main(){app.replaceChildren();
  const d=E("div","card");d.id="dash";app.append(d);await load()}
 async function load(){let j;try{j=await api("/api/students")}catch(e){if(e.status===401){loginView();return}$("dash").textContent=e.message;return}
  DATA=j;SUBJ=j.subject||"";draw()}
+
+/* ===== الخطة العلاجية الشهرية للصف ===== */
+const MON=ts=>{const d=new Date(ts);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const MNAME=k=>{const [y,m]=k.split("-");return new Date(+y,+m-1,1).toLocaleDateString("ar",{month:"long",year:"numeric"})};
+const ACT={
+ "math|0":["تدريب قصير (10 دقائق) في بداية كل حصة على العمليات والكسور والنسب","استخدام نماذج محسوسة وخط الأعداد لترسيخ المفهوم قبل الخوارزمية"],
+ "math|1":["حلّ معادلات متدرّجة الصعوبة مع تبرير كل خطوة","تعلّم الأقران: طالبة متقنة مع طالبة تحتاج دعمًا في مجموعة صغيرة"],
+ "math|2":["أنشطة رسم وقياس بالأدوات (مسطرة، منقلة) وربط الأشكال بالبيئة","تدريب على قراءة الأشكال والمخططات واستخراج المعطيات"],
+ "math|3":["جمع بيانات صفّية بسيطة وتمثيلها بجداول ومخططات","أسئلة تفسير بيانات من الحياة اليومية مع مناقشة الاحتمالات"],
+ "sci|0":["مخططات ومنظمات بيانية للمفاهيم الحيوية مع أسئلة تذكّر وفهم","نشاط عملي أو عرض مرئي قصير في المختبر لكل وحدة"],
+ "sci|1":["تجارب بسيطة للتغيّرات الفيزيائية والكيميائية مع تسجيل الملاحظات","تدريب على قراءة الجداول والرموز والصيغ"],
+ "sci|2":["تجارب قصيرة (قوة، حركة، طاقة) مع تحليل النتائج","مسائل تطبيقية متدرّجة وربط المفهوم بمواقف يومية"],
+ "sci|3":["نماذج ومجسّمات ومخططات لدورات الأرض والطقس","قراءة خرائط وصور ومخططات واستخلاص الأدلة"]};
+function planModel(sec,mk){
+ const stu=DATA.students.filter(x=>x.sec===sec),ids=new Set(stu.map(x=>x.id));
+ const at=DATA.attempts.filter(a=>ids.has(a.student_id)&&MON(a.ts)===mk);
+ const g={},per={};at.forEach(a=>{let d=[];try{d=JSON.parse(a.d)}catch(e){}d.forEach(([si,di,ok,t])=>{if(SUBJ&&SUBN[si]!==SUBJ)return;const k=si+"_"+di;(g[k]=g[k]||{si,di,ok:0,t:0});g[k].ok+=ok;g[k].t+=t;const q=a.student_id+"|"+k;(per[q]=per[q]||{id:a.student_id,k,ok:0,t:0});per[q].ok+=ok;per[q].t+=t})});
+ const dom=Object.values(g).filter(x=>x.t>=5).map(x=>({...x,p:Math.round(x.ok/x.t*100),n:NAME[SUBN[x.si]]+" — "+((window.SW_DOMAINS[SUBN[x.si]]||[])[x.di]||"")})).sort((a,b)=>a.p-b.p);
+ const active=new Set(at.map(a=>a.student_id)),tests=at.filter(a=>a.mode==="mock"||a.mode==="diag"||a.mode==="test");
+ const tt=at.reduce((a,b)=>a+b.total,0),rt=at.reduce((a,b)=>a+b.right,0);
+ return{sec,mk,n:stu.length,active:active.size,att:at.length,avg:tt?Math.round(rt/tt*100):0,tests:tests.length,dom,per:Object.values(per),stu,
+  weak:dom.filter(x=>x.p<60),ok:dom.filter(x=>x.p>=75)}}
+async function planNode(m,print){const R=print?"rp":"pl";const root=document.createElement("div");root.className=R;const T=(h,rows)=>{const t=E("table");const tr=E("tr");h.forEach(x=>tr.append(E("th","",x)));t.append(tr);rows.forEach(r=>{const q=E("tr");r.forEach(x=>q.append(E("td","",x)));t.append(q)});return t};
+ const sc=SCH(),nm=async s=>NK?(await decName(s.enc_name))||("طالبة "+s.sec+"-"+s.no):("طالبة "+s.sec+"-"+s.no);
+ if(print){root.append(E("h1","","الخطة العلاجية الشهرية للصف"));const mt=E("div","meta");mt.append(E("div","","المدرسة: "+(sc.school||"................")),E("div","","المعلمة: "+(sc.teacher||"................")),E("div","","الشعبة: "+m.sec),E("div","","الشهر: "+MNAME(m.mk)));root.append(mt)}
+ root.append(E(print?"h2":"h3","","ملخص الشهر — الشعبة "+m.sec+" ("+MNAME(m.mk)+")"));
+ if(!m.att){root.append(E("p","muted","لا توجد محاولات مسجّلة لهذه الشعبة في هذا الشهر."));return root}
+ root.append(T(["عدد الطالبات","المشاركات هذا الشهر","عدد المحاولات","المعدل العام","اختبارات"],[[m.n,m.active+" ("+Math.round(m.active/m.n*100)+"%)",m.att,m.avg+"%",m.tests]]));
+ root.append(E(print?"h2":"h3","","أداء الصف حسب المجال"));
+ root.append(T(["المجال","الصحيح / الكلي","إتقان الصف","التقدير"],m.dom.map(x=>[x.n,x.ok+" / "+x.t,x.p+"%",x.p<50?"أولوية عالية":x.p<60?"أولوية متوسطة":x.p<75?"قيد التحسّن":"متقن"])));
+ root.append(E(print?"h2":"h3","","الإجراءات العلاجية للصف"));
+ if(!m.weak.length)root.append(E("p","","لا مجالات دون 60% هذا الشهر. يُوصى بالمحافظة على التدريب الأسبوعي ورفع مستوى الصعوبة تدريجيًا."));
+ else root.append(T(["المجال","الإجراء العلاجي","الأسلوب","التاريخ"],m.weak.map(x=>[x.n,(ACT[SUBN[x.si]+"|"+x.di]||["تدريب موجّه على أسئلة المجال"])[0],(ACT[SUBN[x.si]+"|"+x.di]||[,"تعلّم أقران"])[1]||"تعلّم أقران","................"])));
+ root.append(E(print?"h2":"h3","","طالبات يحتجن متابعة فردية (دون 60% في المجال)"));
+ const follow={};m.per.filter(x=>x.t>=3&&Math.round(x.ok/x.t*100)<60&&m.weak.some(w=>w.si+"_"+w.di===x.k)).forEach(x=>(follow[x.id]=follow[x.id]||[]).push(x));
+ const rows=[];for(const s of m.stu){const f=follow[s.id];if(!f)continue;rows.push([await nm(s),f.map(x=>{const[si,di]=x.k.split("_");return((window.SW_DOMAINS[SUBN[si]]||[])[di]||"")+" "+Math.round(x.ok/x.t*100)+"%"}).join("، ")])}
+ root.append(rows.length?T(["الطالبة","المجالات التي تحتاج علاجًا"],rows):E("p","muted","لا طالبات دون الحدّ في المجالات المستهدفة."));
+ const act=m.n-m.active;if(act>0)root.append(E("p","","لم تتدرّب هذا الشهر: "+act+" طالبة. يُوصى بتذكيرهن برمز الدخول وتخصيص حصة تدريب صفّية."));
+ root.append(E(print?"h2":"h3","","مؤشرات الشهر القادم"));
+ const u=E("ul");["رفع إتقان كل مجال أولوية بمقدار 10 نقاط على الأقل، أو بلوغ 70%.","زيادة نسبة المشاركات إلى 90% من طالبات الشعبة.","إعادة اختبار تشخيصي قصير في نهاية الشهر لقياس التحسّن."].forEach(t=>u.append(E("li","",t)));root.append(u);
+ if(print){const sg=E("div","sig");sg.append(E("div","","المعلمة"),E("div","","ضابط الارتباط"),E("div","","مدير/ة المدرسة"));root.append(sg);root.append(E("div","foot","تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"))}
+ return root}
+let PM="";
+async function planCard(d){const months=[...new Set(DATA.attempts.map(a=>MON(a.ts)))].sort().reverse();
+ const now=new Date(),cur=MON(now.getTime()),prev=MON(new Date(now.getFullYear(),now.getMonth()-1,1).getTime()),endNear=now.getDate()>=25||now.getDate()<=5;
+ if(!months.includes(cur))months.unshift(cur);if(!PM||!months.includes(PM))PM=(now.getDate()>=25?cur:(months.includes(prev)&&now.getDate()<=5?prev:cur));
+ const c=E("div","pl");c.style.cssText="border:2px solid #B8902A;border-radius:14px;padding:12px;margin:10px 0";c.append(E("h3","","🗓 الخطة العلاجية الشهرية للصف"));
+ if(endNear)c.append(E("div","bn","خطة "+MNAME(PM)+" جاهزة. تُبنى تلقائيًا من نتائج الطالبات، وتتحدّث كلما دخلت نتائج جديدة."));
+ else c.append(E("p","muted","تُبنى الخطة تلقائيًا من نتائج الشهر المختار، وتكون نهائية في آخر الشهر."));
+ const ms=E("select");months.forEach(k=>ms.append(new Option(MNAME(k),k)));ms.value=PM;ms.onchange=()=>{PM=ms.value;draw()};c.append(ms);
+ const secs=SEC?[SEC]:[...new Set(DATA.students.map(s=>s.sec))];const nodes=[];
+ for(const sc of secs){const m=planModel(sc,PM);c.append(await planNode(m,false));nodes.push(m)}
+ c.append(btn("🖨 طباعة الخطة العلاجية",async()=>{const p=$("prt");p.replaceChildren(...await Promise.all(nodes.map(m=>planNode(m,true))));setTimeout(()=>window.print(),150)}));
+ d.append(c)}
 async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","3) متابعة الطلبة"));
  const sbj=E("select");[["","كل المواد"],["math","رياضيات"],["sci","علوم"]].forEach(([v,t])=>sbj.append(new Option("مادتي: "+t,v)));sbj.value=SUBJ;sbj.onchange=async()=>{try{await api("/api/teacher/subject",{subject:sbj.value});await load()}catch(e){}};d.append(sbj);
  const secs=[...new Set(DATA.students.map(s=>s.sec))];const sel=E("select");sel.append(new Option("كل الشعب",""));secs.forEach(x=>sel.append(new Option("الشعبة "+x,x)));sel.value=SEC;sel.onchange=()=>{SEC=sel.value;draw()};
@@ -108,6 +163,7 @@ async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","
  const rows=[];
  d.append(si,ti,E("br"),sel,btn("🖨 طباعة تقارير الشعبة",()=>printRep(rows)),btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt"));
  if(!DATA.students.length){d.append(E("p","muted","لا توجد طلبة بعد."));return}
+ await planCard(d);
  const by={};DATA.attempts.forEach(a=>(by[a.student_id]=by[a.student_id]||[]).push(a));
  for(const s of DATA.students.filter(x=>!SEC||x.sec===SEC)){const at=(by[s.id]||[]).sort((x,y)=>x.ts-y.ts);const nm=NK?await decName(s.enc_name):null;
   const c=E("div","st"),h=E("div","row");const rr={s,nm,at};rows.push(rr);h.append(E("b","",(nm||"طالب")+" ("+s.sec+"-"+s.no+")"),E("span","code",s.code));if(s.linked)h.append(E("span","muted","(مضافة بالرمز)"));c.append(h);
