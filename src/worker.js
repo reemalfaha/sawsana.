@@ -98,7 +98,7 @@ export default{async fetch(req,env){
   const tid=await check(env,req,"T");if(!tid)return err("غير مصرّح",401);
   if(p==="/api/portfolio"&&m==="GET")return json({log:(await db.prepare("SELECT id,d,kind,note,fname,ftype FROM tlog WHERE teacher_id=? ORDER BY d DESC,id DESC LIMIT 400").bind(tid).all()).results});
   if(p==="/api/portfolio"&&m==="POST"){
-   const d=clip(body.date,10),kind=clip(body.kind,40).trim(),note=clip(body.note,600).trim();
+   const d=clip(body.date,10),kind=clip(body.kind,80).trim(),note=clip(body.note,600).trim();
    if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!kind||!note)return err("اكتب/ي التاريخ والنوع والوصف");
    const c=await db.prepare("SELECT COUNT(*) AS n FROM tlog WHERE teacher_id=?").bind(tid).first();if(c.n>=400)return err("وصل السجل الحد الأقصى (400 بند)");
    let fname=null,ftype=null,fdata=null;
