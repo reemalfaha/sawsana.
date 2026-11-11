@@ -13,7 +13,7 @@ async function schema(db){if(ready)return;
   db.prepare("CREATE TABLE IF NOT EXISTS teachers(id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT UNIQUE,school TEXT,salt TEXT,hash TEXT,created INTEGER)"),
   db.prepare("CREATE TABLE IF NOT EXISTS students(id INTEGER PRIMARY KEY AUTOINCREMENT,teacher_id INTEGER,code TEXT UNIQUE,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER)"),
   db.prepare("CREATE TABLE IF NOT EXISTS attempts(id INTEGER PRIMARY KEY AUTOINCREMENT,student_id INTEGER,ts INTEGER,title TEXT,mode TEXT,subject TEXT,right INTEGER,total INTEGER,d TEXT)"),
-  db.prepare("CREATE TABLE IF NOT EXISTS student_links(student_id INTEGER,teacher_id INTEGER,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER,PRIMARY KEY(student_id,teacher_id))"),db.prepare("CREATE TABLE IF NOT EXISTS sup_shares(teacher_id INTEGER,sup_id INTEGER,created INTEGER,PRIMARY KEY(teacher_id,sup_id))"),db.prepare("CREATE INDEX IF NOT EXISTS ix_sup ON sup_shares(sup_id)"),db.prepare("CREATE TABLE IF NOT EXISTS sup_msgs(id INTEGER PRIMARY KEY AUTOINCREMENT,sup_id INTEGER,to_id INTEGER,title TEXT,body TEXT,fname TEXT,ftype TEXT,fdata TEXT,created INTEGER)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_msg ON sup_msgs(sup_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_lnk ON student_links(teacher_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
+  db.prepare("CREATE TABLE IF NOT EXISTS student_links(student_id INTEGER,teacher_id INTEGER,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER,PRIMARY KEY(student_id,teacher_id))"),db.prepare("CREATE TABLE IF NOT EXISTS sup_shares(teacher_id INTEGER,sup_id INTEGER,created INTEGER,PRIMARY KEY(teacher_id,sup_id))"),db.prepare("CREATE INDEX IF NOT EXISTS ix_sup ON sup_shares(sup_id)"),db.prepare("CREATE TABLE IF NOT EXISTS tlog(id INTEGER PRIMARY KEY AUTOINCREMENT,teacher_id INTEGER,d TEXT,kind TEXT,note TEXT,created INTEGER)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_tlog ON tlog(teacher_id)"),db.prepare("CREATE TABLE IF NOT EXISTS sup_msgs(id INTEGER PRIMARY KEY AUTOINCREMENT,sup_id INTEGER,to_id INTEGER,title TEXT,body TEXT,fname TEXT,ftype TEXT,fdata TEXT,created INTEGER)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_msg ON sup_msgs(sup_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_lnk ON student_links(teacher_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
  try{await db.prepare("ALTER TABLE teachers ADD COLUMN subject TEXT").run()}catch(e){}
  try{await db.prepare("ALTER TABLE student_links ADD COLUMN src TEXT").run()}catch(e){}
  ready=true}
@@ -61,12 +61,12 @@ export default{async fetch(req,env){
  if(p==="/api/students"||p.startsWith("/api/students/")){
   const tid=await check(env,req,"T");if(!tid)return err("غير مصرّح",401);
   if(p==="/api/students"&&m==="GET"){
-   const me=await db.prepare("SELECT subject FROM teachers WHERE id=?").bind(tid).first();const sj=me&&me.subject||null;
+   const me=await db.prepare("SELECT subject,school FROM teachers WHERE id=?").bind(tid).first();const sj=me&&me.subject||null;
    const own=(await db.prepare("SELECT id,code,enc_name,sec,no,0 AS linked FROM students WHERE teacher_id=?").bind(tid).all()).results;
    const lk=(await db.prepare("SELECT s.id AS id,s.code AS code,l.enc_name AS enc_name,l.sec AS sec,l.no AS no,l.src AS src,1 AS linked FROM student_links l JOIN students s ON s.id=l.student_id WHERE l.teacher_id=?").bind(tid).all()).results;
    const st=own.concat(lk).sort((a,b)=>String(a.sec).localeCompare(String(b.sec),"ar")||a.no-b.no);
    const at=(await db.prepare("SELECT a.student_id,a.ts,a.title,a.mode,a.subject,a.right,a.total,a.d FROM attempts a JOIN students s ON s.id=a.student_id WHERE (s.teacher_id=?1 OR s.id IN (SELECT student_id FROM student_links WHERE teacher_id=?1)) AND (?2 IS NULL OR a.subject=?2) ORDER BY a.ts DESC LIMIT 4000").bind(tid,sj).all()).results;
-   return json({students:st,attempts:at,subject:sj||""})}
+   return json({students:st,attempts:at,subject:sj||"",school:me&&me.school||""})}
   if(p==="/api/students"&&m==="POST"){
    const arr=Array.isArray(body.students)?body.students.slice(0,80):[];const out=[];
    for(const s of arr){let code,ok=false;for(let i=0;i<5&&!ok;i++){code=mkcode();try{await db.prepare("INSERT INTO students(teacher_id,code,enc_name,sec,no,created) VALUES(?,?,?,?,?,?)").bind(tid,code,clip(s.encName,500),clip(s.sec,10),parseInt(s.no)||0,Date.now()).run();ok=true}catch(e){}}
@@ -92,6 +92,17 @@ export default{async fetch(req,env){
    await db.prepare("DELETE FROM student_links WHERE student_id=?").bind(id).run();
    await db.prepare("DELETE FROM attempts WHERE student_id IN (SELECT id FROM students WHERE id=? AND teacher_id=?)").bind(id,tid).run();
    await db.prepare("DELETE FROM students WHERE id=? AND teacher_id=?").bind(id,tid).run();return json({ok:1})}}
+ // ---- ملف الإنجاز والتوثيق: سجل إجراءات المعلم/ة (نص فقط)
+ if(p.startsWith("/api/portfolio")){
+  const tid=await check(env,req,"T");if(!tid)return err("غير مصرّح",401);
+  if(p==="/api/portfolio"&&m==="GET")return json({log:(await db.prepare("SELECT id,d,kind,note FROM tlog WHERE teacher_id=? ORDER BY d DESC,id DESC LIMIT 400").bind(tid).all()).results});
+  if(p==="/api/portfolio"&&m==="POST"){
+   const d=clip(body.date,10),kind=clip(body.kind,40).trim(),note=clip(body.note,600).trim();
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!kind||!note)return err("اكتب/ي التاريخ والنوع والوصف");
+   const c=await db.prepare("SELECT COUNT(*) AS n FROM tlog WHERE teacher_id=?").bind(tid).first();if(c.n>=400)return err("وصل السجل الحد الأقصى (400 بند)");
+   await db.prepare("INSERT INTO tlog(teacher_id,d,kind,note,created) VALUES(?,?,?,?,?)").bind(tid,d,kind,note,Date.now()).run();return json({ok:1})}
+  if(p==="/api/portfolio/delete"&&m==="POST"){await db.prepare("DELETE FROM tlog WHERE id=? AND teacher_id=?").bind(parseInt(body.id)||0,tid).run();return json({ok:1})}
+  return err("غير موجود",404)}
  // ---- المشرف: تقرير شهري بالأرقام فقط (بلا أسماء ولا رموز)
  if(p.startsWith("/api/supervisor/")){
   const tid=await check(env,req,"T");if(!tid)return err("غير مصرّح",401);
