@@ -16,6 +16,7 @@ async function schema(db){if(ready)return;
   db.prepare("CREATE TABLE IF NOT EXISTS student_links(student_id INTEGER,teacher_id INTEGER,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER,PRIMARY KEY(student_id,teacher_id))"),db.prepare("CREATE TABLE IF NOT EXISTS sup_shares(teacher_id INTEGER,sup_id INTEGER,created INTEGER,PRIMARY KEY(teacher_id,sup_id))"),db.prepare("CREATE INDEX IF NOT EXISTS ix_sup ON sup_shares(sup_id)"),db.prepare("CREATE TABLE IF NOT EXISTS tlog(id INTEGER PRIMARY KEY AUTOINCREMENT,teacher_id INTEGER,d TEXT,kind TEXT,note TEXT,created INTEGER)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_tlog ON tlog(teacher_id)"),db.prepare("CREATE TABLE IF NOT EXISTS sup_msgs(id INTEGER PRIMARY KEY AUTOINCREMENT,sup_id INTEGER,to_id INTEGER,title TEXT,body TEXT,fname TEXT,ftype TEXT,fdata TEXT,created INTEGER)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_msg ON sup_msgs(sup_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_lnk ON student_links(teacher_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
  try{await db.prepare("ALTER TABLE teachers ADD COLUMN subject TEXT").run()}catch(e){}
  try{await db.prepare("ALTER TABLE student_links ADD COLUMN src TEXT").run()}catch(e){}
+ for(const c of ["fname","ftype","fdata"]){try{await db.prepare("ALTER TABLE tlog ADD COLUMN "+c+" TEXT").run()}catch(e){}}
  ready=true}
 async function hmac(secret,data){const k=await crypto.subtle.importKey("raw",te.encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);return b64(await crypto.subtle.sign("HMAC",k,te.encode(data)))}
 async function mint(env,t,id,days){const p=b64(te.encode(JSON.stringify({t,id,exp:Date.now()+days*864e5})));return p+"."+await hmac(env.SESSION_SECRET,p)}
@@ -95,12 +96,17 @@ export default{async fetch(req,env){
  // ---- ملف الإنجاز والتوثيق: سجل إجراءات المعلم/ة (نص فقط)
  if(p.startsWith("/api/portfolio")){
   const tid=await check(env,req,"T");if(!tid)return err("غير مصرّح",401);
-  if(p==="/api/portfolio"&&m==="GET")return json({log:(await db.prepare("SELECT id,d,kind,note FROM tlog WHERE teacher_id=? ORDER BY d DESC,id DESC LIMIT 400").bind(tid).all()).results});
+  if(p==="/api/portfolio"&&m==="GET")return json({log:(await db.prepare("SELECT id,d,kind,note,fname,ftype FROM tlog WHERE teacher_id=? ORDER BY d DESC,id DESC LIMIT 400").bind(tid).all()).results});
   if(p==="/api/portfolio"&&m==="POST"){
    const d=clip(body.date,10),kind=clip(body.kind,40).trim(),note=clip(body.note,600).trim();
    if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!kind||!note)return err("اكتب/ي التاريخ والنوع والوصف");
    const c=await db.prepare("SELECT COUNT(*) AS n FROM tlog WHERE teacher_id=?").bind(tid).first();if(c.n>=400)return err("وصل السجل الحد الأقصى (400 بند)");
-   await db.prepare("INSERT INTO tlog(teacher_id,d,kind,note,created) VALUES(?,?,?,?,?)").bind(tid,d,kind,note,Date.now()).run();return json({ok:1})}
+   let fname=null,ftype=null,fdata=null;
+   if(body.fdata){ftype=String(body.ftype||"");if(!["application/pdf","image/jpeg","image/png"].includes(ftype))return err("المرفق يجب أن يكون PDF أو صورة");
+    fdata=String(body.fdata);if(fdata.length>1400000||!/^[A-Za-z0-9+/=]+$/.test(fdata))return err("حجم المرفق أكبر من 1 ميغابايت");fname=clip(body.fname,120)||"مرفق";
+    const f=await db.prepare("SELECT COUNT(*) AS n FROM tlog WHERE teacher_id=? AND fdata IS NOT NULL").bind(tid).first();if(f.n>=40)return err("وصلت الحد الأقصى للمرفقات (40). احذف/ي مرفقًا قديمًا أولًا.")}
+   await db.prepare("INSERT INTO tlog(teacher_id,d,kind,note,created,fname,ftype,fdata) VALUES(?,?,?,?,?,?,?,?)").bind(tid,d,kind,note,Date.now(),fname,ftype,fdata).run();return json({ok:1})}
+  if(p==="/api/portfolio/file"&&m==="POST"){const r=await db.prepare("SELECT fname,ftype,fdata FROM tlog WHERE id=? AND teacher_id=? AND fdata IS NOT NULL").bind(parseInt(body.id)||0,tid).first();return r?json(r):err("غير موجود",404)}
   if(p==="/api/portfolio/delete"&&m==="POST"){await db.prepare("DELETE FROM tlog WHERE id=? AND teacher_id=?").bind(parseInt(body.id)||0,tid).run();return json({ok:1})}
   return err("غير موجود",404)}
  // ---- المشرف: تقرير شهري بالأرقام فقط (بلا أسماء ولا رموز)
