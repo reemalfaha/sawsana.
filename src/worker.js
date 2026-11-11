@@ -13,7 +13,7 @@ async function schema(db){if(ready)return;
   db.prepare("CREATE TABLE IF NOT EXISTS teachers(id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT UNIQUE,school TEXT,salt TEXT,hash TEXT,created INTEGER)"),
   db.prepare("CREATE TABLE IF NOT EXISTS students(id INTEGER PRIMARY KEY AUTOINCREMENT,teacher_id INTEGER,code TEXT UNIQUE,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER)"),
   db.prepare("CREATE TABLE IF NOT EXISTS attempts(id INTEGER PRIMARY KEY AUTOINCREMENT,student_id INTEGER,ts INTEGER,title TEXT,mode TEXT,subject TEXT,right INTEGER,total INTEGER,d TEXT)"),
-  db.prepare("CREATE TABLE IF NOT EXISTS student_links(student_id INTEGER,teacher_id INTEGER,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER,PRIMARY KEY(student_id,teacher_id))"),db.prepare("CREATE TABLE IF NOT EXISTS sup_shares(teacher_id INTEGER,sup_id INTEGER,created INTEGER,PRIMARY KEY(teacher_id,sup_id))"),db.prepare("CREATE INDEX IF NOT EXISTS ix_sup ON sup_shares(sup_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_lnk ON student_links(teacher_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
+  db.prepare("CREATE TABLE IF NOT EXISTS student_links(student_id INTEGER,teacher_id INTEGER,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER,PRIMARY KEY(student_id,teacher_id))"),db.prepare("CREATE TABLE IF NOT EXISTS sup_shares(teacher_id INTEGER,sup_id INTEGER,created INTEGER,PRIMARY KEY(teacher_id,sup_id))"),db.prepare("CREATE INDEX IF NOT EXISTS ix_sup ON sup_shares(sup_id)"),db.prepare("CREATE TABLE IF NOT EXISTS sup_msgs(id INTEGER PRIMARY KEY AUTOINCREMENT,sup_id INTEGER,to_id INTEGER,title TEXT,body TEXT,fname TEXT,ftype TEXT,fdata TEXT,created INTEGER)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_msg ON sup_msgs(sup_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_lnk ON student_links(teacher_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
  try{await db.prepare("ALTER TABLE teachers ADD COLUMN subject TEXT").run()}catch(e){}
  try{await db.prepare("ALTER TABLE student_links ADD COLUMN src TEXT").run()}catch(e){}
  ready=true}
@@ -116,6 +116,26 @@ export default{async fetch(req,env){
     Object.values(sec).forEach(S=>Object.values(S.months).forEach(M=>{M.active=Object.keys(M.ids).length;delete M.ids}));
     out.push({username:t.username,school:t.school||"",subject:t.subject||"",sections:Object.values(sec)})}
    return json({teachers:out})}
+  // كتب رسمية وملاحظات من المشرف/ة إلى من شاركوه تقاريرهم
+  if(p==="/api/supervisor/msg"&&m==="POST"){
+   const title=clip(body.title,120).trim(),text=clip(body.body,4000).trim();if(!title)return err("اكتب/ي عنوان الكتاب أو الملاحظة");
+   let to=null;const un=clip(body.to,40).trim().toLowerCase();
+   if(un){const r=await db.prepare("SELECT t.id AS id FROM sup_shares x JOIN teachers t ON t.id=x.teacher_id WHERE x.sup_id=? AND t.username=?").bind(tid,un).first();if(!r)return err("هذا الحساب لم يشارك تقريره معك",404);to=r.id}
+   else{const c=await db.prepare("SELECT COUNT(*) AS n FROM sup_shares WHERE sup_id=?").bind(tid).first();if(!c.n)return err("لم يشارك أحد تقريره معك بعد",400)}
+   let fname=null,ftype=null,fdata=null;
+   if(body.fdata){ftype=String(body.ftype||"");if(!["application/pdf","image/jpeg","image/png"].includes(ftype))return err("المرفق يجب أن يكون PDF أو صورة");
+    fdata=String(body.fdata);if(fdata.length>1400000||!/^[A-Za-z0-9+/=]+$/.test(fdata))return err("حجم المرفق أكبر من 1 ميغابايت");fname=clip(body.fname,120)||"مرفق"}
+   const c=await db.prepare("SELECT COUNT(*) AS n FROM sup_msgs WHERE sup_id=?").bind(tid).first();if(c.n>=300)return err("وصلت الحد الأقصى للرسائل. احذف/ي القديم منها.");
+   await db.prepare("INSERT INTO sup_msgs(sup_id,to_id,title,body,fname,ftype,fdata,created) VALUES(?,?,?,?,?,?,?,?)").bind(tid,to,title,text,fname,ftype,fdata,Date.now()).run();return json({ok:1})}
+  if(p==="/api/supervisor/msgs"&&m==="GET"){
+   const inbox=(await db.prepare("SELECT g.id AS id,t.username AS sender,g.title AS title,g.body AS body,g.fname AS fname,g.created AS ts FROM sup_msgs g JOIN teachers t ON t.id=g.sup_id WHERE g.sup_id IN (SELECT sup_id FROM sup_shares WHERE teacher_id=?1) AND (g.to_id IS NULL OR g.to_id=?1) ORDER BY g.created DESC LIMIT 100").bind(tid).all()).results;
+   const sent=(await db.prepare("SELECT g.id AS id,t.username AS recipient,g.title AS title,g.body AS body,g.fname AS fname,g.created AS ts FROM sup_msgs g LEFT JOIN teachers t ON t.id=g.to_id WHERE g.sup_id=? ORDER BY g.created DESC LIMIT 100").bind(tid).all()).results;
+   return json({inbox,sent})}
+  if(p==="/api/supervisor/file"&&m==="POST"){
+   const r=await db.prepare("SELECT fname,ftype,fdata FROM sup_msgs WHERE id=?1 AND fdata IS NOT NULL AND (sup_id=?2 OR ((to_id IS NULL OR to_id=?2) AND sup_id IN (SELECT sup_id FROM sup_shares WHERE teacher_id=?2)))").bind(parseInt(body.id)||0,tid).first();
+   return r?json(r):err("غير موجود",404)}
+  if(p==="/api/supervisor/msg/delete"&&m==="POST"){
+   await db.prepare("DELETE FROM sup_msgs WHERE id=? AND sup_id=?").bind(parseInt(body.id)||0,tid).run();return json({ok:1})}
   return err("غير موجود",404)}
  // ---- الطالبات
  if(p==="/api/student/login"&&m==="POST"){

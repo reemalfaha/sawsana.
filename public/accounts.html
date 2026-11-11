@@ -107,8 +107,26 @@ async function main(){app.replaceChildren();
  const pu=E("input");pu.placeholder="اسم مستخدم المشرف/ة";pu.style.width="190px";const pm=E("p","muted",""),pl=E("div");
  const shares=async()=>{pl.replaceChildren();try{const r=await api("/api/supervisor/shares");r.to.forEach(u=>{const row=E("div","st");row.append(E("b","","يُشارَك التقرير مع: "+u+" "),btn("إيقاف المشاركة",async()=>{try{await api("/api/supervisor/unshare",{username:u})}catch(e){}shares()},"alt"));pl.append(row)})}catch(e){}};
  sp.append(pu,btn("مشاركة التقرير",async()=>{if(!pu.value.trim()){pm.textContent="اكتب/ي اسم المستخدم.";return}try{await api("/api/supervisor/share",{username:pu.value});pm.textContent="تمت المشاركة مع "+pu.value.trim()+".";pu.value="";shares()}catch(e){pm.textContent=e.message}}),pm,pl);app.append(sp);shares();
- const sv=E("div","card");sv.id="sup";sv.hidden=true;app.append(sv);supCard();
+ const ib=E("div","card");ib.id="inbox";ib.hidden=true;app.append(ib);
+ const sv=E("div","card");sv.id="sup";sv.hidden=true;app.append(sv);supCard().then(msgs);
  const d=E("div","card");d.id="dash";app.append(d);await load()}
+/* ===== كتب رسمية وملاحظات المشرف/ة ===== */
+const DT=t=>new Date(t).toLocaleDateString("ar-JO",{year:"numeric",month:"long",day:"numeric"});
+async function getFile(id){try{const f=await api("/api/supervisor/file",{id});const bin=atob(f.fdata),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([u],{type:f.ftype}));const a=document.createElement("a");a.href=url;a.download=f.fname||"مرفق";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}catch(e){alert(e.message)}}
+function msgRow(g,who,del){const r=E("div","st");r.style.cssText="display:block;border:1px solid #e3d5cd;border-radius:12px;padding:10px;margin:8px 0";r.append(E("b","",g.title),E("div","muted",who+" · "+DT(g.ts)));
+ if(g.body){const b=E("div","",g.body);b.style.whiteSpace="pre-wrap";r.append(b)}
+ if(g.fname)r.append(btn("📎 تنزيل المرفق: "+g.fname,()=>getFile(g.id),"alt"));if(del)r.append(btn("حذف",async()=>{try{await api("/api/supervisor/msg/delete",{id:g.id})}catch(e){}msgs()},"alt"));return r}
+async function msgs(){let j;try{j=await api("/api/supervisor/msgs")}catch(e){return}
+ const ib=$("inbox");if(ib){if(j.inbox.length){let seen=0;try{seen=+localStorage.getItem("sw.msgseen."+USER)||0}catch(e){}const nw=j.inbox.filter(g=>g.ts>seen).length;
+   ib.hidden=false;ib.replaceChildren(E("h3","","📩 كتب رسمية وملاحظات من المشرف/ة"+(nw?" ("+nw+" جديد)":"")));ib.style.border=nw?"2px solid #B8902A":"";j.inbox.forEach(g=>ib.append(msgRow(g,"من: "+g.sender,false)));try{localStorage.setItem("sw.msgseen."+USER,Date.now())}catch(e){}}else ib.hidden=true}
+ const c=$("sup");if(!c||c.hidden||!SUP)return;let box=$("supmsg");if(!box){box=E("div");box.id="supmsg";c.append(box)}box.replaceChildren(E("h3","","✉️ إرسال كتاب رسمي أو ملاحظة للمعلمين والمعلمات"));
+ const to=E("select");to.append(new Option("إلى الجميع (كل من شارك تقريره معي)",""));SUP.teachers.forEach(t=>to.append(new Option(t.username+(t.school?" · "+t.school:""),t.username)));
+ const ti=E("input");ti.placeholder="العنوان (مثل: كتاب رسمي رقم ...)";ti.style.width="100%";ti.maxLength=120;const tx=E("textarea");tx.placeholder="نص الملاحظة (اختياري)";tx.rows=4;tx.style.cssText="width:100%;font:inherit;border:1.5px solid #e3d5cd;border-radius:12px;padding:8px";tx.maxLength=4000;
+ const fi=E("input");fi.type="file";fi.accept="application/pdf,image/jpeg,image/png";const fm=E("p","muted","المرفق اختياري: PDF أو صورة حتى 1 ميغابايت.");const sm=E("p","muted","");
+ box.append(to,ti,tx,fi,fm,btn("إرسال",async()=>{sm.textContent="";if(!ti.value.trim()){sm.textContent="اكتب/ي العنوان.";return}const b={to:to.value,title:ti.value,body:tx.value};const f=fi.files[0];
+  if(f){if(f.size>1000000){sm.textContent="حجم المرفق أكبر من 1 ميغابايت. صغّر/ي الملف أو صوّر/ي الكتاب بدقة أقل.";return}const u=new Uint8Array(await f.arrayBuffer());let q="";for(let i=0;i<u.length;i+=8192)q+=String.fromCharCode.apply(null,u.subarray(i,i+8192));b.fdata=btoa(q);b.ftype=f.type;b.fname=f.name}
+  sm.textContent="جارٍ الإرسال…";try{await api("/api/supervisor/msg",b);await msgs();}catch(e){sm.textContent=e.message}}),sm);
+ if(j.sent.length){box.append(E("h3","","المُرسَل"));j.sent.forEach(g=>box.append(msgRow(g,"إلى: "+(g.recipient||"الجميع"),true)))}}
 /* ===== تقرير المشرف/ة الشهري (أرقام فقط) ===== */
 let SUP=null,SM="";
 function supRows(mk){const pk=(()=>{const [y,m]=mk.split("-").map(Number);const d=new Date(y,m-2,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")})(),rows=[];
