@@ -13,7 +13,7 @@ async function schema(db){if(ready)return;
   db.prepare("CREATE TABLE IF NOT EXISTS teachers(id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT UNIQUE,school TEXT,salt TEXT,hash TEXT,created INTEGER)"),
   db.prepare("CREATE TABLE IF NOT EXISTS students(id INTEGER PRIMARY KEY AUTOINCREMENT,teacher_id INTEGER,code TEXT UNIQUE,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER)"),
   db.prepare("CREATE TABLE IF NOT EXISTS attempts(id INTEGER PRIMARY KEY AUTOINCREMENT,student_id INTEGER,ts INTEGER,title TEXT,mode TEXT,subject TEXT,right INTEGER,total INTEGER,d TEXT)"),
-  db.prepare("CREATE TABLE IF NOT EXISTS student_links(student_id INTEGER,teacher_id INTEGER,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER,PRIMARY KEY(student_id,teacher_id))"),db.prepare("CREATE INDEX IF NOT EXISTS ix_lnk ON student_links(teacher_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
+  db.prepare("CREATE TABLE IF NOT EXISTS student_links(student_id INTEGER,teacher_id INTEGER,enc_name TEXT,sec TEXT,no INTEGER,created INTEGER,PRIMARY KEY(student_id,teacher_id))"),db.prepare("CREATE TABLE IF NOT EXISTS sup_shares(teacher_id INTEGER,sup_id INTEGER,created INTEGER,PRIMARY KEY(teacher_id,sup_id))"),db.prepare("CREATE INDEX IF NOT EXISTS ix_sup ON sup_shares(sup_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_lnk ON student_links(teacher_id)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_att ON attempts(student_id,ts)"),db.prepare("CREATE INDEX IF NOT EXISTS ix_stu ON students(teacher_id)")]);
  try{await db.prepare("ALTER TABLE teachers ADD COLUMN subject TEXT").run()}catch(e){}
  try{await db.prepare("ALTER TABLE student_links ADD COLUMN src TEXT").run()}catch(e){}
  ready=true}
@@ -92,6 +92,31 @@ export default{async fetch(req,env){
    await db.prepare("DELETE FROM student_links WHERE student_id=?").bind(id).run();
    await db.prepare("DELETE FROM attempts WHERE student_id IN (SELECT id FROM students WHERE id=? AND teacher_id=?)").bind(id,tid).run();
    await db.prepare("DELETE FROM students WHERE id=? AND teacher_id=?").bind(id,tid).run();return json({ok:1})}}
+ // ---- المشرف: تقرير شهري بالأرقام فقط (بلا أسماء ولا رموز)
+ if(p.startsWith("/api/supervisor/")){
+  const tid=await check(env,req,"T");if(!tid)return err("غير مصرّح",401);
+  if(p==="/api/supervisor/share"&&m==="POST"){
+   const to=await db.prepare("SELECT id FROM teachers WHERE username=?").bind(clip(body.username,40).trim().toLowerCase()).first();
+   if(!to)return err("لا يوجد حساب بهذا الاسم",404);if(to.id===tid)return err("هذا حسابك",400);
+   await db.prepare("INSERT OR IGNORE INTO sup_shares(teacher_id,sup_id,created) VALUES(?,?,?)").bind(tid,to.id,Date.now()).run();return json({ok:1})}
+  if(p==="/api/supervisor/unshare"&&m==="POST"){
+   await db.prepare("DELETE FROM sup_shares WHERE teacher_id=? AND sup_id IN (SELECT id FROM teachers WHERE username=?)").bind(tid,clip(body.username,40).trim().toLowerCase()).run();return json({ok:1})}
+  if(p==="/api/supervisor/shares"&&m==="GET"){
+   return json({to:(await db.prepare("SELECT t.username AS username FROM sup_shares x JOIN teachers t ON t.id=x.sup_id WHERE x.teacher_id=?").bind(tid).all()).results.map(r=>r.username)})}
+  if(p==="/api/supervisor/report"&&m==="GET"){
+   const ts=(await db.prepare("SELECT t.id AS id,t.username AS username,t.school AS school,t.subject AS subject FROM sup_shares x JOIN teachers t ON t.id=x.teacher_id WHERE x.sup_id=? LIMIT 60").bind(tid).all()).results;
+   const since=Date.now()-100*864e5,mk=t=>new Date(t+3*36e5).toISOString().slice(0,7),out=[];
+   for(const t of ts){const sj=t.subject||null;
+    const st=(await db.prepare("SELECT id,sec FROM students WHERE teacher_id=?1 UNION SELECT student_id AS id,sec FROM student_links WHERE teacher_id=?1").bind(t.id).all()).results;
+    const at=(await db.prepare("SELECT a.student_id AS sid,a.ts AS ts,a.right AS r,a.total AS t,a.d AS d FROM attempts a JOIN students s ON s.id=a.student_id WHERE (s.teacher_id=?1 OR s.id IN (SELECT student_id FROM student_links WHERE teacher_id=?1)) AND (?2 IS NULL OR a.subject=?2) AND a.ts>?3 ORDER BY a.ts DESC LIMIT 6000").bind(t.id,sj,since).all()).results;
+    const sec={},of={};st.forEach(x=>{of[x.id]=x.sec;(sec[x.sec]=sec[x.sec]||{sec:x.sec,n:0,months:{}}).n++});
+    at.forEach(a=>{const S=sec[of[a.sid]];if(!S)return;const k=mk(a.ts),M=S.months[k]=S.months[k]||{ids:{},att:0,right:0,total:0,dom:{}};
+     M.ids[a.sid]=1;M.att++;M.right+=a.r;M.total+=a.t;let d=[];try{d=JSON.parse(a.d)}catch(e){}
+     d.forEach(x=>{const q=x[0]+"_"+x[1],g=M.dom[q]=M.dom[q]||[0,0];g[0]+=x[2];g[1]+=x[3]})});
+    Object.values(sec).forEach(S=>Object.values(S.months).forEach(M=>{M.active=Object.keys(M.ids).length;delete M.ids}));
+    out.push({username:t.username,school:t.school||"",subject:t.subject||"",sections:Object.values(sec)})}
+   return json({teachers:out})}
+  return err("غير موجود",404)}
  // ---- الطالبات
  if(p==="/api/student/login"&&m==="POST"){
   const r=await db.prepare("SELECT id,sec,no FROM students WHERE code=?").bind(clip(body.code,12).trim().toUpperCase()).first();

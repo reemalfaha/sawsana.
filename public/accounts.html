@@ -103,7 +103,31 @@ async function main(){app.replaceChildren();
  const sh=E("div","card");sh.append(E("h3","","2-ج) مشاركة شعبة مع معلم/ة (لضابط الارتباط)"),E("p","muted","اكتب/ي الشعبة (التي أنشأتَها/أنشأتِها أنت) واسم مستخدم المعلم/ة. تظهر له/ها الشعبة كلها برموز الطالبات ونتائج مادته/ها، دون أن تحتاجي لإعطائه/ها القائمة. وتظهر الأسماء عند المعلم/ة إن أعطيتَ المعلم/ة كلمة سر الأسماء."));
  const ss=E("input");ss.placeholder="الشعبة (مثل 8أ)";ss.style.width="140px";const su=E("input");su.placeholder="اسم مستخدم المعلم/ة";su.style.width="190px";const sm=E("p","muted","");
  sh.append(ss,su,btn("مشاركة الشعبة",async()=>{if(!ss.value.trim()||!su.value.trim()){sm.textContent="اكتب/ي الشعبة واسم المستخدم.";return}try{const r=await api("/api/students/share",{username:su.value,sec:ss.value.trim()});sm.textContent="تمت مشاركة "+r.shared+" طالبة مع "+su.value.trim()+"."}catch(e){sm.textContent=e.message}}),sm);app.append(sh);
+ const sp=E("div","card");sp.append(E("h3","","2-د) مشاركة التقرير الشهري مع المشرف/ة"),E("p","muted","اكتب/ي اسم مستخدم المشرف/ة. يظهر له/ها تقرير شهري بالأرقام فقط (عدد الطلبة، نسبة الإتقان، المجالات الضعيفة) لكل شعبة، دون أسماء الطلبة ولا رموزهم."));
+ const pu=E("input");pu.placeholder="اسم مستخدم المشرف/ة";pu.style.width="190px";const pm=E("p","muted",""),pl=E("div");
+ const shares=async()=>{pl.replaceChildren();try{const r=await api("/api/supervisor/shares");r.to.forEach(u=>{const row=E("div","st");row.append(E("b","","يُشارَك التقرير مع: "+u+" "),btn("إيقاف المشاركة",async()=>{try{await api("/api/supervisor/unshare",{username:u})}catch(e){}shares()},"alt"));pl.append(row)})}catch(e){}};
+ sp.append(pu,btn("مشاركة التقرير",async()=>{if(!pu.value.trim()){pm.textContent="اكتب/ي اسم المستخدم.";return}try{await api("/api/supervisor/share",{username:pu.value});pm.textContent="تمت المشاركة مع "+pu.value.trim()+".";pu.value="";shares()}catch(e){pm.textContent=e.message}}),pm,pl);app.append(sp);shares();
+ const sv=E("div","card");sv.id="sup";sv.hidden=true;app.append(sv);supCard();
  const d=E("div","card");d.id="dash";app.append(d);await load()}
+/* ===== تقرير المشرف/ة الشهري (أرقام فقط) ===== */
+let SUP=null,SM="";
+function supRows(mk){const pk=(()=>{const [y,m]=mk.split("-").map(Number);const d=new Date(y,m-2,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")})(),rows=[];
+ SUP.teachers.forEach(t=>t.sections.slice().sort((a,b)=>String(a.sec).localeCompare(String(b.sec),"ar")).forEach(S=>{const M=S.months[mk]||{active:0,att:0,right:0,total:0,dom:{}},P=S.months[pk];
+  const avg=M.total?Math.round(M.right/M.total*100):null,pav=P&&P.total?Math.round(P.right/P.total*100):null;
+  const weak=Object.entries(M.dom).map(([k,v])=>{const [si,di]=k.split("_");return{si:+si,n:(window.SW_DOMAINS[SUBN[si]]||[])[di]||"",t:v[1],p:v[1]?Math.round(v[0]/v[1]*100):0}}).filter(x=>x.n&&x.t>=5&&x.p<60&&(!t.subject||SUBN[x.si]===t.subject)).sort((a,b)=>a.p-b.p).slice(0,2);
+  rows.push({school:t.school||"—",user:t.username,subj:NAME[t.subject]||"المادتان",sec:S.sec,n:S.n,active:M.active,att:M.att,avg,diff:avg!=null&&pav!=null?avg-pav:null,weak:weak.map(x=>x.n+" "+x.p+"%").join("، ")||(M.att?"—":"لا نشاط")})}));
+ return rows}
+function supTable(mk){const rows=supRows(mk),t=E("table");t.style.cssText="width:100%;border-collapse:collapse;font-size:.9rem";const tr=E("tr");["المدرسة","المعلم/ة","المادة","الشعبة","الطلبة","المتدربون","المحاولات","الإتقان","التغيّر","مجالات تحتاج دعمًا"].forEach(h=>{const th=E("th","",h);th.style.cssText="background:#7A1F2E;color:#fff;padding:4px 6px;white-space:nowrap";tr.append(th)});t.append(tr);
+ rows.forEach(r=>{const q=E("tr");[r.school,r.user,r.subj,r.sec,r.n,r.active,r.att,r.avg==null?"—":r.avg+"%",r.diff==null?"—":(r.diff>0?"▲ +":r.diff<0?"▼ ":"")+r.diff,r.weak].forEach(x=>{const td=E("td","",String(x));td.style.cssText="border:1px solid #ccc;padding:3px 6px;text-align:center";q.append(td)});t.append(q)});
+ const n=rows.reduce((a,r)=>a+r.n,0),ac=rows.reduce((a,r)=>a+r.active,0),w=rows.filter(r=>r.avg!=null),av=w.length?Math.round(w.reduce((a,r)=>a+r.avg,0)/w.length):null;
+ return{t,sum:"الشُّعب: "+rows.length+" · الطلبة: "+n+" · المتدربون هذا الشهر: "+ac+(n?" ("+Math.round(ac/n*100)+"%)":"")+" · متوسط الإتقان: "+(av==null?"—":av+"%")}}
+async function supCard(){const c=$("sup");if(!c)return;try{SUP=await api("/api/supervisor/report")}catch(e){return}if(!SUP.teachers||!SUP.teachers.length){c.hidden=true;return}
+ c.hidden=false;c.replaceChildren();c.style.border="2px solid #B8902A";c.append(E("h3","","📊 تقرير المشرف/ة الشهري لمتابعة أداء الطلبة في تيمس"),E("p","muted","يعرض أرقام الشُّعب التي شاركها معك المعلمون والمعلمات. لا تظهر أسماء الطلبة ولا رموزهم."));
+ const ks=new Set([MON(Date.now())]);SUP.teachers.forEach(t=>t.sections.forEach(S=>Object.keys(S.months).forEach(k=>ks.add(k))));const months=[...ks].sort().reverse();if(!SM||!months.includes(SM))SM=months[0];
+ const ms=E("select");months.forEach(k=>ms.append(new Option(MNAME(k),k)));ms.value=SM;const box=E("div");box.style.overflowX="auto";const sm=E("p","","");sm.style.fontWeight="700";
+ const show=()=>{const r=supTable(SM);box.replaceChildren(r.t);sm.textContent=r.sum};ms.onchange=()=>{SM=ms.value;show()};show();
+ c.append(ms,sm,box,btn("🖨 طباعة تقرير المشرف/ة",()=>{const r=supTable(SM),root=E("div","rp");root.append(E("h1","","التقرير الشهري لمتابعة أداء الطلبة في تيمس"));const mt=E("div","meta");mt.append(E("div","","المديرية: ................"),E("div","","المشرف/ة: ................"),E("div","","الشهر: "+MNAME(SM)));root.append(mt,E("h2","","ملخص"),E("p","",r.sum),E("h2","","أداء الشُّعب"));
+  r.t.removeAttribute("style");r.t.querySelectorAll("th,td").forEach(x=>x.removeAttribute("style"));root.append(r.t);const sg=E("div","sig");sg.append(E("div","","المشرف/ة"),E("div","","رئيس/ة القسم"));root.append(sg,E("div","foot","تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"));$("prt").replaceChildren(root);setTimeout(()=>window.print(),150)}))}
 async function load(){let j;try{j=await api("/api/students")}catch(e){if(e.status===401){loginView();return}$("dash").textContent=e.message;return}
  DATA=j;SUBJ=j.subject||"";draw()}
 
