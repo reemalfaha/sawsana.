@@ -17,6 +17,8 @@ button.alt{background:var(--soft);color:var(--wine)}button.del{background:#fff;c
 .s{background:#EAF4EC;color:var(--ok)}.w{background:#FBE9E7;color:var(--no)}.code{font:600 .95rem monospace;direction:ltr;background:var(--soft);border-radius:6px;padding:0 8px}
 .st{border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
 #prt{display:none}
+#tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}#tabs button{flex:1;min-width:140px}#tabs button.on{background:#7A1F2E;color:#fff;border-color:#7A1F2E}
+body[data-mode="sup"] #app>.card:not([data-g="sup"]){display:none}body[data-mode="t"] #app>.card[data-g="sup"]{display:none}
 .pl table{width:100%;border-collapse:collapse;font-size:.92rem;margin:6px 0}.pl th{background:var(--soft);color:var(--wine);padding:4px 8px;text-align:right}.pl td{border-bottom:1px solid var(--line);padding:4px 8px}.pl .bn{background:#FFF6DD;border:1px solid #B8902A;border-radius:10px;padding:6px 12px;margin:6px 0}.pl ul{margin:4px 0;padding-inline-start:20px}
 @media print{body>*:not(#prt){display:none!important}#prt{display:block!important}body{background:#fff}
  @page{size:A4;margin:14mm}.rp{page-break-after:always;font-family:'Sakkal Majalla','Noto Naskh Arabic','IBM Plex Sans Arabic',serif;font-size:15pt;color:#222;line-height:1.7}.rp:last-child{page-break-after:auto}
@@ -27,7 +29,7 @@ button.alt{background:var(--soft);color:var(--wine)}button.del{background:#fff;c
 footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 24px}a{color:var(--wine)}
 </style></head><body>
 <script src="config.js"></script><script src="gate.js"></script>
-<header class="top"><div class="in"><h1>سوسنة الكرك · حسابات الطلبة</h1><div style="margin-top:4px"><a href="teacher.html" style="color:#EADFEE">← تقرير الصف</a> · <a href="index.html" style="color:#EADFEE">للطلبة</a></div></div></header>
+<header class="top"><div class="in"><h1>سوسنة الكرك · حسابات الطلبة</h1><div style="margin-top:4px"><a href="teacher.html" style="color:#EADFEE">← تقرير الصف</a> · <a href="accounts.html#sup" style="color:#EADFEE">للمشرف/ة</a> · <a href="index.html" style="color:#EADFEE">للطلبة</a></div></div></header>
 <main class="main" id="app"></main><div id="prt"></div>
 <footer>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي</footer>
 <script src="data.js"></script>
@@ -67,12 +69,16 @@ function report(r){const d=document.createElement("div");d.className="rp";const 
  const sg=E("div","sig");sg.append(E("div","","المعلم/ة"),E("div","","مدير/ة المدرسة"));d.append(sg);
  d.append(E("div","foot","تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"));return d}
 function printRep(list){const p=$("prt");p.replaceChildren(...list.map(report));setTimeout(()=>window.print(),150)}
-function loginView(){app.replaceChildren();const c=E("div","card");c.append(E("h2","","دخول المعلم/ة"));
+function loginView(){app.replaceChildren();const c=E("div","card");c.append(E("h2","",location.hash==="#sup"?"دخول المشرف/ة":"دخول المعلم/ة"));if(location.hash==="#sup")c.append(E("p","muted","حساب المشرف/ة حساب عادي يُنشأ برمز الدعوة نفسه. بعد الدخول تفتح صفحة المشرف/ة مباشرة."));
  const u=E("input");u.placeholder="اسم المستخدم";const p=E("input");p.type="password";p.placeholder="كلمة السر";const inv=E("input");inv.placeholder="رمز الدعوة (للتسجيل أول مرة)";const sc=E("input");sc.placeholder="اسم المدرسة (للتسجيل)";const sj=E("select");[["","مادتي (للتسجيل)"],["math","معلمة رياضيات"],["sci","معلمة علوم"]].forEach(([v,t])=>sj.append(new Option(t,v)));const msg=E("p","err","");
  const go=async reg=>{msg.textContent="";try{const j=await api(reg===2?"/api/teacher/reset":reg?"/api/teacher/register":"/api/teacher/login",{username:u.value,password:p.value,invite:inv.value,school:sc.value,subject:sj.value});TOK=j.token;USER=u.value.trim().toLowerCase();try{sessionStorage.setItem("sw.api",TOK);sessionStorage.setItem("sw.user",USER)}catch(e){}main()}catch(e){msg.textContent=e.status===503?"الحسابات غير مفعّلة بعد على الخادم. يلزم إعداد قاعدة البيانات أولًا.":e.message}};
  c.append(u,p,E("br"),btn("دخول",()=>go(false)),E("hr"),E("p","muted","أول مرة؟ أنشئ حسابًا برمز الدعوة الذي حصلت عليه من المشرفة:"),inv,sc,sj,E("br"),btn("إنشاء حساب",()=>go(true),"alt"),btn("نسيت كلمة السر؟ (اسم المستخدم + رمز الدعوة + كلمة سر جديدة)",()=>go(2),"alt"),msg);app.append(c)}
 let DATA={students:[],attempts:[]},SEC="";
+let MODE=(location.hash==="#sup")?"sup":(()=>{try{return sessionStorage.getItem("sw.mode")||"t"}catch(e){return"t"}})();
+function setMode(m){MODE=m;try{sessionStorage.setItem("sw.mode",m)}catch(e){}document.body.dataset.mode=m;document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));const h=document.querySelector("header h1");if(h)h.textContent=m==="sup"?"سوسنة الكرك · صفحة المشرف/ة":"سوسنة الكرك · حسابات الطلبة"}
+addEventListener("hashchange",()=>{if(location.hash==="#sup")setMode("sup")});
 async function main(){app.replaceChildren();
+ const tb=E("div");tb.id="tabs";[["t","👩‍🏫 صفحة المعلم/ة"],["sup","📊 صفحة المشرف/ة"]].forEach(([m,t])=>{const b=btn(t,()=>{if(m!=="sup"&&location.hash==="#sup")history.replaceState(null,"",location.pathname);setMode(m)},"alt");b.dataset.m=m;tb.append(b)});const lo=btn("خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt");lo.style.flex="0 0 auto";lo.style.minWidth="0";tb.append(lo);app.append(tb);setMode(MODE);
  const k=E("div","card");k.append(E("h3","","1) مفتاح الأسماء"),E("p","muted","أسماء الطلبة تُشفَّر في متصفحك قبل الحفظ، ولا يرى الخادم إلا نصًا مشفّرًا. اختر كلمة سر للأسماء (غير كلمة دخولك) وأدخلها في كل زيارة. إن نُسيت لا تُسترجع الأسماء."));
  const pk=E("input");pk.type="password";pk.placeholder="كلمة سر الأسماء";const km=E("span","muted","");
  k.append(pk,btn("فتح",async()=>{if(pk.value.length<4){km.textContent="قصيرة";return}NK=await nkey(pk.value);km.textContent="تم ✔";await load()}),km);app.append(k);
@@ -108,7 +114,7 @@ async function main(){app.replaceChildren();
  const shares=async()=>{pl.replaceChildren();try{const r=await api("/api/supervisor/shares");r.to.forEach(u=>{const row=E("div","st");row.append(E("b","","يُشارَك التقرير مع: "+u+" "),btn("إيقاف المشاركة",async()=>{try{await api("/api/supervisor/unshare",{username:u})}catch(e){}shares()},"alt"));pl.append(row)})}catch(e){}};
  sp.append(pu,btn("مشاركة التقرير",async()=>{if(!pu.value.trim()){pm.textContent="اكتب/ي اسم المستخدم.";return}try{await api("/api/supervisor/share",{username:pu.value});pm.textContent="تمت المشاركة مع "+pu.value.trim()+".";pu.value="";shares()}catch(e){pm.textContent=e.message}}),pm,pl);app.append(sp);shares();
  const ib=E("div","card");ib.id="inbox";ib.hidden=true;app.append(ib);
- const sv=E("div","card");sv.id="sup";sv.hidden=true;app.append(sv);supCard().then(msgs);
+ const sv=E("div","card");sv.id="sup";sv.dataset.g="sup";sv.hidden=true;app.append(sv);supCard().then(msgs);
  const d=E("div","card");d.id="dash";app.append(d);const pf=E("div","card");pf.id="pf";pf.hidden=true;app.append(pf);await load();pfCard()}
 /* ===== ملف الإنجاز والتوثيق ===== */
 const PFC=[["لجنة الدراسة (TIMSS)","مدير/ة المدرسة، المساعد/ة، ضابط ارتباط الدراسة، معلمو الرياضيات والعلوم. اكتب/ي في الوصف: الاسم — الصفة."],["الكتب الرسمية","الكتب الواردة والصادرة الخاصة بالدراسة."],["خطة الدراسة الوزارية","الخطة الصادرة عن الوزارة لرفع مستوى الاستعداد والجاهزية."],["الخطة الإجرائية للمدرسة","خطة اللجنة المعدّة من المدرسة والمشتقة من خطة الوزارة."],["محفزات التعلم: إذاعة مدرسية","رفع الوعي بالدراسة الدولية للكوادر والطلبة وأولياء الأمور."],["محفزات التعلم: منشورات وبروشورات ومواقع التواصل","منشورات وبروشورات ومنشورات مواقع التواصل."],["محفزات التعلم: حصص تعلم","تعزيز أداء الحصة اليومية والعصف الذهني."],["تبادل الزيارات","زيارات صفية متبادلة بين المعلمين والمعلمات."],["نماذج الأسئلة وأوراق العمل","نماذج أسئلة على نمط تيمس وأوراق عمل."],["الاختبارات الورقية والإلكترونية","نماذج مسحوبة ومنصات رقمية."],["برنامج الشكر والتقدير","شهادات وكتب شكر وتكريم للطلبة والمعلمين."],["المبادرات والمسابقات","مبادرات ومسابقات داعمة للدراسة."],["الزيارات الإشرافية","زيارات المشرفين وتوصياتهم."]];
@@ -184,7 +190,7 @@ function supTable(mk){const rows=supRows(mk),t=E("table");t.style.cssText="width
  rows.forEach(r=>{const q=E("tr");[r.school,r.user,r.subj,r.sec,r.n,r.active,r.att,r.avg==null?"—":r.avg+"%",r.diff==null?"—":(r.diff>0?"▲ +":r.diff<0?"▼ ":"")+r.diff,r.weak].forEach(x=>{const td=E("td","",String(x));td.style.cssText="border:1px solid #ccc;padding:3px 6px;text-align:center";q.append(td)});t.append(q)});
  const n=rows.reduce((a,r)=>a+r.n,0),ac=rows.reduce((a,r)=>a+r.active,0),w=rows.filter(r=>r.avg!=null),av=w.length?Math.round(w.reduce((a,r)=>a+r.avg,0)/w.length):null;
  return{t,sum:"الشُّعب: "+rows.length+" · الطلبة: "+n+" · المتدربون هذا الشهر: "+ac+(n?" ("+Math.round(ac/n*100)+"%)":"")+" · متوسط الإتقان: "+(av==null?"—":av+"%")}}
-async function supCard(){const c=$("sup");if(!c)return;try{SUP=await api("/api/supervisor/report")}catch(e){return}if(!SUP.teachers||!SUP.teachers.length){c.hidden=true;return}
+async function supCard(){const c=$("sup");if(!c)return;try{SUP=await api("/api/supervisor/report")}catch(e){return}if(!SUP.teachers||!SUP.teachers.length){c.hidden=false;c.replaceChildren(E("h3","","📊 صفحة المشرف/ة"),E("p","","لم يشارك أحد تقريره معك بعد."),E("p","muted","أعطِ اسم المستخدم الخاص بك للمعلمين والمعلمات أو لضباط الارتباط، ليكتبوه في بطاقة «مشاركة التقرير الشهري مع المشرف/ة» في صفحتهم. بعدها يظهر هنا التقرير الشهري لكل شعبة، وتستطيع/ين إرسال الكتب الرسمية والملاحظات."));const u=E("div","bn","اسم المستخدم الخاص بك: "+USER);c.append(u,btn("تحديث",()=>supCard().then(msgs),"alt"));return}
  c.hidden=false;c.replaceChildren();c.style.border="2px solid #B8902A";c.append(E("h3","","📊 تقرير المشرف/ة الشهري لمتابعة أداء الطلبة في تيمس"),E("p","muted","يعرض أرقام الشُّعب التي شاركها معك المعلمون والمعلمات. لا تظهر أسماء الطلبة ولا رموزهم."));
  const ks=new Set([MON(Date.now())]);SUP.teachers.forEach(t=>t.sections.forEach(S=>Object.keys(S.months).forEach(k=>ks.add(k))));const months=[...ks].sort().reverse();if(!SM||!months.includes(SM))SM=months[0];
  const ms=E("select");months.forEach(k=>ms.append(new Option(MNAME(k),k)));ms.value=SM;const box=E("div");box.style.overflowX="auto";const sm=E("p","","");sm.style.fontWeight="700";
