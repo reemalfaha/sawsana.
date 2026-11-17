@@ -56,6 +56,23 @@ export default{async fetch(req,env){
   const r=await db.prepare("SELECT * FROM teachers WHERE username=?").bind(clip(body.username,40).trim().toLowerCase()).first();
   if(!r||!eq(await pw(String(body.password||""),r.salt),r.hash))return err("بيانات الدخول غير صحيحة",401);
   return json({token:await mint(env,"T",r.id,30),school:r.school,subject:r.subject||""})}
+ // تغيير اسم المستخدم مع الحفاظ على كل البيانات. الأسماء تُعاد تشفيرها في المتصفح بالمفتاح الجديد وتُرسل هنا.
+ if(p==="/api/teacher/rename"&&m==="POST"){
+  const tid=await check(env,req,"T");if(!tid)return err("غير مصرّح",401);
+  const me=await db.prepare("SELECT username,salt,hash FROM teachers WHERE id=?").bind(tid).first();if(!me)return err("غير مصرّح",401);
+  if(!eq(await pw(String(body.password||""),me.salt),me.hash))return err("كلمة سر الحساب غير صحيحة",403);
+  const nu=clip(body.username,40).trim().toLowerCase();if(nu.length<3)return err("اسم المستخدم الجديد قصير");if(nu===me.username)return err("هذا هو اسمك الحالي");
+  if(await db.prepare("SELECT id FROM teachers WHERE username=?").bind(nu).first())return err("اسم المستخدم مستخدم",409);
+  const own=(await db.prepare("SELECT id FROM students WHERE teacher_id=?").bind(tid).all()).results.map(r=>r.id);
+  const lnk=(await db.prepare("SELECT student_id FROM student_links WHERE teacher_id=? AND (src IS NULL OR src='')").bind(tid).all()).results.map(r=>r.student_id);
+  const S=body.students||{},L=body.links||{},ok=v=>typeof v==="string"&&v.length<600&&/^[A-Za-z0-9+/=]+\.[A-Za-z0-9+/=]+$/.test(v);
+  if(own.some(id=>!ok(S[id]))||lnk.some(id=>!ok(L[id])))return err("لم تُرسَل كل الأسماء معاد تشفيرها. افتح/ي مفتاح الأسماء وحاول/ي مرة ثانية.",400);
+  const st=[db.prepare("UPDATE teachers SET username=? WHERE id=?").bind(nu,tid)];
+  own.forEach(id=>st.push(db.prepare("UPDATE students SET enc_name=? WHERE id=? AND teacher_id=?").bind(S[id],id,tid)));
+  lnk.forEach(id=>st.push(db.prepare("UPDATE student_links SET enc_name=? WHERE student_id=? AND teacher_id=?").bind(L[id],id,tid)));
+  st.push(db.prepare("UPDATE student_links SET src=?1,enc_name=(SELECT enc_name FROM students WHERE students.id=student_links.student_id) WHERE src=?2").bind(nu,me.username));
+  for(let i=0;i<st.length;i+=90)await db.batch(st.slice(i,i+90));
+  return json({username:nu,students:own.length,links:lnk.length})}
  if(p==="/api/teacher/subject"&&m==="POST"){
   const t=await check(env,req,"T");if(!t)return err("غير مصرّح",401);
   await db.prepare("UPDATE teachers SET subject=? WHERE id=?").bind(SUBJ(body.subject),t).run();return json({ok:1})}
