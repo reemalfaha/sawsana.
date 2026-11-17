@@ -2,7 +2,10 @@
 (function(){
 const H=window.SW_TEACHER_HASH||"",SK="sawsana.t.ok";
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
-let ok=false;try{ok=H&&sessionStorage.getItem(SK)===H}catch(e){}
+/* تُحفظ البوابة على هذا الجهاز 30 يومًا (كل التبويبات)، وتُمسح عند «خروج» من حساب المعلم/ة. */
+const DAYS=30,LK="sawsana.t.gate";let ok=false;
+try{ok=H&&sessionStorage.getItem(SK)===H}catch(e){}
+try{if(!ok&&H){const g=JSON.parse(localStorage.getItem(LK)||"null");if(g&&g.h===H&&g.exp>Date.now()){ok=true;sessionStorage.setItem(SK,H)}}}catch(e){}
 if(ok)return;
 const o=document.createElement("div");
 o.style.cssText="position:fixed;inset:0;z-index:99999;background:#FBF8FC;display:flex;align-items:center;justify-content:center;padding:16px;font-family:'Noto Naskh Arabic','Segoe UI',Tahoma,sans-serif;direction:rtl";
@@ -14,7 +17,7 @@ const msg=mk("p",null,"color:#B3261E;margin:6px 0");
 box.append(mk("h2","🔒 صفحة المعلمين","margin:0 0 6px;color:#3E1B47"));
 if(H){
  box.append(mk("p","أدخل كلمة السر للمتابعة.","margin:0"));const p=inp("كلمة السر");
- const go=async()=>{if(await sha(p.value)===H){try{sessionStorage.setItem(SK,H)}catch(e){}o.remove()}else{msg.textContent="كلمة السر غير صحيحة.";p.value=""}};
+ const go=async()=>{if(await sha(p.value)===H){try{sessionStorage.setItem(SK,H);localStorage.setItem(LK,JSON.stringify({h:H,exp:Date.now()+DAYS*864e5}))}catch(e){}o.remove()}else{msg.textContent="كلمة السر غير صحيحة.";p.value=""}};
  p.addEventListener("keydown",e=>{if(e.key==="Enter")go()});
  box.append(p,btn("دخول",go),btn("← للطلبة",()=>location.href="index.html",true),msg);
 }else{

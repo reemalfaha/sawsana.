@@ -92,7 +92,7 @@ let MODE=(location.hash==="#sup")?"sup":(()=>{try{return sessionStorage.getItem(
 function setMode(m){MODE=m;try{sessionStorage.setItem("sw.mode",m)}catch(e){}document.body.dataset.mode=m;document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));const h=document.querySelector("header h1");if(h)h.textContent=m==="sup"?"سوسنة الكرك · صفحة المشرف/ة":"سوسنة الكرك · حسابات الطلبة"}
 addEventListener("hashchange",()=>{if(location.hash==="#sup")setMode("sup")});
 async function main(){app.replaceChildren();
- const tb=E("div");tb.id="tabs";[["t","👩‍🏫 صفحة المعلم/ة"],["sup","📊 صفحة المشرف/ة"]].forEach(([m,t])=>{const b=btn(t,()=>{if(m!=="sup"&&location.hash==="#sup")history.replaceState(null,"",location.pathname);setMode(m)},"alt");b.dataset.m=m;tb.append(b)});const lo=btn("خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt");lo.style.flex="0 0 auto";lo.style.minWidth="0";tb.append(lo);app.append(tb);setMode(MODE);
+ const tb=E("div");tb.id="tabs";[["t","👩‍🏫 صفحة المعلم/ة"],["sup","📊 صفحة المشرف/ة"]].forEach(([m,t])=>{const b=btn(t,()=>{if(m!=="sup"&&location.hash==="#sup")history.replaceState(null,"",location.pathname);setMode(m)},"alt");b.dataset.m=m;tb.append(b)});const lo=btn("خروج",()=>{TOK=null;try{sessionStorage.clear();localStorage.removeItem("sawsana.t.gate")}catch(e){}loginView()},"alt");lo.style.flex="0 0 auto";lo.style.minWidth="0";tb.append(lo);app.append(tb);setMode(MODE);
  const k=E("div","card");k.append(E("h3","","1) مفتاح الأسماء"),E("p","muted","أسماء الطلبة تُشفَّر في متصفحك قبل الحفظ، ولا يرى الخادم إلا نصًا مشفّرًا. اختر كلمة سر للأسماء (غير كلمة دخولك) وأدخلها في كل زيارة. إن نُسيت لا تُسترجع الأسماء."));
  const pk=E("input");pk.type="password";pk.placeholder="كلمة سر الأسماء";const km=E("span","muted","");
  k.append(pk,btn("فتح",async()=>{if(pk.value.length<4){km.textContent="قصيرة";return}NK=await nkey(pk.value);km.textContent="تم ✔";await load()}),km);app.append(k);
@@ -279,7 +279,7 @@ async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","
  const sc=SCH(),si=E("input");si.placeholder="اسم المدرسة (للطباعة)";si.value=sc.school||"";const ti=E("input");ti.placeholder="اسم المعلمة (للطباعة)";ti.value=sc.teacher||"";
  const sv=()=>{try{localStorage.setItem("sw.sch",JSON.stringify({school:si.value,teacher:ti.value}))}catch(e){}};si.oninput=ti.oninput=sv;
  const rows=[];
- d.append(si,ti,E("br"),sel,btn("🪪 طباعة بطاقات دخول الطلبة",()=>printCards(rows)),btn("🖨 طباعة تقارير الشعبة",()=>printRep(rows)),btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt"));
+ d.append(si,ti,E("br"),sel,btn("🪪 طباعة بطاقات دخول الطلبة",()=>printCards(rows)),btn("🖨 طباعة تقارير الشعبة",()=>printRep(rows)),btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear();localStorage.removeItem("sawsana.t.gate")}catch(e){}loginView()},"alt"));
  if(!DATA.students.length){d.append(E("p","muted","لا توجد طلبة بعد."));return} 
  const srcs=[...new Set(DATA.students.filter(x=>x.src).map(x=>x.src))];
  for(const src of srcs){const o=E("div","st");o.append(E("b","","أسماء شعبة مشتركة من "+src));const pi=E("input");pi.type="password";pi.placeholder="كلمة سر أسماء "+src;const om=E("span","muted",SK[src]?" مفتوحة ✔":"");o.append(pi,btn("فتح",async()=>{if(pi.value.length<4)return;SK[src]=await nkeyFor(pi.value,src);await draw()}),om);d.append(o)}
