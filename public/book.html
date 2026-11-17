@@ -1,0 +1,137 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>سوسنة الكرك · كتاب الأسئلة على السبورة</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
+<style>
+:root{--m:#7A1F2E;--g:#B8902A;--bg:#FBF7F3;--card:#fff;--line:#E6D9CD;--mute:#75615F;--ok:#2F7D4F;--soft:#F6ECE6;--ink:#2a1a1d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Naskh Arabic','Segoe UI',sans-serif;line-height:1.8}
+h1,h2{font-family:'El Messiri','Noto Naskh Arabic',serif;margin:0;color:var(--m)}
+.wrap{max-width:1180px;margin:auto;padding:12px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+header a{color:var(--m);font-weight:600}
+button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:9px 16px;background:var(--m);color:#fff;cursor:pointer;min-height:44px}
+button.alt{background:#fff;color:var(--m);border:1.5px solid var(--m)}
+select,input{font:inherit;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;background:#fff;min-height:44px;max-width:100%}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:10px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--mute);font-size:.92rem}
+/* شريط الأدوات */
+.bar{position:sticky;top:0;z-index:5;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px 8px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.bar .row{gap:6px}.bar .row+.row{margin-top:6px;border-top:1px dashed var(--line);padding-top:6px}
+.tool{background:#fff;color:var(--m);border:1.5px solid var(--line);padding:4px 10px;min-height:44px;display:inline-flex;flex-direction:column;align-items:center;line-height:1.2;font-size:1.1rem}
+.tool small{font-size:.68rem;font-weight:600}.tool[aria-pressed="true"]{background:var(--m);color:#fff;border-color:var(--m)}
+.sw{width:30px;height:30px;min-height:30px;border-radius:50%;padding:0;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line)}.sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--g)}
+.sep{width:1px;align-self:stretch;background:var(--line);margin:0 2px}
+.lbl{font-weight:700;color:var(--m);font-size:.95rem}
+/* الصفحة */
+.stage{max-width:var(--pw,100%);margin:10px auto}
+.page{position:relative;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.07);padding:3% 4%;font-size:var(--fs,26px)}
+.ph{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-bottom:3px solid var(--g);padding-bottom:4px;margin-bottom:10px;font-size:.62em;color:var(--m);font-weight:700}
+.tag{background:var(--soft);border-radius:8px;padding:0 10px;margin-inline-start:6px;font-weight:600}
+.qn{color:var(--g);font-weight:700}
+.qt{font-weight:600;line-height:1.85;margin:.2em 0 .4em}
+.qimg{max-width:100%;max-height:48vh;display:block;margin:.4em auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:.2em 1.2em;margin:.3em 0}
+.opts.one{grid-template-columns:1fr}
+.o{display:flex;gap:.5em;align-items:flex-start;padding:.15em .4em;border-radius:8px}
+.o b{color:var(--m);flex:none}.o.right{background:#E8F4EC;outline:2px solid var(--ok)}
+.gap{position:relative;border:2px dashed #d9c7bb;border-radius:10px;margin:.5em 0;background-image:linear-gradient(#efe6df 1px,transparent 1px);background-size:100% 1.6em;-webkit-print-color-adjust:exact}
+.gap span{position:absolute;top:.2em;inset-inline-end:.6em;font-size:.5em;color:#b49a8c}
+.sol{display:none;background:#F2F8F3;border:1px solid #BFD9C6;border-radius:10px;padding:.4em .7em;font-size:.8em;margin-top:.4em}
+.show .sol{display:block}
+.part{border-top:1px solid var(--line);margin-top:.5em;padding-top:.3em}
+canvas.ink{position:absolute;inset:0;touch-action:none;z-index:2;pointer-events:none}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+body.full header,body.full .setup{display:none}body.full .wrap{max-width:none;padding:6px}
+footer{text-align:center;color:var(--mute);font-size:.85rem;padding:10px}
+@media (max-width:640px){.bar{position:static}.opts{grid-template-columns:1fr}.page{font-size:calc(var(--fs,26px)*.7)}}
+</style></head><body>
+<script src="config.js"></script><script src="gate.js"></script>
+<div class="wrap">
+<header><h1>📖 كتاب الأسئلة على السبورة</h1><a href="index.html">← للمنصة</a></header>
+<div id="app"></div></div>
+<footer>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي</footer>
+<script src="data.js"></script><script src="data-sci.js"></script><script src="data-timss8.js"></script><script src="data-qushi.js"></script><script src="data-math.js"></script><script src="data-math-parts.js"></script><script src="data-tags.js"></script><script src="data-fw.js"></script><script src="data-fw2.js"></script><script src="data-fw3.js"></script><script src="data-timss11.js"></script><script src="data-timss11b.js"></script><script src="data-timss03.js"></script><script src="data-timss07.js"></script><script src="blueprint.js"></script>
+<script>
+"use strict";
+const $=id=>document.getElementById(id),app=$("app");
+const el=(t,a={},...k)=>{const e=document.createElement(t);for(const x in a){if(x==="class")e.className=a[x];else if(x.startsWith("on"))e.addEventListener(x.slice(2),a[x]);else if(a[x]!==false&&a[x]!=null)e.setAttribute(x,a[x])}k.flat().forEach(c=>e.append(c&&c.nodeType?c:document.createTextNode(c==null?"":c)));return e};
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
+const SUB={math:"الرياضيات",sci:"العلوم"},LT=["أ","ب","ج","د","هـ"],CO={"معرفة":0,"تطبيق":1,"استدلال":2};
+const COLORS=[["#1f4fd1","أزرق"],["#c62828","أحمر"],["#1b7a3c","أخضر"],["#111111","أسود"],["#e67e00","برتقالي"]];
+const GAPS=[[4,"فراغ صغير"],[8,"فراغ متوسط"],[13,"فراغ كبير"]];
+const Q=window.SW_Q.map((q,i)=>({t:"timss",g:8,...q,i})).filter(q=>!q.dup);
+const hash=s=>{let h=5381;for(const c of s)h=((h<<5)+h+c.charCodeAt(0))|0;return (h>>>0).toString(36)};
+let S=Object.assign({g:8,s:"math",d:"",p:0,gap:8,fs:26,pw:100},LS.get("sbk:set",{}));
+let pages=[],tool="move",color=COLORS[0][0],size=4,data,cv,ctx,pageEl,undo=[];
+const saveSet=()=>LS.set("sbk:set",{g:S.g,s:S.s,d:S.d,gap:S.gap,fs:S.fs,pw:S.pw});
+function build(){const ds=(window.SW_DOMAINS[S.s]||[]);pages=Q.filter(q=>q.g===S.g&&q.s===S.s&&(!S.d||q.d===S.d))
+  .sort((a,b)=>{const da=ds.indexOf(a.d),db=ds.indexOf(b.d);return (da<0?99:da)-(db<0?99:db)||(CO[a.c]??1)-(CO[b.c]??1)||a.i-b.i});
+ const cnt={};pages.forEach(q=>{cnt[q.d]=(cnt[q.d]||0)+1;q._n=cnt[q.d]})}
+function setup(){app.replaceChildren();document.body.classList.remove("full");
+ const g=el("select",{onchange:e=>{S.g=+e.target.value;S.d="";setup()}},[4,8].map(v=>el("option",{value:v,selected:v===S.g?"":false},"الصف "+(v===4?"الرابع":"الثامن"))));
+ const s=el("select",{onchange:e=>{S.s=e.target.value;S.d="";setup()}},Object.keys(SUB).map(k=>el("option",{value:k,selected:k===S.s?"":false},SUB[k])));
+ const doms=[...new Set(Q.filter(q=>q.g===S.g&&q.s===S.s).map(q=>q.d))],order=window.SW_DOMAINS[S.s]||[];doms.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+ const d=el("select",{onchange:e=>{S.d=e.target.value;setup()}},el("option",{value:""},"كل الفصول (المجالات)"),doms.map(x=>el("option",{value:x,selected:x===S.d?"":false},x+" ("+Q.filter(q=>q.g===S.g&&q.s===S.s&&q.d===x).length+")")));
+ build();
+ app.append(el("div",{class:"card setup"},el("h2",{},"اختاري الكتاب"),el("p",{class:"muted"},"أسئلة تيمس مقسّمة كتابًا: كل صفحة سؤال وتحته فراغ للحل. تحلّ المعلمة أو الطالبة بالقلم على السبورة التفاعلية، ويُحفظ الحل على هذا الجهاز لكل صفحة."),
+  el("div",{class:"row"},g,s,d),el("p",{class:"muted"},"عدد الصفحات: "+pages.length),el("button",{onclick:()=>{S.p=LS.get("sbk:last:"+S.g+S.s+S.d,0);saveSet();book()}},"📖 افتحي الكتاب"),
+  pages.length?"":el("p",{},"لا توجد أسئلة لهذا الاختيار.")))}
+/* ===== الكتاب ===== */
+function book(){if(!pages.length)return;app.replaceChildren();
+ const sel=el("select",{"aria-label":"انتقلي إلى",onchange:e=>go(+e.target.value)});let og=null,lastD=null;
+ pages.forEach((q,i)=>{if(q.d!==lastD){og=el("optgroup",{label:"فصل: "+q.d});sel.append(og);lastD=q.d}og.append(el("option",{value:i},q.d+" · سؤال "+q._n+" ("+q.c+")"))});
+ const T=(id,ic,t)=>el("button",{class:"tool","data-t":id,title:t,onclick:()=>setTool(id)},ic,el("small",{},t));
+ const B=(ic,t,f)=>el("button",{class:"tool",title:t,onclick:f},ic,el("small",{},t));
+ const sz=el("select",{"aria-label":"سماكة القلم",onchange:e=>size=+e.target.value},[[2,"رفيع"],[4,"وسط"],[7,"عريض"]].map(([v,t])=>el("option",{value:v,selected:v===size?"":false},t)));
+ const gp=el("select",{"aria-label":"حجم فراغ الحل",onchange:e=>{S.gap=+e.target.value;saveSet();render()}},GAPS.map(([v,t])=>el("option",{value:v,selected:v===S.gap?"":false},t)));
+ const pw=el("select",{"aria-label":"حجم الصفحة",onchange:e=>{S.pw=+e.target.value;saveSet();document.querySelector(".stage").style.setProperty("--pw",S.pw+"%");fit()}},[[60,"صفحة صغيرة"],[80,"صفحة متوسطة"],[100,"صفحة كاملة"]].map(([v,t])=>el("option",{value:v,selected:v===S.pw?"":false},t)));
+ const bar=el("div",{class:"bar"},
+  el("div",{class:"row"},el("button",{class:"alt",onclick:()=>go(S.p-1),title:"السابقة"},"▶"),sel,el("button",{class:"alt",onclick:()=>go(S.p+1),title:"التالية"},"◀"),el("span",{class:"lbl",id:"lbl"}),el("span",{style:"flex:1"}),el("button",{class:"alt",onclick:setup},"☰ الكتب")),
+  el("div",{class:"row"},T("move","✋","تصفّح"),T("pen","✏️","قلم"),T("hl","🖍️","تظليل"),T("erase","🧽","ممحاة"),el("span",{class:"sep"}),
+   ...COLORS.map(([c,n])=>el("button",{class:"sw",style:"background:"+c,title:n,"aria-label":n,"data-c":c,onclick:()=>{color=c;if(tool!=="pen"&&tool!=="hl")setTool("pen");mark()}})),sz,el("span",{class:"sep"}),
+   B("↶","تراجع",doUndo),B("🗑️","مسح الصفحة",wipe),el("span",{class:"sep"}),B("💡","الإجابة",()=>{const on=pageEl.classList.toggle("show");pageEl.querySelectorAll(".o.right-k").forEach(o=>o.classList.toggle("right",on))}),
+   B("أ+","تكبير",()=>zoom(2)),B("أ−","تصغير",()=>zoom(-2)),gp,pw,B("⛶","شاشة كاملة",full)));
+ bar._sel=sel;
+ pageEl=el("div",{class:"page"});const stage=el("div",{class:"stage",style:"--pw:"+S.pw+"%"},pageEl);
+ app.append(bar,stage,el("div",{class:"foot"},el("button",{class:"alt",onclick:()=>go(S.p-1)},"▶ السابقة"),el("span",{class:"muted",id:"lbl2"}),el("button",{class:"alt",onclick:()=>go(S.p+1)},"التالية ◀")));
+ render()}
+function go(p){p=Math.max(0,Math.min(pages.length-1,p));if(p===S.p&&pageEl.childElementCount)return;S.p=p;render();scrollTo({top:0})}
+function zoom(d){S.fs=Math.max(16,Math.min(48,S.fs+d));saveSet();pageEl.style.setProperty("--fs",S.fs+"px");fit()}
+function mark(){document.querySelectorAll(".tool[data-t]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===tool));document.querySelectorAll(".sw").forEach(b=>b.setAttribute("aria-pressed",b.dataset.c===color&&(tool==="pen"||tool==="hl")));if(cv)cv.style.pointerEvents=tool==="move"?"none":"auto"}
+function setTool(t){tool=t;mark()}
+const key=()=>"sbk:"+hash(pages[S.p].s+"|"+(pages[S.p].stem||pages[S.p].q));
+function gapEl(label){return el("div",{class:"gap",style:"height:"+(S.gap*1.6)+"em"},el("span",{},label||"مساحة الحل"))}
+function render(){const q=pages[S.p];LS.set("sbk:last:"+S.g+S.s+S.d,S.p);data=LS.get(key(),{s:[]});undo=[];
+ const bar=document.querySelector(".bar");if(bar)bar._sel.value=String(S.p);
+ const lb="فصل "+q.d+" · سؤال "+q._n+" · صفحة "+(S.p+1)+" من "+pages.length;["lbl","lbl2"].forEach(i=>{const e=$(i);if(e)e.textContent=lb});
+ pageEl.className="page";pageEl.style.setProperty("--fs",S.fs+"px");pageEl.replaceChildren();
+ pageEl.append(el("div",{class:"ph"},el("span",{},"🌸 سوسنة الكرك · "+SUB[q.s]+" · الصف "+(q.g===4?"الرابع":"الثامن")),el("span",{},el("span",{class:"tag"},q.d),el("span",{class:"tag"},q.c||""))));
+ pageEl.append(el("div",{class:"qt"},el("span",{class:"qn"},q._n+") "),q.parts?q.stem:q.q));
+ if(q.img)pageEl.append(el("img",{class:"qimg",src:q.img,alt:"شكل السؤال"}));
+ if(q.parts){q.parts.forEach(([pq,pa],j)=>{pageEl.append(el("div",{class:"part"},el("div",{class:"qt",style:"font-size:.9em"},el("span",{class:"qn"},LT[j]+") "),String(pq).replace(/^\s*[أبجده]+\s*[)\-.]\s*/,"")),gapEl("حل الفرع "+LT[j]),el("div",{class:"sol"},el("b",{},"الحل: "),pa)))})}
+ else{if(!q.open&&q.o){const long=q.o.some(x=>String(x).length>28);pageEl.append(el("div",{class:"opts"+(long?" one":"")},q.o.map((x,k)=>el("div",{class:"o"+(k===q.a?" right-k":"")},el("b",{},LT[k]+")"),el("span",{},x)))))}
+  pageEl.append(gapEl(),el("div",{class:"sol"},el("b",{},"الإجابة: "),q.open?(q.model||""):(LT[q.a]+") "+q.o[q.a]),q.why?el("div",{},q.why):""))}
+ if(q.src)pageEl.append(el("div",{class:"muted",style:"font-size:.45em;margin-top:.3em"},"المصدر: "+q.src));
+ cv=el("canvas",{class:"ink","aria-hidden":"true"});pageEl.append(cv);ctx=cv.getContext("2d");bindInk();mark();
+ const im=pageEl.querySelector("img");if(im&&!im.complete)im.addEventListener("load",fit,{once:true});requestAnimationFrame(fit)}
+/* ===== الحبر: الإحداثيات نسبةً إلى عرض الصفحة ===== */
+function fit(){if(!cv)return;const r=pageEl.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);cv.width=Math.round(r.width*dpr);cv.height=Math.round(pageEl.scrollHeight*dpr);cv.style.width=r.width+"px";cv.style.height=pageEl.scrollHeight+"px";ctx.setTransform(dpr,0,0,dpr,0,0);redraw()}
+const W=()=>pageEl.clientWidth||1;
+function sty(s){const k=W()/1000;if(s.t==="h"){ctx.globalAlpha=.3;ctx.lineWidth=s.w*5*k;ctx.lineCap="butt"}else{ctx.globalAlpha=1;ctx.lineWidth=Math.max(1.5,s.w*k*1.8);ctx.lineCap="round"}ctx.lineJoin="round";ctx.strokeStyle=s.c}
+function drawStroke(s){const w=W();ctx.save();sty(s);ctx.beginPath();s.p.forEach((p,i)=>{i?ctx.lineTo(p[0]*w,p[1]*w):ctx.moveTo(p[0]*w,p[1]*w)});if(s.p.length===1)ctx.lineTo(s.p[0][0]*w+.1,s.p[0][1]*w);ctx.stroke();ctx.restore()}
+function redraw(){if(!ctx)return;ctx.clearRect(0,0,cv.width,cv.height);data.s.forEach(drawStroke)}
+function save(){if(!LS.set(key(),data))alert("ذاكرة الجهاز ممتلئة. امسحي حلول صفحات قديمة.")}
+function bindInk(){let cur=null,raf=0,drawn=0;const pos=e=>{const r=cv.getBoundingClientRect(),w=W();return [(e.clientX-r.left)/w,(e.clientY-r.top)/w]};
+ const flush=()=>{raf=0;if(!cur||cur.erase)return;if(cur.t==="h"){redraw();return}const w=W();ctx.save();sty(cur);ctx.beginPath();const a=cur.p[Math.max(0,drawn-1)];ctx.moveTo(a[0]*w,a[1]*w);for(let i=drawn;i<cur.p.length;i++)ctx.lineTo(cur.p[i][0]*w,cur.p[i][1]*w);ctx.stroke();ctx.restore();drawn=cur.p.length};
+ cv.addEventListener("pointerdown",e=>{if(tool==="move")return;e.preventDefault();cv.setPointerCapture(e.pointerId);const p=pos(e);if(tool==="erase"){eraseAt(p);cur={erase:true};return}cur={t:tool==="hl"?"h":"p",c:color,w:size,p:[p]};data.s.push(cur);drawStroke(cur);drawn=1});
+ cv.addEventListener("pointermove",e=>{if(!cur)return;if(cur.erase){eraseAt(pos(e));return}const evs=(e.getCoalescedEvents&&e.getCoalescedEvents())||[e];(evs.length?evs:[e]).forEach(ev=>{const m=pos(ev),l=cur.p[cur.p.length-1];if(Math.abs(m[0]-l[0])+Math.abs(m[1]-l[1])<.0015)return;cur.p.push([+m[0].toFixed(4),+m[1].toFixed(4)])});if(!raf)raf=requestAnimationFrame(flush)});
+ const end=()=>{if(!cur)return;if(raf){cancelAnimationFrame(raf);flush()}if(!cur.erase)undo.push({add:cur});cur=null;save()};cv.addEventListener("pointerup",end);cv.addEventListener("pointercancel",end)}
+function eraseAt(p){const R=.014;let hit=false;const keep=[];data.s.forEach(s=>{if(s.p.some(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<R+(s.t==="h"?s.w*.0025:0))){hit=true;undo.push({del:s})}else keep.push(s)});if(hit){data.s=keep;redraw();save()}}
+function doUndo(){const u=undo.pop();if(!u)return;if(u.add)data.s=data.s.filter(s=>s!==u.add);if(u.del)data.s.push(u.del);redraw();save()}
+let wipeT=0;function wipe(){if(!data.s.length)return;if(Date.now()-wipeT>2500){wipeT=Date.now();const b=[...document.querySelectorAll(".tool")].find(x=>x.title==="مسح الصفحة");if(b){const o=b.lastChild.textContent;b.lastChild.textContent="اضغطي ثانية";setTimeout(()=>b.lastChild.textContent=o,2500)}return}wipeT=0;data={s:[]};save();redraw()}
+function full(){const on=!document.body.classList.contains("full");document.body.classList.toggle("full",on);try{if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();else if(!on&&document.fullscreenElement)document.exitFullscreen()}catch(e){}setTimeout(fit,250)}
+document.addEventListener("keydown",e=>{if(!pageEl||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.key==="ArrowLeft"||e.key==="PageDown")go(S.p+1);else if(e.key==="ArrowRight"||e.key==="PageUp")go(S.p-1)});
+addEventListener("resize",()=>fit());
+setup();
+</script></body></html>
