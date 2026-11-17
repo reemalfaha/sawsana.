@@ -25,6 +25,9 @@ body[data-mode="sup"] #app>.card:not([data-g="sup"]){display:none}body[data-mode
  .rp h1{color:#7A1F2E;font-size:22pt;border-bottom:3px solid #B8902A;padding-bottom:6px;margin:0 0 8px;text-align:center}.rp h2{color:#7A1F2E;font-size:16pt;margin:14px 0 4px}
  .rp table{width:100%;border-collapse:collapse;font-size:13pt}.rp th{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#7A1F2E;color:#fff;padding:4px 8px}.rp td{border:1px solid #bbb;padding:3px 8px;text-align:center}
  .rp .meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}.rp .sig{display:flex;justify-content:space-around;margin-top:40px}.rp .sig div{border-top:1px solid #444;padding-top:4px;min-width:150px;text-align:center}
+ .cardpg{padding:0}.cards{display:grid;grid-template-columns:1fr 1fr;gap:5mm}.cd{border:1.6px dashed #7A1F2E;border-radius:4mm;padding:3mm 4mm;height:62mm;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;font-size:12pt;line-height:1.45;break-inside:avoid}
+ .cd-top{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #B8902A;padding-bottom:1mm;color:#7A1F2E;font-size:12pt}.cd-top span{font-size:10pt;color:#444}.cd-body{display:flex;gap:3mm;align-items:center;flex:1}.cd-info{flex:1;min-width:0}
+ .cd-l{font-size:10.5pt;color:#555}.cd-name{font-size:14pt;font-weight:700;margin:0 0 1mm}.cd-code{font:700 22pt monospace;direction:ltr;text-align:right;letter-spacing:2px;color:#7A1F2E}.cd-qr{width:27mm;flex:none}.cd-qr svg{width:27mm;height:27mm}.cd-steps{font-size:9pt;color:#333;background:#f6ece6;border-radius:2mm;padding:1mm 2mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  .rp .foot{margin-top:24px;text-align:center;font-size:11pt;color:#7A1F2E;border-top:2px solid #B8902A;padding-top:6px}}
 footer{text-align:center;color:var(--mute);font-size:.82rem;padding:0 16px 24px}a{color:var(--wine)}
 </style></head><body>
@@ -68,6 +71,17 @@ function report(r){const d=document.createElement("div");d.className="rp";const 
   d.append(T(["التاريخ","النشاط","العلامة","النسبة"],r.at.slice().reverse().slice(0,25).map(a=>[fmt(a.ts),a.title,a.right+" / "+a.total,pc(a)+"%"])))}
  const sg=E("div","sig");sg.append(E("div","","المعلم/ة"),E("div","","مدير/ة المدرسة"));d.append(sg);
  d.append(E("div","foot","تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي"));return d}
+/* بطاقات دخول الطلبة: الاسم + الشعبة والرقم + رمز الدخول + باركود المنصّة (الباركود عامّ ولا يحوي الرمز) */
+async function printCards(list){if(!list.length){alert("لا يوجد طلبة في هذه الشعبة.");return}
+ if(!window.qrcode)await new Promise((ok,no)=>{const x=document.createElement("script");x.src="qrcode.js";x.onload=ok;x.onerror=no;document.head.append(x)});
+ const URL0="https://sawsana.reemalfahad-an.workers.dev/";const q=qrcode(0,"M");q.addData(URL0);q.make();const svg=q.createSvgTag({cellSize:3,margin:1,scalable:true});
+ const sc=SCH(),pages=[];const sorted=list.slice().sort((a,b)=>String(a.s.sec).localeCompare(String(b.s.sec),"ar")||a.s.no-b.s.no);
+ for(let i=0;i<sorted.length;i+=8){const pg=E("div","rp cardpg");const g=E("div","cards");sorted.slice(i,i+8).forEach(({s,nm})=>{const c=E("div","cd");
+   const top=E("div","cd-top");top.append(E("b","","🌸 سوسنة الكرك"),E("span","",sc.school||""));c.append(top);
+   const body=E("div","cd-body"),info=E("div","cd-info");info.append(E("div","cd-l","اسم الطالب/ة:"),E("div","cd-name",nm||"........................................"),E("div","cd-l","الشعبة والرقم: "+s.sec+"-"+s.no),E("div","cd-l","رمز الدخول:"),E("div","cd-code",s.code));
+   const qr=E("div","cd-qr");qr.innerHTML=svg;body.append(info,qr);c.append(body,E("div","cd-steps","١) امسح الباركود  ٢) «إنجازي»  ٣) اكتب رمزك ثم «ربط». لا تُعطِ رمزك لأحد."));g.append(c)});
+   pg.append(g);pages.push(pg)}
+ $("prt").replaceChildren(...pages);setTimeout(()=>window.print(),200)}
 function printRep(list){const p=$("prt");p.replaceChildren(...list.map(report));setTimeout(()=>window.print(),150)}
 function loginView(){app.replaceChildren();const c=E("div","card");c.append(E("h2","",location.hash==="#sup"?"دخول المشرف/ة":"دخول المعلم/ة"));if(location.hash==="#sup")c.append(E("p","muted","حساب المشرف/ة حساب عادي يُنشأ برمز الدعوة نفسه. بعد الدخول تفتح صفحة المشرف/ة مباشرة."));
  const u=E("input");u.placeholder="اسم المستخدم";const p=E("input");p.type="password";p.placeholder="كلمة السر";const inv=E("input");inv.placeholder="رمز الدعوة (للتسجيل أول مرة)";const sc=E("input");sc.placeholder="اسم المدرسة (للتسجيل)";const sj=E("select");[["","مادتي (للتسجيل)"],["math","معلمة رياضيات"],["sci","معلمة علوم"]].forEach(([v,t])=>sj.append(new Option(t,v)));const msg=E("p","err","");
@@ -263,7 +277,7 @@ async function draw(){const d=$("dash");d.replaceChildren();d.append(E("h3","","
  const sc=SCH(),si=E("input");si.placeholder="اسم المدرسة (للطباعة)";si.value=sc.school||"";const ti=E("input");ti.placeholder="اسم المعلمة (للطباعة)";ti.value=sc.teacher||"";
  const sv=()=>{try{localStorage.setItem("sw.sch",JSON.stringify({school:si.value,teacher:ti.value}))}catch(e){}};si.oninput=ti.oninput=sv;
  const rows=[];
- d.append(si,ti,E("br"),sel,btn("🖨 طباعة تقارير الشعبة",()=>printRep(rows)),btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt"));
+ d.append(si,ti,E("br"),sel,btn("🪪 طباعة بطاقات دخول الطلبة",()=>printCards(rows)),btn("🖨 طباعة تقارير الشعبة",()=>printRep(rows)),btn("تسجيل خروج",()=>{TOK=null;try{sessionStorage.clear()}catch(e){}loginView()},"alt"));
  if(!DATA.students.length){d.append(E("p","muted","لا توجد طلبة بعد."));return} 
  const srcs=[...new Set(DATA.students.filter(x=>x.src).map(x=>x.src))];
  for(const src of srcs){const o=E("div","st");o.append(E("b","","أسماء شعبة مشتركة من "+src));const pi=E("input");pi.type="password";pi.placeholder="كلمة سر أسماء "+src;const om=E("span","muted",SK[src]?" مفتوحة ✔":"");o.append(pi,btn("فتح",async()=>{if(pi.value.length<4)return;SK[src]=await nkeyFor(pi.value,src);await draw()}),om);d.append(o)}
