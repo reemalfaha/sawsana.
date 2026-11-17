@@ -133,6 +133,19 @@ async function main(){app.replaceChildren();
  sp.append(pu,btn("مشاركة التقرير",async()=>{if(!pu.value.trim()){pm.textContent="اكتب/ي اسم المستخدم.";return}try{await api("/api/supervisor/share",{username:pu.value});pm.textContent="تمت المشاركة مع "+pu.value.trim()+".";pu.value="";shares()}catch(e){pm.textContent=e.message}}),pm,pl);app.append(sp);shares();
  const ib=E("div","card");ib.id="inbox";ib.hidden=true;app.append(ib);
  const sv=E("div","card");sv.id="sup";sv.dataset.g="sup";sv.hidden=true;app.append(sv);supCard().then(msgs);
+ const rn=E("details","card");rn.id="rename";rn.append(E("summary","","⚙ تغيير اسم المستخدم (مع الحفاظ على كل الطلبة والنتائج)"));
+ {const nu=E("input");nu.placeholder="اسم المستخدم الجديد";const pw1=E("input");pw1.type="password";pw1.placeholder="كلمة سر الحساب";const pw2=E("input");pw2.type="password";pw2.placeholder="كلمة سر الأسماء";const rm=E("p","muted","");
+  rn.append(E("p","muted","اسم المستخدم الحالي: "+USER+". رموز الطلبة ونتائجهم والشعب المشتركة تبقى كما هي، وتُعاد تشفير الأسماء بالاسم الجديد على هذا الجهاز. تحتاج/ين كلمة سر الحساب وكلمة سر الأسماء."),nu,pw1,pw2,btn("تغيير الاسم",async()=>{
+   const NU=nu.value.trim().toLowerCase();if(NU.length<3){rm.textContent="اسم المستخدم الجديد قصير.";return}if(NU===USER){rm.textContent="هذا هو اسمك الحالي.";return}if(!pw1.value||!pw2.value){rm.textContent="اكتب/ي كلمة سر الحساب وكلمة سر الأسماء.";return}
+   rm.textContent="جارٍ إعادة تشفير الأسماء…";try{await load()}catch(e){}
+   const kd=async(pass,user)=>{const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt:new TextEncoder().encode("sawsana-names|"+user),iterations:150000,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])};
+   const oldK=await kd(pw2.value,USER),newK=await kd(pw2.value,NU);
+   const dec=async v=>{const [i,c]=v.split(".");return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb(i)},oldK,unb(c)))};
+   const enc=async n=>{const iv=crypto.getRandomValues(new Uint8Array(12));const c=await crypto.subtle.encrypt({name:"AES-GCM",iv},newK,new TextEncoder().encode(n));return b64(iv)+"."+b64(new Uint8Array(c))};
+   const S={},L={};try{for(const x of DATA.students){if(x.src)continue;const nm=await dec(x.enc_name);(x.linked?L:S)[x.id]=await enc(nm)}}catch(e){rm.textContent="كلمة سر الأسماء غير صحيحة. لم يتغيّر شيء.";return}
+   try{const r=await api("/api/teacher/rename",{username:NU,password:pw1.value,students:S,links:L});USER=r.username;try{sessionStorage.setItem("sw.user",USER)}catch(e){}NK=newK;
+    rm.textContent="تم ✔ اسم المستخدم الجديد: "+USER+". ادخل/ي به من الآن، وكلمة السر نفسها.";pw1.value=pw2.value="";await load()}catch(e){rm.textContent=e.message+" — لم يتغيّر شيء."}}),rm)}
+ app.append(rn);
  const tl=E("div","card");tl.id="tools";const sj=()=>SUBJ==="sci"||SUBJ==="math"?SUBJ:"";tl.append(E("h3","","🧰 أدوات المعلم/ة: نماذج واختبارات"),E("p","muted","كل أدوات المنصّة للرياضيات والعلوم في مكان واحد. تُفتح على مادتك تلقائيًا."));
  const tg=E("div","row");tg.style.cssText="display:flex;gap:8px;flex-wrap:wrap";[["📚 بنك الأسئلة ونماذج الاختبارات (اطبع/ي أو ولّد/ي نموذجًا حسب إطار تيمس)",()=>"bank.html?s="+sj()+"&g=8"],["📚 نفس البنك للصف الرابع",()=>"bank.html?s="+sj()+"&g=4"],["🖥 وضع السبورة للحصة",()=>"board.html"],["📋 الخطة العلاجية الصفية",()=>"remedial.html"],["🔳 بطاقات QR للطلبة",()=>"cards.html"]].forEach(([t,u])=>{const a=document.createElement("a");a.textContent=t;a.className="btn alt";a.style.cssText="display:inline-block;text-decoration:none;border:1.5px solid #7A1F2E;color:#7A1F2E;border-radius:12px;padding:8px 12px";a.onclick=()=>{a.href=u()};a.href=u();a.target="_blank";a.rel="noopener";tg.append(a)});tl.append(tg);app.append(tl);
  const d=E("div","card");d.id="dash";app.append(d);const pf=E("div","card");pf.id="pf";pf.hidden=true;app.append(pf);await load();pfCard()}
