@@ -20,3 +20,6 @@ window.SW_lrm=function(n,w){const ks=Object.keys(w),tot=ks.reduce((a,k)=>a+w[k],
  const raw=ks.map(k=>({k,v:n*w[k]/tot}));raw.forEach(r=>{r.f=Math.floor(r.v);r.r=r.v-r.f});
  let left=n-raw.reduce((a,r)=>a+r.f,0);raw.sort((a,b)=>b.r-a.r);for(let i=0;i<left;i++)raw[i].f++;
  const o={};raw.forEach(r=>o[r.k]=r.f);return o};
+
+/* في تيمس للصف الرابع لا يوجد مجال «كيمياء» مستقل: موضوعاتها ضمن «العلوم الفيزيائية». */
+(window.SW_Q||[]).forEach(q=>{if(q.s==="sci"&&q.g==4&&q.d==="الكيمياء")q.d="الفيزياء"});

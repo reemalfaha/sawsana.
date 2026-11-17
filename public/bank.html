@@ -119,5 +119,6 @@ $("all").onclick=()=>{pool().forEach(q=>sel.add(q.i));render()};$("none").onclic
 $("pw").onclick=()=>printSheet(false);$("pk").onclick=()=>printSheet(true);$("lk").onclick=link;
 $("cp").onclick=()=>{const t=$("lkv");t.select();try{navigator.clipboard.writeText(t.value)}catch(e){document.execCommand("copy")}$("cp").textContent="تم النسخ ✔"};
 try{$("sc").value=localStorage.getItem("sw.sch")||""}catch(e){}$("sc").onchange=()=>{try{localStorage.setItem("sw.sch",$("sc").value)}catch(e){}};
+{const u=new URLSearchParams(location.search);if(/^(4|8)$/.test(u.get("g")||""))$("g").value=u.get("g");if(/^(math|sci)$/.test(u.get("s")||""))$("s").value=u.get("s")}
 fillDomains();render();
 </script></body></html>
