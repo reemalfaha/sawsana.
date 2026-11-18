@@ -96,14 +96,14 @@ export default{async fetch(req,env){
   if(p==="/api/students/unshare"&&m==="POST"){
    const un=clip(body.username,40).trim().toLowerCase(),sec=clip(body.sec,10).trim();
    const to=await db.prepare("SELECT id FROM teachers WHERE username=?").bind(un).first();if(!to)return err("لا يوجد معلم بهذا الاسم",404);
-   const r=await db.prepare("DELETE FROM student_links WHERE teacher_id=? AND student_id IN (SELECT id FROM students WHERE teacher_id=? AND sec=?)").bind(to.id,tid,sec).run();
+   const r=await db.prepare("DELETE FROM student_links WHERE teacher_id=? AND student_id IN (SELECT id FROM students WHERE teacher_id=? AND REPLACE(sec,' ','')=REPLACE(?,' ',''))").bind(to.id,tid,sec).run();
    return json({removed:r.meta.changes||0})}
   if(p==="/api/students/share"&&m==="POST"){
    const un=clip(body.username,40).trim().toLowerCase(),sec=clip(body.sec,10).trim();
    const to=await db.prepare("SELECT id FROM teachers WHERE username=?").bind(un).first();
-   if(!to)return err("لا يوجد معلم بهذا الاسم",404);if(to.id===tid)return err("هذا حسابك",400);
+   if(!to)return err("لا يوجد حساب بهذا الاسم. اكتب/ي «اسم المستخدم» الذي سجّل به المعلم/ة، لا اسمه الكامل",404);if(to.id===tid)return err("هذا حسابك",400);
    const me=await db.prepare("SELECT username FROM teachers WHERE id=?").bind(tid).first();
-   const rows=(await db.prepare("SELECT id,enc_name,sec,no FROM students WHERE teacher_id=? AND sec=?").bind(tid,sec).all()).results;
+   const rows=(await db.prepare("SELECT id,enc_name,sec,no FROM students WHERE teacher_id=? AND REPLACE(sec,' ','')=REPLACE(?,' ','')").bind(tid,sec).all()).results;
    if(!rows.length)return err("لا توجد شعبة بهذا الاسم في قائمتك",404);
    await db.batch(rows.map(r=>db.prepare("INSERT OR IGNORE INTO student_links(student_id,teacher_id,enc_name,sec,no,created,src) VALUES(?,?,?,?,?,?,?)").bind(r.id,to.id,r.enc_name,r.sec,r.no,Date.now(),me.username)));
    return json({shared:rows.length})}
