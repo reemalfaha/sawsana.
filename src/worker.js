@@ -90,6 +90,14 @@ export default{async fetch(req,env){
    for(const s of arr){let code,ok=false;for(let i=0;i<5&&!ok;i++){code=mkcode();try{await db.prepare("INSERT INTO students(teacher_id,code,enc_name,sec,no,created) VALUES(?,?,?,?,?,?)").bind(tid,code,clip(s.encName,500),clip(s.sec,10),parseInt(s.no)||0,Date.now()).run();ok=true}catch(e){}}
     if(ok)out.push({code,sec:clip(s.sec,10),no:parseInt(s.no)||0})}
    return json({created:out})}
+  if(p==="/api/students/shares"&&m==="POST"){
+   const rows=(await db.prepare("SELECT t.username AS username,t.subject AS subject,l.sec AS sec,COUNT(*) AS n FROM student_links l JOIN teachers t ON t.id=l.teacher_id JOIN students s ON s.id=l.student_id WHERE s.teacher_id=? GROUP BY t.username,t.subject,l.sec").bind(tid).all()).results;
+   return json({shares:rows})}
+  if(p==="/api/students/unshare"&&m==="POST"){
+   const un=clip(body.username,40).trim().toLowerCase(),sec=clip(body.sec,10).trim();
+   const to=await db.prepare("SELECT id FROM teachers WHERE username=?").bind(un).first();if(!to)return err("لا يوجد معلم بهذا الاسم",404);
+   const r=await db.prepare("DELETE FROM student_links WHERE teacher_id=? AND student_id IN (SELECT id FROM students WHERE teacher_id=? AND sec=?)").bind(to.id,tid,sec).run();
+   return json({removed:r.meta.changes||0})}
   if(p==="/api/students/share"&&m==="POST"){
    const un=clip(body.username,40).trim().toLowerCase(),sec=clip(body.sec,10).trim();
    const to=await db.prepare("SELECT id FROM teachers WHERE username=?").bind(un).first();
