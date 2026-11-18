@@ -90,6 +90,13 @@ export default{async fetch(req,env){
    for(const s of arr){let code,ok=false;for(let i=0;i<5&&!ok;i++){code=mkcode();try{await db.prepare("INSERT INTO students(teacher_id,code,enc_name,sec,no,created) VALUES(?,?,?,?,?,?)").bind(tid,code,clip(s.encName,500),clip(s.sec,10),parseInt(s.no)||0,Date.now()).run();ok=true}catch(e){}}
     if(ok)out.push({code,sec:clip(s.sec,10),no:parseInt(s.no)||0})}
    return json({created:out})}
+  if(p==="/api/students/move"&&m==="POST"){
+   const mv=Array.isArray(body.moves)?body.moves.slice(0,600):[];const cnt={};const st=[];let bad=[];
+   for(const x of mv){const code=clip(x.code,12).trim(),sec=clip(x.sec,10).replace(/\s+/g,"");if(!code||!sec){bad.push(code);continue}cnt[sec]=(cnt[sec]||0)+1;const no=cnt[sec];
+    st.push(db.prepare("UPDATE students SET sec=?,no=? WHERE teacher_id=? AND code=?").bind(sec,no,tid,code));
+    st.push(db.prepare("UPDATE student_links SET sec=?,no=? WHERE student_id=(SELECT id FROM students WHERE teacher_id=? AND code=?)").bind(sec,no,tid,code))}
+   let moved=0;if(st.length){const rs=await db.batch(st);for(let i=0;i<rs.length;i+=2)moved+=(rs[i].meta.changes||0)}
+   return json({moved,sent:mv.length})}
   if(p==="/api/students/shares"&&m==="POST"){
    const rows=(await db.prepare("SELECT t.username AS username,t.subject AS subject,l.sec AS sec,COUNT(*) AS n FROM student_links l JOIN teachers t ON t.id=l.teacher_id JOIN students s ON s.id=l.student_id WHERE s.teacher_id=? GROUP BY t.username,t.subject,l.sec").bind(tid).all()).results;
    return json({shares:rows})}
