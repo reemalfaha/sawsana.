@@ -77,6 +77,7 @@ nav.crumb{font-size:.9rem;color:var(--mute)}nav.crumb a{color:var(--g);cursor:po
 <span class="school" id="school" hidden></span></div></header>
 <main id="app"></main>
 <footer><div class="wrap"><span><b>سوسنة الكرك</b> · مساحة للتعلّم. تدريب مجاني، ونتائجك محفوظة على جهازك فقط. الأسئلة أصلية، عدا أسئلة تيمس 2011 المنشورة (© IEA) وقد كُتب مصدرها تحت السؤال.</span><span>تصميمُ المنصّة وتنفيذُها: نوال بني عطية · بإشراف الدكتور إياد بني دومي · <a href="about.html">تعرّف على الاختبارات الدولية</a> · <a href="framework.html">مطابقة الإطار</a> · <a href="teacher.html">للمعلمين والمعلمات: تقرير الصف</a> · <a href="accounts.html#sup">للمشرف/ة</a> · <a href="board.html">وضع السبورة</a> · <a href="book.html">📖 كتاب الأسئلة على السبورة</a></span></div></footer>
+<script src="fx.js"></script>
 <script src="data.js"></script>
 <script src="data-sci.js"></script>
 <script src="data-timss8.js"></script><script src="data-qushi.js"></script>
@@ -117,7 +118,8 @@ function home(){clear();setTab("h");
  const arch=el("div",{class:"arch"});arch.innerHTML='<img src="iris.jpg" alt="زهرة السوسن الأسود"><div class="cap"><b>السوسن الأسود</b><span>زهرة الأردن الوطنية، تُزهر في هدوء وتنمو بالتدريب</span></div>';
  const hero=el("section",{class:"hero"},el("div",{},el("div",{class:"eyebrow"},"مساحة تدريب لطلبة الأردن"),el("h1",{},"كل سؤال جديد،",el("em",{},"خطوة أقرب.")),
   el("p",{},"تمارين قصيرة تساعدك على الاستعداد لاختبارات تيمس في الرياضيات والعلوم للصفين الرابع والثامن، أينما كنت. ابدأ بتشخيص سريع ليظهر لك أين تحتاج تدريبًا أكثر."),
-  el("div",{class:"row"},el("button",{onclick:train},"ابدأ تدريبًا قصيرًا  ←"),el("button",{class:"alt",onclick:report},"شاهد إنجازك"))),arch);
+  el("div",{class:"row"},el("button",{class:"shimmer",onclick:train},"ابدأ تدريبًا قصيرًا  ←"),el("button",{class:"alt",onclick:report},"شاهد إنجازك"))),arch);
+ if(window.FX){const txt=hero.firstChild;hero.style.cssText+=";--fx2:rgba(62,27,71,.28)";FX.bubbles(hero,14);const lg=document.createElement("span");lg.innerHTML='<svg viewBox="0 0 64 64" width="34" height="34"><path d="M32 6c5 9 5 17 0 25-5-8-5-16 0-25zM8 26c10 0 17 4 22 12-10 0-17-4-22-12zM56 26c-10 0-17 4-22 12 10 0 17-4 22-12zM32 58c-6-5-6-12 0-20 6 8 6 15 0 20z" fill="#D9B8E6"/></svg>';const ob=FX.orbit(txt,lg,["➗","🔬","📐","🧪","🌍","⚛️"]);ob.style.cssText="--fx1:#3E1B47;--fx2:rgba(62,27,71,.35);--os:112px;margin:0 0 6px"}
  const gc=(n,d)=>{const t=Q.filter(q=>q.t==="timss"&&q.g===n&&!q.dup).length;return el("div",{class:"track",onclick:()=>{db.sel={t:"timss",g:n};save();gradeView(n)}},el("span",{class:"badge on"},"متاح"),el("small",{},"تيمس / الصف "+AR(n)),el("h3",{},"الصف "+GN[n-1]),el("p",{},d+" · "+t+" سؤالًا"))};
  const tracks=el("section",{class:"sec"},el("div",{class:"eyebrow"},"اختر صفك"),el("h2",{},"تيمس: الرابع والثامن"),el("p",{},"اختر الصف، ثم المادة التي تريد التدريب عليها."),
   el("div",{class:"tracks"},gc(4,"رياضيات وعلوم"),gc(8,"رياضيات وعلوم")));
@@ -263,6 +265,7 @@ function run(list,title,o){clear();setTab("t");let n=0;const ans=[];
  function finish(){if(timer){clearInterval(timer);timer=null}
   ans.forEach(x=>{if(x){db.h[x.q.i]={ok:x.k===x.q.a};if(!o.feedback)logA(x.k===x.q.a)}});if(!db.days.includes(today()))db.days.push(today());save();
   const right=ans.filter(x=>x&&x.k===x.q.a).length;pushAttempt(title,list,ans,o,right);if(o.onDone)o.onDone(right,list.length);
+  if(window.FX&&list.length&&right/list.length>=.8)setTimeout(()=>FX.confetti({colors:["#3E1B47","#D9B8E6","#5E7B2F","#EADFEE","#B8902A"]}),300);
   clear();app.append(crumb(title),el("div",{class:"card"},el("div",{class:"eyebrow"},"النتيجة"),el("h2",{},right+" من "+list.length),el("p",{}),el("div",{class:"bar"},el("i",{style:"width:"+(right/list.length*100)+"%"}))));
   const rev=el("div",{class:"card"},el("h3",{},"مراجعة الأسئلة"));
   list.forEach((q,i)=>{const a=ans[i];const ok=a&&a.k===q.a;rev.append(el("div",{class:"exp",style:"margin:8px 0"},el("b",{},(ok?"✔ ":"✘ ")+q.q),el("br"),"الصحيح: "+(q.open?q.model:q.o[q.a]+". "+q.why)+" "))});
